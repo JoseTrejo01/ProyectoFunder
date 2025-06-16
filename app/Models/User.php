@@ -75,4 +75,19 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Rol::class, 'Id_Rol', 'Id_Rol');
     }
+    
+    public function tienePermiso($nombreObjeto, $permiso)
+    {
+        $rol = $this->rol;
+        if (!$rol) return false;
+
+        $permisoColumna = 'Permiso_' . ucfirst(strtolower($permiso)); // Ej: Permiso_Consultar
+
+        return $rol->permisos()
+            ->whereHas('objeto', function($q) use ($nombreObjeto) {
+                $q->where('Objeto', $nombreObjeto);
+            })
+            ->where($permisoColumna, 1)
+            ->exists();
+    }
 }

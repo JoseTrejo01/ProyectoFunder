@@ -65,7 +65,8 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         //Registrar en la bitacora
-        EVENT_BITACORA(5, 'Ingreso', 'El usuario ' . strtoupper($user->Usuario) . ' ha iniciado sesión.');
+        
+        EVENT_BITACORA($user->Id_Usuario, 5, 'Ingreso', 'El usuario ' . strtoupper($user->Usuario) . ' ha iniciado sesión.');
 
         // Redirigir dependiendo del rol
         return $this->redirectToDashboard($user);
@@ -96,7 +97,8 @@ public function logout(Request $request)
 {
 
     // Registrar en la bitácora
-    EVENT_BITACORA(5, 'Salida', 'El usuario ' . Auth::user()->Usuario . ' ha cerrado sesión.');
+   
+    EVENT_BITACORA(Auth::user()->Id_Usuario, 5, 'Salida', 'El usuario ' . Auth::user()->Usuario . ' ha cerrado sesión.');
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();

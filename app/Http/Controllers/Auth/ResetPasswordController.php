@@ -60,8 +60,16 @@ class ResetPasswordController extends Controller
                         'Id_Usuario' => $user->Id_Usuario,
                         'Contraseña' => Hash::make($password),
                         'Fecha_Creacion' => now(),
-                        'Creado_Por' => 'system', // O el usuario que está realizando la acción
+                        'Creado_Por' => 'system',
                     ]);
+
+                    // Registrar en bitácora
+                    EVENT_BITACORA(
+                        $user->Id_Usuario,
+                        1, // Cambia por el Id_Objeto correspondiente a "Usuarios" o "Seguridad"
+                        'Upadate',
+                        'El usuario reseteó su contraseña.'
+                    );
 
                     // Llamar a la función para actualizar la nueva contraseña
                     $this->resetPassword($user, $password);

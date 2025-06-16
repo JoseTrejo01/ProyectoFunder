@@ -23,4 +23,14 @@ class Bitacora extends Model
         'Accion',
         'Descripcion'
     ];
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'Id_Usuario', 'Id_Usuario');
+    }
+
+    public function objeto()
+    {
+        return $this->belongsTo(Objeto::class, 'Id_Objeto', 'Id_Objeto');
+    }
 }

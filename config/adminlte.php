@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Title
@@ -315,83 +314,63 @@ return [
             'type' => 'sidebar-menu-search',
             'text' => 'search',
         ],
+   
+       
+        // --- Menú personalizado ---
         [
-            'text' => 'blog',
-            'url' => 'admin/blog',
-            'can' => 'manage-blog',
-        ],
-        [
-            'text' => 'pages',
-            'url' => 'admin/pages',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
-        ],
-        ['header' => 'account_settings'],
-        [
-            'text' => 'profile',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
-        ],
-        [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
-        ],
-        [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
+            'text' => 'Administración',
+            'icon' => 'fas fa-cogs',
             'submenu' => [
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Parámetros',
+                    'url' => 'admin/parametros',
+                    'icon' => 'fas fa-sliders-h',
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Respaldo de Base de Datos',
+                    'url' => 'admin/respaldo',
+                    'icon' => 'fas fa-database',
                 ],
             ],
         ],
-        ['header' => 'labels'],
         [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
+            'text' => 'Seguridad',
+            'icon' => 'fas fa-shield-alt',
+            'submenu' => [
+                [
+                    'text' => 'Usuarios',
+                    'url' => 'admin/usuarios',
+                    'icon' => 'fas fa-users',
+                ],
+                [
+                    'text' => 'Roles y Permisos',
+                    'url' => '/asignar-permisos',
+                    'icon' => 'fas fa-user-shield',
+                ],
+                [
+                    'text' => 'Bitácora',
+                    'url' => 'ver-bitacora',
+                    'icon' => 'fas fa-book',
+                ],
+            ],
         ],
         [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
+            'text' => 'Mantenimiento',
+            'icon' => 'fas fa-tools',
+            'submenu' => [
+                [
+                    'text' => 'Roles',
+                    'url' => 'admin/roles',
+                    'icon' => 'fas fa-user-tag',
+                ],
+                [
+                    'text' => 'Objetos',
+                    'url' => 'admin/objetos',
+                    'icon' => 'fas fa-cube',
+                ],
+            ],
         ],
-        [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
-        ],
+
     ],
 
     /*

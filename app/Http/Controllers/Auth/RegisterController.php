@@ -60,7 +60,7 @@ class RegisterController extends Controller
              'Nombre_Usuario' => strtoupper($data['Nombre_Usuario']), // Convertir a mayúsculas
             'Correo_Electronico' => $data['Correo_Electronico'],
             'Contraseña' => Hash::make($data['Contraseña']),
-            'Estado_Usuario' => 'ACTIVO',
+            'Estado_Usuario' => 'INACTIVO',
             'Primer_Ingreso' => 1,
             'Fecha_Creacion' => $fechaCreacion,
             'Fecha_Vencimiento' => $fechaVencimiento, // Añadir la fecha de vencimiento
