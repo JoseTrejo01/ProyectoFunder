@@ -29,7 +29,12 @@ class BitacoraController extends Controller
             $query->where('Fecha', '>=', $request->fecha_desde);
         }
         if ($request->filled('fecha_hasta')) {
-            $query->where('Fecha', '<=', $request->fecha_hasta);
+            // Si la fecha_hasta no tiene hora, agregar 23:59:59 para incluir todo el día
+            $fechaHasta = $request->fecha_hasta;
+            if (strlen($fechaHasta) === 10) { // formato YYYY-MM-DD
+                $fechaHasta .= ' 23:59:59';
+            }
+            $query->where('Fecha', '<=', $fechaHasta);
         }
         $registros = $query->orderBy('Fecha', 'desc')->get();
         return view('admin.ver_bitacora', compact('registros'));
@@ -55,7 +60,12 @@ class BitacoraController extends Controller
             $query->where('Fecha', '>=', $request->fecha_desde);
         }
         if ($request->filled('fecha_hasta')) {
-            $query->where('Fecha', '<=', $request->fecha_hasta);
+            // Si la fecha_hasta no tiene hora, agregar 23:59:59 para incluir todo el día
+            $fechaHasta = $request->fecha_hasta;
+            if (strlen($fechaHasta) === 10) { // formato YYYY-MM-DD
+                $fechaHasta .= ' 23:59:59';
+            }
+            $query->where('Fecha', '<=', $fechaHasta);
         }
         $deleted = $query->delete();
         return back()->with('success', 'Registros eliminados: ' . $deleted);

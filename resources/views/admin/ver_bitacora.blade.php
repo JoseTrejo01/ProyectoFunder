@@ -6,38 +6,28 @@
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-    <form method="GET" class="mb-3">
-        <div class="row">
-            <div class="col-md-2">
-                <input type="text" name="usuario" class="form-control" placeholder="Usuario" value="{{ request('usuario') }}">
-            </div>
-            <div class="col-md-2">
-                <input type="text" name="objeto" class="form-control" placeholder="Objeto" value="{{ request('objeto') }}">
-            </div>
-            <div class="col-md-2">
-                <input type="text" name="accion" class="form-control" placeholder="Acción" value="{{ request('accion') }}">
-            </div>
-            <div class="col-md-2">
+    <div class="row mb-3">
+        <form method="GET" class="col-md-10 d-flex gap-2 align-items-end">
+            <div class="col">
                 <input type="date" name="fecha_desde" class="form-control" value="{{ request('fecha_desde') }}">
             </div>
-            <div class="col-md-2">
+            <div class="col">
                 <input type="date" name="fecha_hasta" class="form-control" value="{{ request('fecha_hasta') }}">
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary">Filtrar</button>
+            <div>
+                <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
             </div>
+        </form>
+        <div class="col-md-2 d-flex align-items-end">
+            <form method="POST" action="{{ route('bitacora.borrar') }}" onsubmit="return confirm('¿Seguro que deseas borrar los registros filtrados?');" class="w-100">
+                @csrf
+                <input type="hidden" name="fecha_desde" value="{{ request('fecha_desde') }}">
+                <input type="hidden" name="fecha_hasta" value="{{ request('fecha_hasta') }}">
+                <button type="submit" class="btn btn-danger btn-sm w-100">Borrar registros filtrados</button>
+            </form>
         </div>
-    </form>
-    <form method="POST" action="{{ route('bitacora.borrar') }}" onsubmit="return confirm('¿Seguro que deseas borrar los registros filtrados?');">
-        @csrf
-        <input type="hidden" name="usuario" value="{{ request('usuario') }}">
-        <input type="hidden" name="objeto" value="{{ request('objeto') }}">
-        <input type="hidden" name="accion" value="{{ request('accion') }}">
-        <input type="hidden" name="fecha_desde" value="{{ request('fecha_desde') }}">
-        <input type="hidden" name="fecha_hasta" value="{{ request('fecha_hasta') }}">
-        <button type="submit" class="btn btn-danger mb-3">Borrar registros filtrados</button>
-    </form>
-    <table class="table table-bordered">
+    </div>
+    <table id="tabla-bitacora" class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Fecha</th>
@@ -64,4 +54,22 @@
         </tbody>
     </table>
 </div>
+@endsection
+
+@section('css')
+    {{-- Si quieres agregar estilos personalizados, hazlo aquí --}}
+@endsection
+
+@section('js')
+<script>
+$(document).ready(function() {
+    $('#tabla-bitacora').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+        },
+        order: [[0, 'desc']],
+        searching: false // Desactiva el buscador
+    });
+});
+</script>
 @endsection

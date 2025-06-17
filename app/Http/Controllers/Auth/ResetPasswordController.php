@@ -10,15 +10,11 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\PasswordHistory;
-use Illuminate\Support\Facades\Log;
-
-   
 
 class ResetPasswordController extends Controller
 {
-    /**
-     * Mostrar el formulario de reset de contraseña
-     */
+    //Funcion que muestra el formulario de reset de contraseña
+
     public function showResetForm(Request $request, $token = null)
     {
         return view('Auth.passwords.reset')->with([
@@ -27,9 +23,7 @@ class ResetPasswordController extends Controller
         ]);
     }
 
-    /**
-     * Procesar el reset de contraseña
-     */
+    //Funcion para procesar el reset de la contraseña
     public function reset(Request $request)
     {
         // Validación
@@ -63,69 +57,47 @@ class ResetPasswordController extends Controller
                         'Creado_Por' => 'system',
                     ]);
 
-                    // Registrar en bitácora
+                    // Registrar en bitácora cuando el usuario cambia contraseña
                     EVENT_BITACORA(
                         $user->Id_Usuario,
-                        1, // Cambia por el Id_Objeto correspondiente a "Usuarios" o "Seguridad"
+                        1, 
                         'Upadate',
                         'El usuario reseteó su contraseña.'
                     );
 
-                    // Llamar a la función para actualizar la nueva contraseña
+                    //Aqui llamamos a la función para actualizar la nueva contraseña
                     $this->resetPassword($user, $password);
                 }
             );
 
             if ($response == Password::PASSWORD_RESET) {
-                Log::info('Contraseña reseteada exitosamente', [
-                    'email' => $request->Correo_Electronico
-                ]);
-
                 return redirect()->route('login')->with('status', 'Tu contraseña ha sido restablecida exitosamente.');
             } else {
-                Log::warning('Error al resetear contraseña', [
-                    'email' => $request->Correo_Electronico,
-                    'response' => $response
-                ]);
-
                 return back()->withInput($request->only('Correo_Electronico'))
                     ->withErrors(['Correo_Electronico' => $this->getErrorMessage($response)]);
             }
 
         } catch (\Exception $e) {
-            Log::error('Excepción al resetear contraseña', [
-                'Correo_Electronico' => $request->Correo_Electronico,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return back()->withInput($request->only('Correo_Electronico'))
                 ->withErrors(['Correo_Electronico' => 'Error interno. Intenta nuevamente.']);
         }
     }
 
-    /**
-     * Resetear la contraseña del usuario
-     */
+    //Esta funcion actualiza en la tabla usuario la contraseña
     protected function resetPassword($user, $password)
     {
-        // Actualizar la contraseña en tu tabla personalizada
+        
         $user->update([
             'Contraseña' => Hash::make($password),
-            'Primer_Ingreso' => 0, // Opcional: marcar que ya no es primer ingreso
+            'Primer_Ingreso' => 0,
             'Modificado_Por' => 'SISTEMA',
             'Fecha_Modificacion' => now(),
         ]);
-
-        Log::info('Contraseña actualizada en BD', [
-            'usuario' => $user->Usuario,
-            'id_usuario' => $user->Id_Usuario
-        ]);
     }
 
-     /**
-     * Obtener mensaje de error personalizado
-     */
+   
+     // Aqui es para Obtener mensaje de error personalizado
+  
     protected function getErrorMessage($response)
     {
         switch ($response) {

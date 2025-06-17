@@ -8,6 +8,8 @@ use App\Models\Rol;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 
+
+//CONTROLADOR PARA QUE EL ADMIN CREE UN NUEVO USUARIO, ACTULICE O ELIMINE UN USUARIO
 class UsuarioController extends Controller
 {
     public function index()

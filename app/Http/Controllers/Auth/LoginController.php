@@ -65,30 +65,16 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         //Registrar en la bitacora
-        
-        EVENT_BITACORA($user->Id_Usuario, 5, 'Ingreso', 'El usuario ' . strtoupper($user->Usuario) . ' ha iniciado sesión.');
+        EVENT_BITACORA($user->Id_Usuario, 5, 'Ingreso', 'El usuario ha iniciado sesión.');
 
-        // Redirigir dependiendo del rol
-        return $this->redirectToDashboard($user);
+        // Redirigir al dashboard 
+        return redirect()->intended('/dashboard');
     }
 
     return back()->withErrors([
         'Usuario' => 'Usuario/contraseña inválidos'
     ])->withInput(); 
     
-}
-
-
-
-
-protected function redirectToDashboard(User $user)
-{
-    switch ($user->Id_Rol) {
-        case 1: // Administrador
-            return redirect()->route('admin.dashboard');
-        case 2: // Otro tipo de administrador
-            return redirect()->route('dashboard');
-    }
 }
 
 

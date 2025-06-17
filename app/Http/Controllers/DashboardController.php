@@ -7,17 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
-class   DashboardController extends Controller
+class DashboardController extends Controller
 {
-
-    public function admin()
+    /**
+     * Muestra el dashboard general para cualquier usuario autenticado.
+     */
+    public function index()
     {
-        return view('admin.dashboard'); // vista para admin
+        return view('dashboard');
     }
-
-    public function general()
-    {
-        return view('dashboard'); // vista general para otros usuarios
-    }
-   
 }

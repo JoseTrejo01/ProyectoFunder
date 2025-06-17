@@ -4,7 +4,7 @@
 <div class="container">
     <h2>Gestión de Usuarios</h2>
     <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">Nuevo Usuario</button>
-    <table class="table table-bordered table-striped">
+    <table id="tabla-usuarios" class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Usuario</th>
@@ -13,7 +13,6 @@
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Fecha de Registro</th>
-                <th>Fecha Última Conexión</th>
                 <th>Acción</th>
             </tr>
         </thead>
@@ -26,14 +25,19 @@
                     <td>{{ $usuario->rol->Rol ?? '-' }}</td>
                     <td>{{ $usuario->Estado_Usuario }}</td>
                     <td>{{ $usuario->Fecha_Creacion }}</td>
-                    <td>{{ $usuario->Fecha_Ultima_Conexion }}</td>
                     <td>
-                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}">Editar</button>
-                        <form action="{{ route('usuarios.destroy', $usuario->Id_Usuario) }}" method="POST" style="display:inline-block">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')">Borrar</button>
-                        </form>
+                        <div class="d-flex align-items-center gap-1">
+                            <button class="btn btn-xs btn-primary p-1" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}" title="Editar" style="font-size: 0.85rem;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form action="{{ route('usuarios.destroy', $usuario->Id_Usuario) }}" method="POST" style="display:inline-block">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-xs btn-danger p-1" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')" title="Borrar" style="font-size: 0.85rem;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 <!-- Modal Editar Usuario -->
@@ -138,4 +142,21 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#tabla-usuarios').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            },
+            order: [[0, 'asc']],
+            searching: false
+            
+
+        });
+    });
+    </script>
+@endsection
+
+@section('css')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 @endsection
