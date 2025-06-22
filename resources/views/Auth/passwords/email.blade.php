@@ -10,8 +10,7 @@
     }
 
     .btn-primary {
-        background-color: #5B8E3E !important;
-        /* verde principal */
+        background-color: #5B8E3E !important; /* verde principal */
         border-color: #5B8E3E !important;
         color: white !important;
         border-radius: 0.75rem;
@@ -20,14 +19,12 @@
         transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
-
     #Usuario {
         text-transform: uppercase;
     }
 
     .login-box .card-header {
-        color: #2e7d32;
-        /* verde tipo Funder */
+        color: #2e7d32; /* verde tipo Funder */
         font-weight: bold;
         text-align: center;
     }
@@ -47,68 +44,55 @@
 </style>
 @stop
 
-
-
-
-@section('adminlte_css_pre')
-<style>
-    #Usuario {
-        text-transform: uppercase;
-    }
-</style>
-@stop
-
 @section('auth_header', __('Recuperar Contraseña'))
 
 @section('auth_body')
-@if(session('status'))
-    <div class="alert alert-success">
-        {{ session('status') }}
-    </div>
-@endif
+    @if(session('status'))
+        <div class="alert alert-success">
+            {{ session('status') }}
+        </div>
+    @endif
 
-<form action="{{ route('password.email') }}" method="post">
-    @csrf
+    <form method="POST" action="{{ route('otp.send') }}">
+        @csrf
 
-    <!-- Caja animada -->
-    <div class="form-animated-box">
+        <div class="form-animated-box">
 
-        {{-- Campo Usuario --}}
-        <div class="input-group mb-3">
-            <input type="text" name="Usuario" id="Usuario" class="form-control @error('Usuario') is-invalid @enderror"
-                value="{{ old('Usuario') }}" placeholder="Usuario" autofocus>
+            {{-- Campo Usuario --}}
+            <div class="input-group mb-3">
+                <input type="text" name="Usuario" id="Usuario" class="form-control @error('Usuario') is-invalid @enderror"
+                    value="{{ old('Usuario') }}" placeholder="Usuario" autofocus>
 
-            <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-user"></span>
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <span class="fas fa-user"></span>
+                    </div>
+                </div>
+
+                @error('Usuario')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                @enderror
+            </div>
+
+            {{-- Botón --}}
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        {{ __('Enviar enlace de recuperación') }}
+                    </button>
                 </div>
             </div>
 
-            @error('Usuario')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
         </div>
-
-        {{-- Botón --}}
-        <div class="row">
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary btn-block">
-                    {{ __('Enviar enlace de recuperación') }}
-                </button>
-            </div>
-        </div>
-
-    </div> <!-- fin caja animada -->
-</form>
+    </form>
 @stop
 
-
 @section('auth_footer')
-<div class="mt-3 text-center">
-    <a href="{{ route('login') }}" class="text-center">
-        {{ __('Volver al login') }}
-    </a>
-</div>
+    <div class="mt-3 text-center">
+        <a href="{{ route('login') }}" class="text-center">
+            {{ __('Volver al login') }}
+        </a>
+    </div>
 @stop
