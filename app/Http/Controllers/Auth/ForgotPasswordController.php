@@ -12,7 +12,7 @@ class ForgotPasswordController extends Controller
     // Mostrar vista para ingresar el usuario
     public function showLinkRequestForm()
     {
-        return view('auth.passwords.email');
+        return view('Auth.passwords.email');
     }
 
     // Enviar el OTP al correo
@@ -70,7 +70,7 @@ class ForgotPasswordController extends Controller
     // Mostrar vista para ingresar el código OTP
     public function showOtpForm()
     {
-        return view('auth.passwords.verify-otp');
+        return view('Auth.passwords.verify-otp');
     }
 
     // Verificar OTP ingresado
@@ -104,7 +104,7 @@ class ForgotPasswordController extends Controller
 
         $user = User::where('Usuario', session('otp_validated_user'))->first();
 
-        return view('auth.passwords.reset', ['email' => $user->Correo_Electronico]);
+        return view('Auth.passwords.reset', ['email' => $user->Correo_Electronico]);
     }
 
     // Procesar restablecimiento de contraseña

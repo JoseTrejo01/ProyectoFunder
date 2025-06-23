@@ -13,6 +13,7 @@
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Fecha de Registro</th>
+                <th>Fecha de Vencimiento</th>
                 <th>Acción</th>
             </tr>
         </thead>
@@ -25,6 +26,7 @@
                     <td>{{ $usuario->rol->Rol ?? '-' }}</td>
                     <td>{{ $usuario->Estado_Usuario }}</td>
                     <td>{{ $usuario->Fecha_Creacion }}</td>
+                    <td>{{ $usuario->Fecha_Vencimiento ?? '-' }}</td>
                     <td>
                         <div class="d-flex align-items-center gap-1">
                             <button class="btn btn-xs btn-primary p-1" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}" title="Editar" style="font-size: 0.85rem;">
@@ -77,6 +79,7 @@
                             <select class="form-control" id="Estado_Usuario{{ $usuario->Id_Usuario }}" name="Estado_Usuario" required>
                               <option value="ACTIVO" @if($usuario->Estado_Usuario == 'ACTIVO') selected @endif>ACTIVO</option>
                               <option value="INACTIVO" @if($usuario->Estado_Usuario == 'INACTIVO') selected @endif>INACTIVO</option>
+                              <option value="NUEVO" @if($usuario->Estado_Usuario == 'NUEVO') selected @endif>NUEVO</option>
                             </select>
                           </div>
                         </div>
@@ -128,6 +131,16 @@
                 <label for="Contraseña" class="form-label">Contraseña</label>
                 <input type="password" class="form-control" id="Contraseña" name="Contraseña" required>
               </div>
+              <div class="mb-3">
+                <label for="Estado_Usuario" class="form-label">Estado</label>
+                <select class="form-control" id="Estado_Usuario" name="Estado_Usuario" required>
+                  <option value="NUEVO">NUEVO</option>
+                  <option value="ACTIVO">ACTIVO</option>
+                  <option value="BLOQUEADO">BLOQUEADO</option>
+                  <option value="INACTIVO">INACTIVO</option>
+                  <option value="VACACIONES">VACACIONES</option>
+                </select>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -148,10 +161,8 @@
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
             },
-            order: [[0, 'asc']],
+            order: [[5, 'desc']], // Cambiado: 5 es la columna 'Fecha de Registro'
             searching: false
-            
-
         });
     });
     </script>

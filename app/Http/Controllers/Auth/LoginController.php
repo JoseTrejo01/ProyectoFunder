@@ -51,25 +51,34 @@ class LoginController extends Controller
         ])->withInput();
     }
 
-    // 4. Verificar si el usuario está activo
-    if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO') {
+    // 4. Verificar si el usuario es nuevo de aprobación o es AUTO-REGISTRO
+    if ($user->Id_Rol == 3 ) {
         return back()->withErrors([
-            'Usuario' => 'El usuario no está activo'
+            'Usuario' => 'Tu usuario está pendiente de aprobación. Por favor, contacta a la administración para ser aceptado.'
         ])->withInput();
     }
 
-    // 5. Verificar contraseña manualmente
+  
+    // 6. Verificar contraseña manualmente
     if (Hash::check($request->Contraseña, $user->Contraseña)) {
         // Hacer Login 
         Auth::login($user);
         $request->session()->regenerate();
 
         //Registrar en la bitacora
-        EVENT_BITACORA($user->Id_Usuario, 5, 'Ingreso', 'El usuario ha iniciado sesión.');
+        EVENT_BITACORA($user->Id_Usuario, 1, 'Ingreso', 'El usuario ha iniciado sesión.');
 
         // Redirigir al dashboard 
         return redirect()->intended('/dashboard');
     }
+
+      // 5. Verificar si el usuario está activo
+    if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO') {
+        return back()->withErrors([
+            'Usuario' => 'El usuario no está activo'
+        ])->withInput();
+    }
+
 
     return back()->withErrors([
         'Usuario' => 'Usuario/contraseña inválidos'
@@ -84,7 +93,7 @@ public function logout(Request $request)
 
     // Registrar en la bitácora
    
-    EVENT_BITACORA(Auth::user()->Id_Usuario, 5, 'Salida', 'El usuario ' . Auth::user()->Usuario . ' ha cerrado sesión.');
+    EVENT_BITACORA(Auth::user()->Id_Usuario, 2, 'Salida', 'El usuario ha cerrado sesión.');
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Rol;
+use App\Models\Objeto;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
 
@@ -14,7 +16,18 @@ class UsuarioController extends Controller
 {
     public function index()
     {
-        $usuarios = User::with('rol')->get();
+        // Obtener el objeto correspondiente a la vista de usuarios
+        $objeto = Objeto::where('Objeto', 'Usuarios')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario ingresó a la gestión de usuarios'
+            );
+        }
+      
+        $usuarios = User::with('rol')->orderBy('Id_Usuario', 'desc')->get();
         $roles = Rol::all();
         return view('admin.usuarios', compact('usuarios', 'roles'));
     }
@@ -29,15 +42,36 @@ class UsuarioController extends Controller
             'Contraseña' => 'required|string|min:8',
         ]);
 
-        User::create([
+        // Obtener el valor de ADMIN_DIAS_VIGENCIA desde tbl_parametros
+        $diasVigencia = \DB::table('tbl_parametros')
+            ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
+            ->value('Valor');
+        $diasVigencia = (int) $diasVigencia;
+        $fechaCreacion = now();
+        $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
+
+        $nuevoUsuario = User::create([
             'Usuario' => $request->Usuario,
             'Nombre_Usuario' => $request->Nombre_Usuario,
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
+            'Primer_Ingreso' => 1, // Forzar cambio de contraseña en primer ingreso
             'Contraseña' => Hash::make($request->Contraseña),
-            'Estado_Usuario' => 'ACTIVO',
-            'Fecha_Creacion' => now(),
+            'Estado_Usuario' => 'NUEVO', // Estado por defecto NUEVO
+            'Fecha_Creacion' => $fechaCreacion,
+            'Fecha_Vencimiento' => $fechaVencimiento,
         ]);
+
+        // Registrar en bitácora la creación de un nuevo usuario
+        $objeto = Objeto::where('Objeto', 'Usuarios')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Nuevo',
+                ' Creó un nuevo usuario: ' . $nuevoUsuario->Usuario
+            );
+        }
 
         return back()->with('success', 'Usuario creado correctamente.');
     }
@@ -53,13 +87,29 @@ class UsuarioController extends Controller
         ]);
 
         $usuario = User::findOrFail($id);
-        $usuario->update([
+        $updateData = [
             'Usuario' => $request->Usuario,
             'Nombre_Usuario' => $request->Nombre_Usuario,
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
             'Estado_Usuario' => $request->Estado_Usuario,
-        ]);
+        ];
+        // Si el estado cambia a ACTIVO, poner Primer_Ingreso en 0
+        if ($request->Estado_Usuario === 'ACTIVO') {
+            $updateData['Primer_Ingreso'] = 0;
+        }
+        $usuario->update($updateData);
+
+        // Registrar en bitácora la actualización de usuario
+        $objeto = Objeto::where('Objeto', 'Usuarios')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Update',
+                'El usuario actualizó al usuario: ' . $usuario->Usuario
+            );
+        }
 
         return back()->with('success', 'Usuario actualizado correctamente.');
     }
@@ -67,7 +117,19 @@ class UsuarioController extends Controller
     public function destroy($id)
     {
         $usuario = User::findOrFail($id);
-        $usuario->delete();
+        $usuario->update(['Estado_Usuario' => 'INACTIVO']);
+
+        // Registrar en bitácora la eliminación (inactivación) de usuario
+        $objeto = Objeto::where('Objeto', 'Usuarios')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Delete',
+                'Inactivó al usuario: ' . $usuario->Usuario
+            );
+        }
+
         return back()->with('success', 'Usuario eliminado correctamente.');
     }
 }
