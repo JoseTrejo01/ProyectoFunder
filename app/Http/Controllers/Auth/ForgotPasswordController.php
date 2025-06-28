@@ -12,7 +12,7 @@ class ForgotPasswordController extends Controller
     // Mostrar vista para ingresar el usuario
     public function showLinkRequestForm()
     {
-        return view('auth.passwords.email');
+        return view('Auth.passwords.email');
     }
 
     // Enviar el OTP al correo
@@ -70,7 +70,7 @@ class ForgotPasswordController extends Controller
     // Mostrar vista para ingresar el código OTP
     public function showOtpForm()
     {
-        return view('auth.passwords.verify-otp');
+        return view('Auth.passwords.verify-otp');
     }
 
     // Verificar OTP ingresado
@@ -90,8 +90,17 @@ class ForgotPasswordController extends Controller
             return back()->withErrors(['otp' => 'El código es inválido o ha expirado.']);
         }
 
-        session(['otp_validated_user' => $user->Usuario]);
+        // Si es primer ingreso, loguear, actualizar Primer_Ingreso y redirigir al dashboard
+        if ($user->Primer_Ingreso == 1) {
+            \Auth::login($user);
+            $user->Primer_Ingreso = 0;
+            $user->save();
+            session()->forget('otp_validated_user');
+            return redirect()->intended('/dashboard');
+        }
 
+        // Si es recuperación, flujo normal
+        session(['otp_validated_user' => $user->Usuario]);
         return redirect()->route('password.reset.form');
     }
 
@@ -104,7 +113,7 @@ class ForgotPasswordController extends Controller
 
         $user = User::where('Usuario', session('otp_validated_user'))->first();
 
-        return view('auth.passwords.reset', ['email' => $user->Correo_Electronico]);
+        return view('Auth.passwords.reset', ['email' => $user->Correo_Electronico]);
     }
 
     // Procesar restablecimiento de contraseña

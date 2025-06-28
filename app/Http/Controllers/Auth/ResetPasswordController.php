@@ -20,7 +20,7 @@ class ResetPasswordController extends Controller
 
         $user = User::where('Usuario', session('otp_validated_user'))->first();
 
-        return view('auth.passwords.reset', [
+        return view('Auth.passwords.reset', [
             'email' => $user->Correo_Electronico
         ]);
     }
@@ -63,6 +63,7 @@ class ResetPasswordController extends Controller
         $user->update([
             'Contraseña' => Hash::make($request->password),
             'Primer_Ingreso' => 0,
+            'Estado_Usuario' => 'ACTIVO', // Cambia el estado a ACTIVO tras el cambio
             'Modificado_Por' => 'SISTEMA',
             'Fecha_Modificacion' => now(),
             'otp_code' => null,
@@ -72,9 +73,9 @@ class ResetPasswordController extends Controller
         // Registrar en la bitácora
         EVENT_BITACORA(
             $user->Id_Usuario,
-            1,
+            2,
             'Update',
-            'El usuario reseteó su contraseña por OTP.'
+            'Reseteó su contraseña por OTP.'
         );
 
         session()->forget('otp_validated_user');

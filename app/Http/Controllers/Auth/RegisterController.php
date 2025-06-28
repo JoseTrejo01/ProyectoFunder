@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
@@ -16,18 +18,23 @@ class RegisterController extends Controller
         return view('Auth.register');
     }
 
-    public function register(Request $request)
-    {
-          // Validar los datos
-        $this->validator($request->all())->validate();
+public function register(Request $request)
+{
+    // Validar los datos
+    $this->validator($request->all())->validate();
 
-        // Crear el usuario
-        $user = $this->create($request->all());
+    // Crear el usuario
+    $user = $this->create($request->all());
 
-        // Luego del registro se envia a la vista del login
-        return redirect()->route('login')->with('success', 'Registro exitoso. Por favor, inicia sesión con tus credenciales.');
-    }
+    // Enviar el correo de verificación
+    event(new Registered($user));
 
+    // Iniciar sesión al usuario automáticamente (necesario para poder acceder a /email/verify)
+    Auth::login($user);
+
+    // Redirigir a la vista de verificación
+    return redirect()->route('verification.notice')->with('status', 'verification-link-sent');
+}
     protected function validator(array $data)
     {
         return Validator::make($data, [
@@ -50,20 +57,21 @@ class RegisterController extends Controller
         // Asegurarse de que diasVigencia sea un número
         $diasVigencia = (int) $diasVigencia;
 
-        //Aqui se suma la fecha de cracion mas el parametro ADMIN_DIAS_VIGENCIA para insertar la fecha de vencimiento del usuario
+        // Fecha de creación
         $fechaCreacion = now();
-        $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia); // Copia la fecha para no modificar la original
+        // La fecha de vencimiento es la fecha de creación + días de vigencia
+        $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
 
         return User::create([
-            'Id_Rol' => 2, // Asigna un rol por defecto
-            'Usuario' => strtoupper($data['Usuario']), // Convertir a mayúsculas, es una validacion que piden
-             'Nombre_Usuario' => strtoupper($data['Nombre_Usuario']), // Convertir a mayúsculas
+            'Id_Rol' => 3, // Rol AUTO-REGISTRO
+            'Usuario' => strtoupper($data['Usuario']),
+            'Nombre_Usuario' => strtoupper($data['Nombre_Usuario']),
             'Correo_Electronico' => $data['Correo_Electronico'],
             'Contraseña' => Hash::make($data['Contraseña']),
-            'Estado_Usuario' => 'INACTIVO',
+            'Estado_Usuario' => 'NUEVO', 
             'Primer_Ingreso' => 1,
             'Fecha_Creacion' => $fechaCreacion,
-            'Fecha_Vencimiento' => $fechaVencimiento, // Añadir la fecha de vencimiento
+            'Fecha_Vencimiento' => $fechaVencimiento,
         ]);
     }
 }

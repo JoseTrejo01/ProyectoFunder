@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Bitacora;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class BitacoraController extends Controller
 {
     public function verBitacora(Request $request)
     {
+        // Registrar evento de acceso a la bitácora
+        if (Auth::check()) {
+            EVENT_BITACORA(Auth::user()->Id_Usuario, 4, 'Ingreso', 'El usuario accedió a la bitácora.');
+        }
         $query = Bitacora::with(['usuario', 'objeto']);
         // Filtros
         if ($request->filled('usuario')) {
