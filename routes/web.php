@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
     Route::post('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'changePassword'])->name('password.change');
 
-
+});
 Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
 Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
 Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');

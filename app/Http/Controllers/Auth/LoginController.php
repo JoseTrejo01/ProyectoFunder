@@ -58,8 +58,8 @@ class LoginController extends Controller
         ])->withInput();
     }
 
-        // 5. Verificar estado activo
-        if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO') {
+        // 5. Verificar estado activo o nuevo
+        if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO' && strtoupper(trim($user->Estado_Usuario)) !== 'NUEVO') {
             return back()->withErrors([
                 'Usuario' => 'El usuario no está activo'
             ])->withInput();
@@ -100,12 +100,12 @@ class LoginController extends Controller
             return redirect()->route('otp.form')->with('status', 'Código enviado a tu correo electrónico');
         }
 
-        // Hacer Login 
+        // Hacer Login solo si ya no es NUEVO ni Primer_Ingreso
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Si el usuario tenía Primer_Ingreso en 1, actualizarlo a 0 tras el primer logeo
-        if ($user->Primer_Ingreso == 1) {
+        // Si el usuario tenía Primer_Ingreso en 1, actualizarlo a 0 tras el primer logeo (solo si no es NUEVO)
+        if ($user->Primer_Ingreso == 1 && strtoupper(trim($user->Estado_Usuario)) !== 'NUEVO') {
             $user->Primer_Ingreso = 0;
             $user->save();
         }
