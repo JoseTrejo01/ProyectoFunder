@@ -17,39 +17,46 @@ class LoginController extends Controller
     }
 
     public function login(Request $request)
-    {
-        // 1. Validación de campos requeridos
-        $validator = Validator::make($request->all(), [
-            'Usuario' => ['required', 'string'],
-            'Contraseña' => ['required', 'string', 'regex:/^\S*$/u']
-        ], [
-            'Usuario.required' => 'El campo usuario es obligatorio',
-            'Contraseña.required' => 'El campo contraseña es obligatorio',
-            'Contraseña.regex' => 'La contraseña no puede contener espacios'
-        ]);
+{
+    // 1. Validación de campos requeridos y formato
+    $validator = Validator::make($request->all(), [
+        'Usuario' => [
+            'required',
+            'string',
+        ],
+        'Contraseña' => [
+            'required', 
+            'string',
+            'regex:/^\S*$/u' // No permite espacios en blanco
+        ]
+    ], [
+        'Usuario.required' => 'El campo usuario es obligatorio',
+        'Contraseña.required' => 'El campo contraseña es obligatorio',
+        'Contraseña.regex' => 'La contraseña no puede contener espacios'
+    ]);
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
+    }
 
-        // 2. Convertir usuario a mayúsculas
-        $usuario = strtoupper($request->Usuario);
+    // 2. Convertir usuario a mayúsculas
+    $usuario = strtoupper($request->Usuario);
 
-        // 3. Buscar usuario
-        $user = User::where('Usuario', $usuario)->first();
+    // 3. Verificar si el usuario existe en la base de datos
+    $user = User::where('Usuario', $usuario)->first();
 
-        if (!$user) {
-            return back()->withErrors([
-                'Usuario' => 'Usuario/contraseña inválidos'
-            ])->withInput();
-        }
+    if (!$user) {
+        return back()->withErrors([
+            'Usuario' => 'Usuario/contraseña inválidos'
+        ])->withInput();
+    }
 
-        // 4. Verificar si es auto-registro (pendiente)
-        if ($user->Id_Rol == 3) {
-            return back()->withErrors([
-                'Usuario' => 'Tu usuario está pendiente de aprobación. Por favor, contacta a la administración.'
-            ])->withInput();
-        }
+    // 4. Verificar si el usuario es nuevo de aprobación o es AUTO-REGISTRO
+    if ($user->Id_Rol == 3 ) {
+        return back()->withErrors([
+            'Usuario' => 'Tu usuario está pendiente de aprobación. Por favor, contacta a la administración para ser aceptado.'
+        ])->withInput();
+    }
 
         // 5. Verificar estado activo
         if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO') {
@@ -106,6 +113,7 @@ class LoginController extends Controller
         //Registrar en la bitacora
         EVENT_BITACORA($user->Id_Usuario, 1, 'Ingreso', 'El usuario ha iniciado sesión.');
 
+        // Redirigir al dashboard 
         return redirect()->intended('/dashboard');
     }
 
@@ -158,6 +166,7 @@ public function logout(Request $request)
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-        return redirect()->route('home')->with('success', 'Sesión cerrada correctamente');
-    }
+    return redirect()->route('home')->with('success', 'Sesión cerrada correctamente');
+}
+
 }

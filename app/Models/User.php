@@ -5,63 +5,84 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\CustomResetPasswordNotification;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use Notifiable;
-   
+
+    // Nombre de la tabla en la base de datos
     protected $table = 'tbl_ms_usuario';
+
+    // Clave primaria de la tabla
     protected $primaryKey = 'Id_Usuario';
+
+    // Indica si el modelo usa timestamps (created_at, updated_at)
     public $timestamps = false;
 
+    // Campos que pueden ser asignados masivamente
     protected $fillable = [
-        'Id_Rol', 'Usuario', 'Nombre_Usuario', 'Estado_Usuario', 'Contraseña',
-        'Fecha_Ultima_Conexion', 'Primer_Ingreso', 'Fecha_Vencimiento',
-        'Correo_Electronico', 'Creado_Por', 'Fecha_Creacion', 'Modificado_Por', 'Fecha_Modificacion',
-        'email_verified_at' 
+        'Id_Rol',
+        'Usuario',
+        'Nombre_Usuario',
+        'Estado_Usuario',
+        'Contraseña',
+        'Fecha_Ultima_Conexion',
+        'Primer_Ingreso',
+        'Fecha_Vencimiento',
+        'Correo_Electronico',
+        'Creado_Por',
+        'Fecha_Creacion',
+        'Modificado_Por',
+        'Fecha_Modificacion'
     ];
 
-    protected $hidden = ['Contraseña'];
-
-    protected $casts = [
-        'email_verified_at' => 'timestamp',
+    // Campos que deben ocultarse en las respuestas JSON
+    protected $hidden = [
+        'Contraseña',
     ];
 
-    public function getEmailAttribute() {
+    // ✅ AGREGAR: Mapeo del campo email
+    public function getEmailAttribute()
+    {
         return $this->Correo_Electronico;
     }
 
-    public function getEmailForVerification() {
-        return $this->Correo_Electronico;
-    }
-
-    public function getAuthPassword() {
+    // Método para obtener la contraseña (requerido por Laravel Auth)
+    public function getAuthPassword()
+    {
         return $this->Contraseña;
     }
 
-    public function getEmailForPasswordReset() {
+    // ✅ YA TIENES: Método para obtener email para reset password
+    public function getEmailForPasswordReset()
+    {
         return $this->Correo_Electronico;
     }
 
-    public function sendPasswordResetNotification($token) {
+    // ✅ YA TIENES: Método para enviar notificación personalizada
+    public function sendPasswordResetNotification($token)
+    {
         $this->notify(new CustomResetPasswordNotification($token));
     }
 
-    public function passwordHistories() {
+     public function passwordHistories()
+    {
         return $this->hasMany(PasswordHistory::class, 'Id_Usuario', 'Id_Usuario');
     }
 
-    public function rol() {
+    // Relación con la tabla tbl_ms_rol
+    public function rol()
+    {
         return $this->belongsTo(Rol::class, 'Id_Rol', 'Id_Rol');
     }
-
-    public function tienePermiso($nombreObjeto, $permiso) {
+    
+    public function tienePermiso($nombreObjeto, $permiso)
+    {
         $rol = $this->rol;
         if (!$rol) return false;
 
-        $permisoColumna = 'Permiso_' . ucfirst(strtolower($permiso));
+        $permisoColumna = 'Permiso_' . ucfirst(strtolower($permiso)); // Ej: Permiso_Consultar
+
         return $rol->permisos()
             ->whereHas('objeto', function($q) use ($nombreObjeto) {
                 $q->where('Objeto', $nombreObjeto);
