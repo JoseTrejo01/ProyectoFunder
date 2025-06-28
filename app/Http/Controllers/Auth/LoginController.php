@@ -61,9 +61,40 @@ class LoginController extends Controller
   
     // 6. Verificar contraseña manualmente
     if (Hash::check($request->Contraseña, $user->Contraseña)) {
+        // Si el usuario está en estado NUEVO, forzar cambio de contraseña
+        if (strtoupper(trim($user->Estado_Usuario)) === 'NUEVO') {
+            Auth::login($user);
+            $request->session()->regenerate();
+            return redirect()->route('password.change.form');
+        }
+
+        // Si es primer ingreso, forzar doble verificación OTP
+        if ($user->Primer_Ingreso == 1) {
+            // Generar y guardar OTP
+            $otp = rand(100000, 999999);
+            $expiration = now()->addMinutes(10);
+            $user->otp_code = $otp;
+            $user->otp_expires_at = $expiration;
+            $user->save();
+
+            \Mail::raw("Tu código de verificación es: $otp", function ($message) use ($user) {
+                $message->to($user->Correo_Electronico)
+                        ->subject('Código de verificación OTP');
+            });
+
+            session(['otp_validated_user' => $user->Usuario]);
+            return redirect()->route('otp.form')->with('status', 'Código enviado a tu correo electrónico');
+        }
+
         // Hacer Login 
         Auth::login($user);
         $request->session()->regenerate();
+
+        // Si el usuario tenía Primer_Ingreso en 1, actualizarlo a 0 tras el primer logeo
+        if ($user->Primer_Ingreso == 1) {
+            $user->Primer_Ingreso = 0;
+            $user->save();
+        }
 
         //Registrar en la bitacora
         EVENT_BITACORA($user->Id_Usuario, 1, 'Ingreso', 'El usuario ha iniciado sesión.');
@@ -72,8 +103,8 @@ class LoginController extends Controller
         return redirect()->intended('/dashboard');
     }
 
-      // 5. Verificar si el usuario está activo
-    if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO') {
+      // 5. Verificar si el usuario está activo (excepto si es NUEVO)
+    if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO' && strtoupper(trim($user->Estado_Usuario)) !== 'NUEVO') {
         return back()->withErrors([
             'Usuario' => 'El usuario no está activo'
         ])->withInput();
@@ -87,6 +118,29 @@ class LoginController extends Controller
 }
 
 
+    public function showChangePasswordForm()
+    {
+        return view('auth.passwords.cambiar-contraseña');
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+        $user->Contraseña = Hash::make($request->password);
+        $user->Estado_Usuario = 'ACTIVO';
+        $user->save();
+
+        // Cerrar sesión y redirigir al login
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('success', 'Contraseña cambiada correctamente. Por favor, inicia sesión con tu nueva contraseña.');
+    }
  
 public function logout(Request $request)
 {

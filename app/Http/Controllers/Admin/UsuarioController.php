@@ -9,6 +9,7 @@ use App\Models\Objeto;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Notifications\CredencialesUsuarioNuevo;
 
 
 //CONTROLADOR PARA QUE EL ADMIN CREE UN NUEVO USUARIO, ACTULICE O ELIMINE UN USUARIO
@@ -39,8 +40,11 @@ class UsuarioController extends Controller
             'Nombre_Usuario' => 'required|string|max:100',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico',
             'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
-            'Contraseña' => 'required|string|min:8',
+            'Estado_Usuario' => 'required|string',
         ]);
+
+        // Generar contraseña aleatoria segura
+        $password = bin2hex(random_bytes(4)); // 8 caracteres hexadecimales
 
         // Obtener el valor de ADMIN_DIAS_VIGENCIA desde tbl_parametros
         $diasVigencia = \DB::table('tbl_parametros')
@@ -56,11 +60,14 @@ class UsuarioController extends Controller
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
             'Primer_Ingreso' => 1, // Forzar cambio de contraseña en primer ingreso
-            'Contraseña' => Hash::make($request->Contraseña),
-            'Estado_Usuario' => 'NUEVO', // Estado por defecto NUEVO
+            'Contraseña' => Hash::make($password),
+            'Estado_Usuario' => 'NUEVO',
             'Fecha_Creacion' => $fechaCreacion,
             'Fecha_Vencimiento' => $fechaVencimiento,
         ]);
+
+        // Enviar notificación con credenciales
+        $nuevoUsuario->notify(new CredencialesUsuarioNuevo($nuevoUsuario, $password));
 
         // Registrar en bitácora la creación de un nuevo usuario
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
@@ -73,7 +80,7 @@ class UsuarioController extends Controller
             );
         }
 
-        return back()->with('success', 'Usuario creado correctamente.');
+        return back()->with('success', 'Usuario creado correctamente. Se enviaron las credenciales al correo.');
     }
 
     public function update(Request $request, $id)
@@ -94,10 +101,7 @@ class UsuarioController extends Controller
             'Id_Rol' => $request->Id_Rol,
             'Estado_Usuario' => $request->Estado_Usuario,
         ];
-        // Si el estado cambia a ACTIVO, poner Primer_Ingreso en 0
-        if ($request->Estado_Usuario === 'ACTIVO') {
-            $updateData['Primer_Ingreso'] = 0;
-        }
+      
         $usuario->update($updateData);
 
         // Registrar en bitácora la actualización de usuario

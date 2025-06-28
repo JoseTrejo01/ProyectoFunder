@@ -90,8 +90,17 @@ class ForgotPasswordController extends Controller
             return back()->withErrors(['otp' => 'El código es inválido o ha expirado.']);
         }
 
-        session(['otp_validated_user' => $user->Usuario]);
+        // Si es primer ingreso, loguear, actualizar Primer_Ingreso y redirigir al dashboard
+        if ($user->Primer_Ingreso == 1) {
+            \Auth::login($user);
+            $user->Primer_Ingreso = 0;
+            $user->save();
+            session()->forget('otp_validated_user');
+            return redirect()->intended('/dashboard');
+        }
 
+        // Si es recuperación, flujo normal
+        session(['otp_validated_user' => $user->Usuario]);
         return redirect()->route('password.reset.form');
     }
 

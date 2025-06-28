@@ -127,10 +127,7 @@
                   @endforeach
                 </select>
               </div>
-              <div class="mb-3">
-                <label for="Contraseña" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="Contraseña" name="Contraseña" required>
-              </div>
+              {{-- Campo de contraseña eliminado, será autogenerada --}}
               <div class="mb-3">
                 <label for="Estado_Usuario" class="form-label">Estado</label>
                 <select class="form-control" id="Estado_Usuario" name="Estado_Usuario" required>

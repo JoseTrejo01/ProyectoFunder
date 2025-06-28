@@ -48,6 +48,10 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Rutas para cambio de contraseña obligatorio
+    Route::get('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
+    Route::post('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'changePassword'])->name('password.change');
 });
 
 Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
