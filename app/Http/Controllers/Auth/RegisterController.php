@@ -35,17 +35,29 @@ public function register(Request $request)
     // Redirigir a la vista de verificación
     return redirect()->route('verification.notice')->with('status', 'verification-link-sent');
 }
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'Usuario' => ['required', 'string', 'max:60', 'unique:tbl_ms_usuario'],
-            'Nombre_Usuario' => ['required', 'string', 'max:100'],
-            'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario'],
-            'Contraseña' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/'], // Letras y números
-        ]);
+   protected function validator(array $data)
+{
+   return Validator::make($data, [
+        'Usuario' => ['required', 'string', 'max:30', 'unique:tbl_ms_usuario'],
+        'Nombre_Usuario' => ['required', 'string', 'max:100'],
+        'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario'],
+        'Contraseña' => ['required', 'string', 'size:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/'],
+    ], [
+        'Usuario.required' => 'El campo usuario es obligatorio',
+        'Nombre_Usuario.required' => 'El campo nombre de usuario es obligatorio',
+        'Correo_Electronico.required' => 'El campo correo electrónico es obligatorio',
+        'Usuario.max' => 'El usuario no puede tener más de 30 caracteres.',
+        'Nombre_Usuario.max' => 'El nombre de usuario no puede tener más de 100 caracteres.',
+        'Correo_Electronico.max' => 'El correo electrónico no puede tener más de 60 caracteres.',
+        'Usuario.unique' => 'El usuario ya está registrado.',
+        'Correo_Electronico.unique' => 'El correo electrónico ya está registrado.',
+        'Contraseña.required' => 'El campo contraseña es obligatorio',
+        'Contraseña.size' => 'La contraseña debe tener al menos 8 caracteres.',
+        'Contraseña.confirmed' => 'La confirmación de la contraseña no coincide.',
+        'Contraseña.regex' => 'La contraseña debe contener letras y números sin espacios.'
+    ]);
+}
 
-        
-    }
 
     protected function create(array $data)
     {

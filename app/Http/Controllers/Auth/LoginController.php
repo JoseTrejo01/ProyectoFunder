@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Parametro;
 
 class LoginController extends Controller
 {
@@ -20,23 +21,23 @@ class LoginController extends Controller
     {
         // 1. Validación de campos requeridos
         $validator = Validator::make($request->all(), [
-            'Usuario' => ['required', 'string'],
-            'Contraseña' => ['required', 'string', 'regex:/^\S*$/u']
+            'Usuario' => ['required', 'string','max:30'],
+            'Contraseña' => ['required', 'string', 'size:8', 'regex:/^\S*$/u']
         ], [
             'Usuario.required' => 'El campo usuario es obligatorio',
+            'Usuario.max' => 'El usuario no puede tener más de 30 caracteres.',
             'Contraseña.required' => 'El campo contraseña es obligatorio',
+            'Contraseña.size' => 'La contraseña debe tener exactamente 8 caracteres.',
             'Contraseña.regex' => 'La contraseña no puede contener espacios'
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
-
         // 2. Convertir usuario a mayúsculas
         $usuario = strtoupper($request->Usuario);
 
-        // 3. Buscar usuario
-        $user = User::where('Usuario', $usuario)->first();
+       $user = User::where('Usuario', $usuario)->first();
 
         if (!$user) {
             return back()->withErrors([
@@ -44,34 +45,54 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        // 4. Verificar si es auto-registro (pendiente)
+        // 4. Obtener límite de intentos desde la tabla de parámetros
+        $parametro = Parametro::where('Nombre_Parametro', 'ADMIN_INTENTOS_INVALIDOS')->first();
+        $limiteIntentos = $parametro ? intval($parametro->Valor) : 3; // fallback a 3 si no existe
+
+        // 5. Verificar si ya está bloqueado
+        if (strtoupper(trim($user->Estado_Usuario)) === 'BLOQUEADO') {
+            return back()->withErrors([
+                'Usuario' => 'Tu cuenta ha sido bloqueada por múltiples intentos fallidos.'
+            ])->withInput();
+        }
+
+        // 6. Verificar contraseña
+        if (!Hash::check($request->Contraseña, $user->Contraseña)) {
+            // Incrementar intentos fallidos
+            $user->Intentos_Fallidos = ($user->Intentos_Fallidos ?? 0) + 1;
+
+            // Verificar si alcanzó el límite
+            if ($user->Intentos_Fallidos >= $limiteIntentos) {
+                $user->Estado_Usuario = 'BLOQUEADO';
+            }
+
+            $user->save();
+
+            return back()->withErrors([
+                'Usuario' => $user->Estado_Usuario === 'BLOQUEADO'
+                    ? 'Tu cuenta ha sido bloqueada por múltiples intentos fallidos.'
+                    : 'Usuario/contraseña inválidos'
+            ])->withInput();
+        }
+
+        // 7. Verificar si es auto-registro (pendiente)
         if ($user->Id_Rol == 3) {
             return back()->withErrors([
                 'Usuario' => 'Tu usuario está pendiente de aprobación. Por favor, contacta a la administración.'
             ])->withInput();
         }
 
-        // 5. Verificar estado activo
+        // 8. Verificar estado activo
         if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO') {
             return back()->withErrors([
                 'Usuario' => 'El usuario no está activo'
             ])->withInput();
         }
 
-        // 6. Verificar contraseña
-        if (!Hash::check($request->Contraseña, $user->Contraseña)) {
-            return back()->withErrors([
-                'Usuario' => 'Usuario/contraseña inválidos'
-            ])->withInput();
-        }
-
-        // 7. Verificar si el correo fue confirmado
-        if (is_null($user->email_verified_at)) {
-            return back()->withErrors([
-                'Usuario' => 'Debes verificar tu correo electrónico antes de iniciar sesión.'
-            ])->withInput();
-        }
-
+        // 9. Reiniciar intentos fallidos
+        $user->Intentos_Fallidos = 0;
+        $user->save();
+        
         // 8. Autenticar y redirigir
         Auth::login($user);
         $request->session()->regenerate();
@@ -79,6 +100,7 @@ class LoginController extends Controller
         EVENT_BITACORA($user->Id_Usuario, 1, 'Ingreso', 'El usuario ha iniciado sesión.');
 
         return redirect()->intended('/dashboard');
+
     }
 
     public function logout(Request $request)

@@ -43,9 +43,15 @@ class ForgotPasswordController extends Controller
             return back()->withErrors(['Usuario' => 'El usuario no existe.']);
         }
 
-        if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO') {
-            return back()->withErrors(['Usuario' => 'Esta cuenta está desactivada.']);
-        }
+       $estado = strtoupper(trim($user->Estado_Usuario));
+
+            if ($estado === 'BLOQUEADO') {
+                return back()->withErrors(['Usuario' => 'Tu cuenta está bloqueada y no puedes resetear la contraseña.']);
+            }
+
+            if ($estado !== 'ACTIVO') {
+                return back()->withErrors(['Usuario' => 'Esta cuenta no está activa para restablecer contraseña.']);
+            }
 
         try {
             $otp = rand(100000, 999999);
