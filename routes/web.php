@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -11,7 +14,6 @@ use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Admin\UsuarioController;
 
-
 // Ruta de bienvenida - redirige usuarios autenticados al dashboard
 Route::get('/', function () {
     if (auth()->check()) {
@@ -20,17 +22,21 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// Rutas para usuarios NO autenticados (guest)
+// RUTAS PARA USUARIOS NO AUTENTICADOS
 Route::middleware('guest')->group(function () {
-    
+
+    // Registro
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 
+    // Login
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+
+    // Logout (accesible por seguridad desde ambos estados)
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // Rutas de recuperación de contraseña con OTP (guest)
+    // Recuperación de contraseña
     Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('password/reset', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('otp.send');
 
@@ -41,11 +47,12 @@ Route::middleware('guest')->group(function () {
     Route::post('password/reset-password', [ResetPasswordController::class, 'reset'])->name('otp.reset.password');
 
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
-
 });
 
-// Rutas para usuarios autenticados
-Route::middleware('auth')->group(function () {
+
+
+// RUTAS PARA USUARIOS AUTENTICADOS Y VERIFICADOS
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -55,6 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'changePassword'])->name('password.change');
 
 });
+
 Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
 Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
 Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');

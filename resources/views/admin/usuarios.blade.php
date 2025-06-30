@@ -2,6 +2,15 @@
 
 @section('content')
 <div class="container">
+
+  <div class="container">
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    @endif
+
     <h2>Gestión de Usuarios</h2>
     <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">Nuevo Usuario</button>
     <table id="tabla-usuarios" class="table table-bordered table-striped">
@@ -56,7 +65,15 @@
                         <div class="modal-body">
                           <div class="mb-3">
                             <label for="Usuario{{ $usuario->Id_Usuario }}" class="form-label">Usuario</label>
-                            <input type="text" class="form-control" id="Usuario{{ $usuario->Id_Usuario }}" name="Usuario" value="{{ $usuario->Usuario }}" required>
+                            <input
+                            type="text"
+                            class="form-control"
+                            id="Usuario{{ $usuario->Id_Usuario }}"
+                            value="{{ $usuario->Usuario }}"
+                            disabled
+                        >
+                        <input type="hidden" name="Usuario" value="{{ $usuario->Usuario }}">
+
                           </div>
                           <div class="mb-3">
                             <label for="Nombre_Usuario{{ $usuario->Id_Usuario }}" class="form-label">Nombre de Usuario</label>
@@ -82,6 +99,16 @@
                               <option value="NUEVO" @if($usuario->Estado_Usuario == 'NUEVO') selected @endif>NUEVO</option>
                             </select>
                           </div>
+                          <div class="mb-3">
+                            <label for="Fecha_Vencimiento{{ $usuario->Id_Usuario }}" class="form-label">Fecha de Vencimiento</label>
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="Fecha_Vencimiento{{ $usuario->Id_Usuario }}"
+                                name="Fecha_Vencimiento"
+                                value="{{ old('Fecha_Vencimiento', $usuario->Fecha_Vencimiento ? \Carbon\Carbon::parse($usuario->Fecha_Vencimiento)->format('Y-m-d') : '') }}"
+                            >
+                        </div>
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -108,7 +135,24 @@
             <div class="modal-body">
               <div class="mb-3">
                 <label for="Usuario" class="form-label">Usuario</label>
-                <input type="text" class="form-control" id="Usuario" name="Usuario" required>
+                <input
+                type="text"
+                name="Usuario"
+                id="Usuario"
+                maxlength="30"
+                class="form-control @error('Usuario') is-invalid @enderror"
+                value="{{ old('Usuario') }}"
+                required
+                maxlength="60"
+                pattern="[A-Z0-9]+"
+                title="Solo letras mayúsculas y números"
+            />
+
+            @error('Usuario')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
               </div>
               <div class="mb-3">
                 <label for="Nombre_Usuario" class="form-label">Nombre de Usuario</label>
@@ -116,7 +160,20 @@
               </div>
               <div class="mb-3">
                 <label for="Correo_Electronico" class="form-label">Correo</label>
-                <input type="email" class="form-control" id="Correo_Electronico" name="Correo_Electronico" required>
+               <input 
+                type="email" 
+                name="Correo_Electronico" 
+                class="form-control @error('Correo_Electronico') is-invalid @enderror" 
+                id="Correo_Electronico" 
+                value="{{ old('Correo_Electronico') }}" 
+                required
+              >
+
+              @error('Correo_Electronico')
+                  <div class="invalid-feedback">
+                      {{ $message }}
+                  </div>
+              @enderror
               </div>
               <div class="mb-3">
                 <label for="Id_Rol" class="form-label">Rol</label>
@@ -141,7 +198,7 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-success">Guardar Usuario</button>
+              <button type="submit" class="btn btn-success">Guardar</button>
             </div>
           </form>
         </div>
@@ -152,6 +209,14 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @if ($errors->any())
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var myModal = new bootstrap.Modal(document.getElementById('modalNuevoUsuario'));
+      myModal.show();
+    });
+  </script>
+@endif
     <script>
     $(document).ready(function() {
         $('#tabla-usuarios').DataTable({
@@ -163,6 +228,30 @@
         });
     });
     </script>
+
+        <script>
+    // Validar que campos de texto estén en MAYÚSCULAS automáticamente (excepto correo)
+    document.querySelectorAll('#modalNuevoUsuario input[type="text"]').forEach(input => {
+        if (input.name !== 'Correo_Electronico') {
+            input.addEventListener('input', function () {
+                this.value = this.value.toUpperCase();
+            });
+        }
+    });
+
+    // Evitar caracteres especiales en campos de texto
+    function soloLetrasYNumeros(e) {  
+        const key = e.key;
+        const regex = /^[A-Za-z0-9 ]+$/;
+        if (!regex.test(key)) {
+            e.preventDefault();
+        }
+    }
+    document.querySelectorAll('#modalNuevoUsuario input[name="Usuario"], #modalNuevoUsuario input[name="Nombre_Usuario"]').forEach(input => {
+        input.addEventListener('keypress', soloLetrasYNumeros);
+    });
+    </script>
+
 @endsection
 
 @section('css')
