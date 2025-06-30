@@ -13,7 +13,7 @@ class BitacoraController extends Controller
     {
         // Registrar evento de acceso a la bitácora
         if (Auth::check()) {
-            EVENT_BITACORA(Auth::user()->Id_Usuario, 4, 'Ingreso', 'El usuario accedió a la bitácora.');
+            \EVENT_BITACORA(Auth::user()->Id_Usuario, 4, 'Ingreso', 'El usuario accedió a la bitácora.');
         }
         $query = Bitacora::with(['usuario', 'objeto']);
         // Filtros

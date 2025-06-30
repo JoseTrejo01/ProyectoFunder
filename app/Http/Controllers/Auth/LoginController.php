@@ -58,19 +58,42 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        // 6. Verificar contraseña
-        if (!Hash::check($request->Contraseña, $user->Contraseña)) {
-            return back()->withErrors([
-                'Usuario' => 'Usuario/contraseña inválidos'
-            ])->withInput();
-        }
+       // 6. Verificar contraseña y manejar intentos fallidos
+$limiteIntentos = \DB::table('tbl_parametros')
+    ->where('Nombre_Parametro', 'ADMIN_INTENTOS_INVALIDOS')
+    ->value('Valor');
+
+$limiteIntentos = $limiteIntentos ?? 3; // valor por defecto si no existe el parámetro
+
+if (!Hash::check($request->Contraseña, $user->Contraseña)) {
+    $user->intentos = $user->intentos + 1;
+
+    if ($user->intentos >= $limiteIntentos) {
+        $user->Estado_Usuario = 'BLOQUEADO';
+        $user->save();
+
+        // Registrar en bitácora el bloqueo
+        EVENT_BITACORA(
+            $user->Id_Usuario,
+            1, // ← ID del objeto "Inicio de sesión"
+            'Bloqueo',
+            'El usuario fue bloqueado automáticamente tras ' . $limiteIntentos . ' intentos fallidos.'
+        );
+
+        return back()->withErrors([
+            'Usuario' => 'Tu cuenta ha sido bloqueada por múltiples intentos fallidos. Contacta al administrador.'
+        ])->withInput();
+    }
+
+    $user->save();
+
+    return back()->withErrors([
+        'Usuario' => 'Usuario/contraseña inválidos'
+    ])->withInput();
+}
 
         // 7. Verificar si el correo fue confirmado
-        if (is_null($user->email_verified_at)) {
-            return back()->withErrors([
-                'Usuario' => 'Debes verificar tu correo electrónico antes de iniciar sesión.'
-            ])->withInput();
-        }
+      
 
         // 8. Autenticar y redirigir
         Auth::login($user);
