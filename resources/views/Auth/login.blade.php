@@ -1,4 +1,5 @@
 @extends('adminlte::auth.auth-page', ['auth_type' => 'login'])
+
 @section('adminlte_css_pre')
 <style>
     body {
@@ -7,11 +8,9 @@
         font-family: 'Segoe UI', sans-serif;
     }
 
-
     .login-card {
         background-color: rgba(248, 243, 243, 0.97);
         border-radius: 1.5rem;
-
         box-shadow: 0 12px 40px rgba(91, 142, 62, 0.3);
         animation: fadeInUp 0.8s ease forwards;
         opacity: 0;
@@ -42,7 +41,7 @@
     }
 
     .form-control {
-        border: 1px solidrgb(48, 75, 102);
+        border: 1px solid rgb(48, 75, 102);
         border-radius: 0 0.5rem 0.5rem 0;
         padding: 0.75rem 1rem;
         font-size: 1rem;
@@ -56,7 +55,6 @@
 
     .btn-primary {
         background-color: #5B8E3E !important;
-        /* verde principal */
         border-color: #5B8E3E !important;
         color: white !important;
         border-radius: 0.75rem;
@@ -72,7 +70,6 @@
 
     .btn-primary:active {
         background-color: #2D6A4F !important;
-        /* verde oscuro */
         border-color: #2D6A4F !important;
         transform: translateY(-2px);
         color: white !important;
@@ -114,9 +111,6 @@
 </style>
 @stop
 
-
-
-
 @section('auth_header')
 <div class="login-logo text-center">
     <img src="{{ asset('images/cropped-cropped-logo-funder-1.webp') }}" alt="Logo FUNDER">
@@ -131,7 +125,8 @@
 
         {{-- Campo Usuario --}}
         <div class="input-group mb-3">
-            <input type="text" name="Usuario" id="Usuario" maxlength="30" class="form-control @error('Usuario') is-invalid @enderror"
+            <input type="text" name="Usuario" id="Usuario" maxlength="30"
+                class="form-control @error('Usuario') is-invalid @enderror"
                 value="{{ old('Usuario') }}" placeholder="Usuario" autofocus>
 
             <div class="input-group-append">
@@ -146,43 +141,25 @@
                 </span>
             @enderror
         </div>
-       {{-- Campo Contraseña --}}
-<div class="input-group mb-4">
-    <input type="password" name="Contraseña" id="Contraseña" maxlength="8"
-        class="form-control @error('Contraseña') is-invalid @enderror" placeholder="Contraseña">
 
-    {{-- Ojito para mostrar/ocultar contraseña --}}
-    <div class="input-group-append">
-        <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
-            <span class="fas fa-eye" id="eyeIcon"></span>
+        {{-- Campo Contraseña --}}
+        <div class="input-group mb-4">
+            <input type="password" name="Contraseña" id="Contraseña" maxlength="8"
+                class="form-control @error('Contraseña') is-invalid @enderror" placeholder="Contraseña">
+
+            {{-- Ojito para mostrar/ocultar contraseña --}}
+            <div class="input-group-append">
+                <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
+                    <span class="fas fa-eye" id="eyeIcon"></span>
+                </div>
+            </div>
+
+            @error('Contraseña')
+                <span class="invalid-feedback d-block" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
         </div>
-    </div>
-
-    @error('Contraseña')
-        <span class="invalid-feedback d-block" role="alert">
-            <strong>{{ $message }}</strong>
-        </span>
-    @enderror
-</div>
-
-{{-- Script directo para cambiar el tipo de input --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('Contraseña');
-        const eyeIcon = document.getElementById('eyeIcon');
-
-        togglePassword.addEventListener('click', function () {
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-
-            // Cambiar el ícono
-            eyeIcon.classList.toggle('fa-eye');
-            eyeIcon.classList.toggle('fa-eye-slash');
-        });
-    });
-</script>
-
 
         {{-- Botón de ingreso --}}
         <div class="row">
@@ -210,25 +187,30 @@
     </a>
 </div>
 
+{{-- script de mostrar/ocultar contraseña --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const campos = ['Usuario', 'Contraseña'];
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('Contraseña');
+    const eyeIcon = document.getElementById('eyeIcon');
 
-    campos.forEach(id => {
+    togglePassword.addEventListener('click', function () {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+
+    // bloqueo de copiar/pegar/drag
+    ['Usuario', 'Contraseña'].forEach(id => {
         const campo = document.getElementById(id);
-
         if (campo) {
-            // Bloquear clic derecho
             campo.addEventListener('contextmenu', e => e.preventDefault());
-
-            // Bloquear combinaciones de teclado (Ctrl+C, Ctrl+V, Ctrl+X)
             campo.addEventListener('keydown', e => {
-                if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
+                if ((e.ctrlKey || e.metaKey) && ['c','v','x','a'].includes(e.key.toLowerCase())) {
                     e.preventDefault();
                 }
             });
-
-            // Bloquear pegar (mouse, teclado o drag)
             campo.addEventListener('paste', e => e.preventDefault());
             campo.addEventListener('copy', e => e.preventDefault());
             campo.addEventListener('cut', e => e.preventDefault());
@@ -237,7 +219,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-
-
-
 @stop

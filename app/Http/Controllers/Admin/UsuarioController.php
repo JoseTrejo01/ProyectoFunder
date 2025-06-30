@@ -10,14 +10,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
-
-
-//CONTROLADOR PARA QUE EL ADMIN CREE UN NUEVO USUARIO, ACTULICE O ELIMINE UN USUARIO
 class UsuarioController extends Controller
 {
     public function index()
     {
-        // Obtener el objeto correspondiente a la vista de usuarios
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
@@ -27,7 +23,7 @@ class UsuarioController extends Controller
                 'El usuario ingresó a la gestión de usuarios'
             );
         }
-      
+
         $usuarios = User::with('rol')->orderBy('Id_Usuario', 'desc')->get();
         $roles = Rol::all();
         return view('admin.usuarios', compact('usuarios', 'roles'));
@@ -68,7 +64,6 @@ class UsuarioController extends Controller
             'Fecha_Vencimiento' => $fechaVencimiento,
         ]);
 
-        // Registrar en bitácora
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
@@ -85,35 +80,42 @@ class UsuarioController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            //'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
-            'Nombre_Usuario' => 'required|string|max:100',
+            'Usuario' => 'required|string|max:30|regex:/^[A-Z0-9]+$/|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
+            'Nombre_Usuario' => 'required|string|max:100|regex:/^[A-ZÑÁÉÍÓÚÜ ]+$/',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
             'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
             'Estado_Usuario' => 'required|string',
+        ], [
+            'Usuario.regex' => 'El usuario solo debe contener letras mayúsculas y números.',
+            'Nombre_Usuario.regex' => 'El nombre solo debe contener letras mayúsculas y espacios.',
+            'Correo_Electronico.email' => 'Debe ingresar un correo electrónico válido con @.',
+            'Correo_Electronico.unique' => 'Este correo ya está registrado.',
+            'Usuario.unique' => 'Este nombre de usuario ya existe.',
         ]);
 
         $usuario = User::findOrFail($id);
+
         $updateData = [
-            'Usuario' => $usuario->Usuario,
-            'Nombre_Usuario' => $request->Nombre_Usuario,
+            'Usuario' => strtoupper($request->Usuario),
+            'Nombre_Usuario' => strtoupper($request->Nombre_Usuario),
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
             'Estado_Usuario' => $request->Estado_Usuario,
         ];
-        // Si el estado cambia a ACTIVO, poner Primer_Ingreso en 0
+
         if ($request->Estado_Usuario === 'ACTIVO') {
             $updateData['Primer_Ingreso'] = 0;
         }
+
         $usuario->update($updateData);
 
-        // Registrar en bitácora la actualización de usuario
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
                 Auth::user()->Id_Usuario,
                 $objeto->Id_Objeto,
                 'Update',
-                'El usuario actualizó al usuario: ' . $usuario->Usuario
+                'Actualizó al usuario: ' . $usuario->Usuario
             );
         }
 
@@ -125,7 +127,6 @@ class UsuarioController extends Controller
         $usuario = User::findOrFail($id);
         $usuario->update(['Estado_Usuario' => 'INACTIVO']);
 
-        // Registrar en bitácora la eliminación (inactivación) de usuario
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(

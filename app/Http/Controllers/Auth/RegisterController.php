@@ -18,73 +18,72 @@ class RegisterController extends Controller
         return view('Auth.register');
     }
 
-public function register(Request $request)
-{
-    // Validar los datos
-    $this->validator($request->all())->validate();
+    public function register(Request $request)
+    {
+        // Validar los datos
+        $this->validator($request->all())->validate();
 
-    // Crear el usuario
-    $user = $this->create($request->all());
+        // Crear el usuario
+        $user = $this->create($request->all());
 
-    // Enviar el correo de verificación
-    event(new Registered($user));
+        // Enviar correo de verificación
+        event(new Registered($user));
 
-    // Iniciar sesión al usuario automáticamente (necesario para poder acceder a /email/verify)
-    Auth::login($user);
+        // Iniciar sesión automáticamente (para poder confirmar email)
+        Auth::login($user);
 
-    // Redirigir a la vista de verificación
-    return redirect()->route('verification.notice')->with('status', 'verification-link-sent');
-}
-   protected function validator(array $data)
-{
-   return Validator::make($data, [
-        'Usuario' => ['required', 'string', 'max:30', 'unique:tbl_ms_usuario'],
-        'Nombre_Usuario' => ['required', 'string', 'max:100'],
-        'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario'],
-        'Contraseña' => ['required', 'string', 'size:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/'],
-    ], [
-        'Usuario.required' => 'El campo usuario es obligatorio',
-        'Nombre_Usuario.required' => 'El campo nombre de usuario es obligatorio',
-        'Correo_Electronico.required' => 'El campo correo electrónico es obligatorio',
-        'Usuario.max' => 'El usuario no puede tener más de 30 caracteres.',
-        'Nombre_Usuario.max' => 'El nombre de usuario no puede tener más de 100 caracteres.',
-        'Correo_Electronico.max' => 'El correo electrónico no puede tener más de 60 caracteres.',
-        'Usuario.unique' => 'El usuario ya está registrado.',
-        'Correo_Electronico.unique' => 'El correo electrónico ya está registrado.',
-        'Contraseña.required' => 'El campo contraseña es obligatorio',
-        'Contraseña.size' => 'La contraseña debe tener al menos 8 caracteres.',
-        'Contraseña.confirmed' => 'La confirmación de la contraseña no coincide.',
-        'Contraseña.regex' => 'La contraseña debe contener letras y números sin espacios.'
-    ]);
-}
+        return redirect()->route('verification.notice')->with('status', 'verification-link-sent');
+    }
 
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'Usuario' => ['required', 'string', 'max:30', 'unique:tbl_ms_usuario'],
+            'Nombre_Usuario' => ['required', 'string', 'max:100'],
+            'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario'],
+            'Contraseña' => [
+                'required',
+                'string',
+                'size:8',
+                'confirmed',
+                'regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/'
+            ],
+        ], [
+            'Usuario.required' => 'El campo usuario es obligatorio.',
+            'Usuario.max' => 'El usuario no puede tener más de 30 caracteres.',
+            'Usuario.unique' => 'El usuario ya está registrado.',
+            'Nombre_Usuario.required' => 'El campo nombre de usuario es obligatorio.',
+            'Nombre_Usuario.max' => 'El nombre de usuario no puede tener más de 100 caracteres.',
+            'Correo_Electronico.required' => 'El campo correo electrónico es obligatorio.',
+            'Correo_Electronico.email' => 'Debe ser un correo válido.',
+            'Correo_Electronico.max' => 'El correo electrónico no puede tener más de 60 caracteres.',
+            'Correo_Electronico.unique' => 'El correo electrónico ya está registrado.',
+            'Contraseña.required' => 'El campo contraseña es obligatorio.',
+            'Contraseña.size' => 'La contraseña debe tener exactamente 8 caracteres.',
+            'Contraseña.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'Contraseña.regex' => 'La contraseña debe contener al menos una letra y un número, sin espacios.',
+        ]);
+    }
 
     protected function create(array $data)
     {
-        // Obtener el valor de ADMIN_DIAS_VIGENCIA desde tbl_parametros
-        $diasVigencia = DB::table('tbl_parametros')
+        $diasVigencia = (int) DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
 
-        // Asegurarse de que diasVigencia sea un número
-        $diasVigencia = (int) $diasVigencia;
-
-        // Fecha de creación
         $fechaCreacion = now();
-        // La fecha de vencimiento es la fecha de creación + días de vigencia
         $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
 
         return User::create([
-            'Id_Rol' => 3, // Rol AUTO-REGISTRO
+            'Id_Rol' => 3, // auto-registro
             'Usuario' => strtoupper($data['Usuario']),
             'Nombre_Usuario' => strtoupper($data['Nombre_Usuario']),
             'Correo_Electronico' => $data['Correo_Electronico'],
             'Contraseña' => Hash::make($data['Contraseña']),
-            'Estado_Usuario' => 'NUEVO', 
+            'Estado_Usuario' => 'NUEVO',
             'Primer_Ingreso' => 1,
             'Fecha_Creacion' => $fechaCreacion,
             'Fecha_Vencimiento' => $fechaVencimiento,
         ]);
     }
 }
-

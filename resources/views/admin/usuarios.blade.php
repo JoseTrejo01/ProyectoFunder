@@ -3,284 +3,227 @@
 @section('content')
 <div class="container">
 
-  <div class="container">
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-        </div>
-    @endif
-
-    <h2>Gestión de Usuarios</h2>
-    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">Nuevo Usuario</button>
-    <table id="tabla-usuarios" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Usuario</th>
-                <th>Nombre de Usuario</th>
-                <th>Correo</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Fecha de Registro</th>
-                <th>Fecha de Vencimiento</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($usuarios as $usuario)
-                <tr>
-                    <td>{{ $usuario->Usuario }}</td>
-                    <td>{{ $usuario->Nombre_Usuario }}</td>
-                    <td>{{ $usuario->Correo_Electronico }}</td>
-                    <td>{{ $usuario->rol->Rol ?? '-' }}</td>
-                    <td>{{ $usuario->Estado_Usuario }}</td>
-                    <td>{{ $usuario->Fecha_Creacion }}</td>
-                    <td>{{ $usuario->Fecha_Vencimiento ?? '-' }}</td>
-                    <td>
-                        <div class="d-flex align-items-center gap-1">
-                            <button class="btn btn-xs btn-primary p-1" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}" title="Editar" style="font-size: 0.85rem;">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <form action="{{ route('usuarios.destroy', $usuario->Id_Usuario) }}" method="POST" style="display:inline-block">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-xs btn-danger p-1" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')" title="Borrar" style="font-size: 0.85rem;">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Modal Editar Usuario -->
-                <div class="modal fade" id="modalEditarUsuario{{ $usuario->Id_Usuario }}" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel{{ $usuario->Id_Usuario }}" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <form method="POST" action="{{ route('usuarios.update', $usuario->Id_Usuario) }}">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="modalEditarUsuarioLabel{{ $usuario->Id_Usuario }}">Editar Usuario</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
-                        <div class="modal-body">
-                          <div class="mb-3">
-                            <label for="Usuario{{ $usuario->Id_Usuario }}" class="form-label">Usuario</label>
-                            <input
-                            type="text"
-                            class="form-control"
-                            id="Usuario{{ $usuario->Id_Usuario }}"
-                            value="{{ $usuario->Usuario }}"
-                            disabled
-                        >
-                        <input type="hidden" name="Usuario" value="{{ $usuario->Usuario }}">
-
-                          </div>
-                          <div class="mb-3">
-                            <label for="Nombre_Usuario{{ $usuario->Id_Usuario }}" class="form-label">Nombre de Usuario</label>
-                            <input type="text" class="form-control" id="Nombre_Usuario{{ $usuario->Id_Usuario }}" name="Nombre_Usuario" value="{{ $usuario->Nombre_Usuario }}" required>
-                          </div>
-                          <div class="mb-3">
-                            <label for="Correo_Electronico{{ $usuario->Id_Usuario }}" class="form-label">Correo</label>
-                            <input type="email" class="form-control" id="Correo_Electronico{{ $usuario->Id_Usuario }}" name="Correo_Electronico" value="{{ $usuario->Correo_Electronico }}" required>
-                          </div>
-                          <div class="mb-3">
-                            <label for="Id_Rol{{ $usuario->Id_Usuario }}" class="form-label">Rol</label>
-                            <select class="form-control" id="Id_Rol{{ $usuario->Id_Usuario }}" name="Id_Rol" required>
-                              @foreach($roles as $rol)
-                                <option value="{{ $rol->Id_Rol }}" @if($usuario->Id_Rol == $rol->Id_Rol) selected @endif>{{ $rol->Rol }}</option>
-                              @endforeach
-                            </select>
-                          </div>
-                          <div class="mb-3">
-                            <label for="Estado_Usuario{{ $usuario->Id_Usuario }}" class="form-label">Estado</label>
-                            <select class="form-control" id="Estado_Usuario{{ $usuario->Id_Usuario }}" name="Estado_Usuario" required>
-                              <option value="ACTIVO" @if($usuario->Estado_Usuario == 'ACTIVO') selected @endif>ACTIVO</option>
-                              <option value="INACTIVO" @if($usuario->Estado_Usuario == 'INACTIVO') selected @endif>INACTIVO</option>
-                              <option value="NUEVO" @if($usuario->Estado_Usuario == 'NUEVO') selected @endif>NUEVO</option>
-                            </select>
-                          </div>
-                          <div class="mb-3">
-                            <label for="Fecha_Vencimiento{{ $usuario->Id_Usuario }}" class="form-label">Fecha de Vencimiento</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="Fecha_Vencimiento{{ $usuario->Id_Usuario }}"
-                                name="Fecha_Vencimiento"
-                                value="{{ old('Fecha_Vencimiento', $usuario->Fecha_Vencimiento ? \Carbon\Carbon::parse($usuario->Fecha_Vencimiento)->format('Y-m-d') : '') }}"
-                            >
-                        </div>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-            @endforeach
-        </tbody>
-    </table>
-
-    <!-- Modal Nuevo Usuario -->
-    <div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalNuevoUsuarioLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form method="POST" action="{{ route('usuarios.store') }}">
-            @csrf
-            <div class="modal-header">
-              <h5 class="modal-title" id="modalNuevoUsuarioLabel">Agregar Nuevo Usuario</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="Usuario" class="form-label">Usuario</label>
-                <input
-                type="text"
-                name="Usuario"
-                id="Usuario"
-                maxlength="30"
-                class="form-control @error('Usuario') is-invalid @enderror"
-                value="{{ old('Usuario') }}"
-                required
-                maxlength="60"
-                pattern="[A-Z0-9]+"
-                title="Solo letras mayúsculas y números"
-            />
-
-            @error('Usuario')
-                <div class="invalid-feedback">
-                    {{ $message }}
-                </div>
-            @enderror
-              </div>
-              <div class="mb-3">
-                <label for="Nombre_Usuario" class="form-label">Nombre de Usuario</label>
-                <input type="text" class="form-control" id="Nombre_Usuario" name="Nombre_Usuario" required>
-              </div>
-              <div class="mb-3">
-                <label for="Correo_Electronico" class="form-label">Correo</label>
-               <input 
-                type="email" 
-                name="Correo_Electronico" 
-                class="form-control @error('Correo_Electronico') is-invalid @enderror" 
-                id="Correo_Electronico" 
-                value="{{ old('Correo_Electronico') }}" 
-                required
-              >
-
-              @error('Correo_Electronico')
-                  <div class="invalid-feedback">
-                      {{ $message }}
-                  </div>
-              @enderror
-              </div>
-              <div class="mb-3">
-                <label for="Id_Rol" class="form-label">Rol</label>
-                <select class="form-control" id="Id_Rol" name="Id_Rol" required>
-                  <option value="">Seleccione un rol</option>
-                  @foreach($roles as $rol)
-                    <option value="{{ $rol->Id_Rol }}">{{ $rol->Rol }}</option>
-                  @endforeach
-                </select>
-              </div>
-              <div class="mb-3">
-  <label for="Contraseña" class="form-label">Contraseña</label>
-  <div class="input-group">
-    <input type="password" id="Contraseña" name="Contraseña" class="form-control" minlength="8" maxlength="8" required onpaste="return false;"
-           oninvalid="this.setCustomValidity('La contraseña debe tener exactamente 8 caracteres.')"
-           oninput="this.setCustomValidity('')">
-    <span class="input-group-text" style="cursor: pointer;" onclick="togglePassword()">
-      <i id="eyeIcon" class="fas fa-eye"></i>
-    </span>
-  </div>
-</div>
-
-<script>
-  function togglePassword() {
-    const input = document.getElementById('Contraseña');
-    const eyeIcon = document.getElementById('eyeIcon');
-    if (input.type === 'password') {
-      input.type = 'text';
-      eyeIcon.classList.remove('fa-eye');
-      eyeIcon.classList.add('fa-eye-slash');
-    } else {
-      input.type = 'password';
-      eyeIcon.classList.remove('fa-eye-slash');
-      eyeIcon.classList.add('fa-eye');
-    }
-  }
-</script>
-
-              <div class="mb-3">
-                <label for="Estado_Usuario" class="form-label">Estado</label>
-                <select class="form-control" id="Estado_Usuario" name="Estado_Usuario" required>
-                  <option value="NUEVO">NUEVO</option>
-                  <option value="ACTIVO">ACTIVO</option>
-                  <option value="BLOQUEADO">BLOQUEADO</option>
-                  <option value="INACTIVO">INACTIVO</option>
-                  <option value="VACACIONES">VACACIONES</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-success">Guardar</button>
-            </div>
-          </form>
-        </div>
+  {{-- Mensaje de éxito --}}
+  @if(session('success'))
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ session('success') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
       </div>
-    </div>
+  @endif
+
+  <h2>Gestión de Usuarios</h2>
+  <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">Nuevo Usuario</button>
+
+  <table id="tabla-usuarios" class="table table-bordered table-striped">
+      <thead>
+          <tr>
+              <th>Usuario</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Fecha de Registro</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Acción</th>
+          </tr>
+      </thead>
+      <tbody>
+          @foreach($usuarios as $usuario)
+          <tr>
+              <td>{{ $usuario->Usuario }}</td>
+              <td>{{ $usuario->Nombre_Usuario }}</td>
+              <td>{{ $usuario->Correo_Electronico }}</td>
+              <td>{{ $usuario->rol->Rol ?? '-' }}</td>
+              <td>{{ $usuario->Estado_Usuario }}</td>
+              <td>{{ $usuario->Fecha_Creacion }}</td>
+              <td>{{ $usuario->Fecha_Vencimiento ?? '-' }}</td>
+              <td>
+                  <div class="d-flex gap-1">
+                      <button class="btn btn-xs btn-primary p-1" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}" title="Editar">
+                          <i class="fas fa-edit"></i>
+                      </button>
+                      <form action="{{ route('usuarios.destroy', $usuario->Id_Usuario) }}" method="POST" style="display:inline-block">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="btn btn-xs btn-danger p-1" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')" title="Borrar">
+                              <i class="fas fa-trash-alt"></i>
+                          </button>
+                      </form>
+                  </div>
+              </td>
+          </tr>
+
+          {{-- Modal Editar --}}
+          <div class="modal fade" id="modalEditarUsuario{{ $usuario->Id_Usuario }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <form method="POST" action="{{ route('usuarios.update', $usuario->Id_Usuario) }}">
+                          @csrf
+                          @method('PUT')
+                          <div class="modal-header">
+                              <h5>Editar Usuario</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                          </div>
+                          <div class="modal-body">
+                              <div class="mb-3">
+                                  <label>Usuario</label>
+                                  <input type="text" class="form-control" value="{{ $usuario->Usuario }}" disabled>
+                                  <input type="hidden" name="Usuario" value="{{ $usuario->Usuario }}">
+                              </div>
+                              <div class="mb-3">
+                                  <label>Nombre</label>
+                                  <input type="text" class="form-control" name="Nombre_Usuario" value="{{ $usuario->Nombre_Usuario }}" required>
+                              </div>
+                              <div class="mb-3">
+                                  <label>Correo</label>
+                                  <input type="email" class="form-control" name="Correo_Electronico" value="{{ $usuario->Correo_Electronico }}" required>
+                              </div>
+                              <div class="mb-3">
+                                  <label>Rol</label>
+                                  <select class="form-control" name="Id_Rol" required>
+                                      @foreach($roles as $rol)
+                                          <option value="{{ $rol->Id_Rol }}" @if($rol->Id_Rol == $usuario->Id_Rol) selected @endif>{{ $rol->Rol }}</option>
+                                      @endforeach
+                                  </select>
+                              </div>
+                              <div class="mb-3">
+                                  <label>Estado</label>
+                                  <select class="form-control" name="Estado_Usuario" required>
+                                      <option value="ACTIVO" @if($usuario->Estado_Usuario == 'ACTIVO') selected @endif>ACTIVO</option>
+                                      <option value="INACTIVO" @if($usuario->Estado_Usuario == 'INACTIVO') selected @endif>INACTIVO</option>
+                                      <option value="NUEVO" @if($usuario->Estado_Usuario == 'NUEVO') selected @endif>NUEVO</option>
+                                  </select>
+                              </div>
+                              <div class="mb-3">
+                                  <label>Fecha Vencimiento</label>
+                                  <input type="date" class="form-control" name="Fecha_Vencimiento" value="{{ $usuario->Fecha_Vencimiento ? \Carbon\Carbon::parse($usuario->Fecha_Vencimiento)->format('Y-m-d') : '' }}">
+                              </div>
+                          </div>
+                          <div class="modal-footer">
+                              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                              <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+          @endforeach
+      </tbody>
+  </table>
+
+  {{-- Modal Nuevo --}}
+  <div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <form method="POST" action="{{ route('usuarios.store') }}">
+                  @csrf
+                  <div class="modal-header">
+                      <h5>Nuevo Usuario</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                      <div class="mb-3">
+                          <label>Usuario</label>
+                          <input type="text" name="Usuario" class="form-control @error('Usuario') is-invalid @enderror" maxlength="30" pattern="[A-Z0-9]+" title="Solo letras mayúsculas y números" required value="{{ old('Usuario') }}">
+                          @error('Usuario') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                      </div>
+                      <div class="mb-3">
+                          <label>Nombre</label>
+                          <input type="text" name="Nombre_Usuario" class="form-control" required>
+                      </div>
+                      <div class="mb-3">
+                          <label>Correo</label>
+                          <input type="email" name="Correo_Electronico" class="form-control @error('Correo_Electronico') is-invalid @enderror" required value="{{ old('Correo_Electronico') }}">
+                          @error('Correo_Electronico') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                      </div>
+                      <div class="mb-3">
+                          <label>Rol</label>
+                          <select name="Id_Rol" class="form-control" required>
+                              <option value="">Seleccione un rol</option>
+                              @foreach($roles as $rol)
+                                  <option value="{{ $rol->Id_Rol }}">{{ $rol->Rol }}</option>
+                              @endforeach
+                          </select>
+                      </div>
+                      <div class="mb-3">
+                          <label>Contraseña</label>
+                          <div class="input-group">
+                              <input type="password" name="Contraseña" id="Contraseña" minlength="8" maxlength="8" class="form-control" required>
+                              <span class="input-group-text" style="cursor:pointer" onclick="togglePassword()"><i id="eyeIcon" class="fas fa-eye"></i></span>
+                          </div>
+                      </div>
+                      <div class="mb-3">
+                          <label>Estado</label>
+                          <select name="Estado_Usuario" class="form-control" required>
+                              <option value="NUEVO">NUEVO</option>
+                              <option value="ACTIVO">ACTIVO</option>
+                              <option value="BLOQUEADO">BLOQUEADO</option>
+                              <option value="INACTIVO">INACTIVO</option>
+                              <option value="VACACIONES">VACACIONES</option>
+                          </select>
+                      </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="submit" class="btn btn-success">Guardar</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+
 </div>
 @endsection
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    @if ($errors->any())
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var myModal = new bootstrap.Modal(document.getElementById('modalNuevoUsuario'));
-      myModal.show();
-    });
-  </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@if ($errors->any())
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var modal = new bootstrap.Modal(document.getElementById('modalNuevoUsuario'));
+      modal.show();
+  });
+</script>
 @endif
-    <script>
-    $(document).ready(function() {
-        $('#tabla-usuarios').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-            },
-            order: [[5, 'desc']], // Cambiado: 5 es la columna 'Fecha de Registro'
-            searching: false
+<script>
+$(document).ready(function() {
+    $('#tabla-usuarios').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+        },
+        order: [[5, 'desc']],
+        searching: false
+    });
+});
+
+function togglePassword() {
+    const input = document.getElementById('Contraseña');
+    const eyeIcon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+
+// mayúsculas automáticas y validación de caracteres
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('#modalNuevoUsuario input[name="Usuario"], #modalNuevoUsuario input[name="Nombre_Usuario"]').forEach(input => {
+        input.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+        input.addEventListener('keypress', function(e) {
+            if (!/^[A-Z0-9 ]$/.test(e.key)) e.preventDefault();
         });
     });
-    </script>
-
-        <script>
-    // Validar que campos de texto estén en MAYÚSCULAS automáticamente (excepto correo)
-    document.querySelectorAll('#modalNuevoUsuario input[type="text"]').forEach(input => {
-        if (input.name !== 'Correo_Electronico') {
-            input.addEventListener('input', function () {
-                this.value = this.value.toUpperCase();
-            });
-        }
-    });
-
-    // Evitar caracteres especiales en campos de texto
-    function soloLetrasYNumeros(e) {  
-        const key = e.key;
-        const regex = /^[A-Za-z0-9 ]+$/;
-        if (!regex.test(key)) {
-            e.preventDefault();
-        }
-    }
-    document.querySelectorAll('#modalNuevoUsuario input[name="Usuario"], #modalNuevoUsuario input[name="Nombre_Usuario"]').forEach(input => {
-        input.addEventListener('keypress', soloLetrasYNumeros);
-    });
-    </script>
-
+});
+</script>
 @endsection
 
 @section('css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 @endsection

@@ -43,15 +43,15 @@ class ForgotPasswordController extends Controller
             return back()->withErrors(['Usuario' => 'El usuario no existe.']);
         }
 
-       $estado = strtoupper(trim($user->Estado_Usuario));
+        $estado = strtoupper(trim($user->Estado_Usuario));
 
-            if ($estado === 'BLOQUEADO') {
-                return back()->withErrors(['Usuario' => 'Tu cuenta está bloqueada y no puedes resetear la contraseña.']);
-            }
+        if ($estado === 'BLOQUEADO') {
+            return back()->withErrors(['Usuario' => 'Tu cuenta está bloqueada y no puedes restablecer la contraseña.']);
+        }
 
-            if ($estado !== 'ACTIVO') {
-                return back()->withErrors(['Usuario' => 'Esta cuenta no está activa para restablecer contraseña.']);
-            }
+        if ($estado !== 'ACTIVO') {
+            return back()->withErrors(['Usuario' => 'Esta cuenta no está activa para restablecer contraseña.']);
+        }
 
         try {
             $otp = rand(100000, 999999);
@@ -67,7 +67,6 @@ class ForgotPasswordController extends Controller
             });
 
             return redirect()->route('otp.form')->with('status', 'Código enviado a tu correo electrónico');
-
         } catch (\Exception $e) {
             return back()->withErrors(['Usuario' => 'Hubo un error al enviar el código. Intenta de nuevo.']);
         }
@@ -83,11 +82,12 @@ class ForgotPasswordController extends Controller
     public function verifyOtp(Request $request)
     {
         $request->validate([
-    'otp' => 'required|digits:6'
-], [
-    'otp.required' => 'El código OTP es obligatorio.',
-    'otp.digits' => 'El código debe tener exactamente 6 dígitos.'
-]);
+            'otp' => 'required|digits:6'
+        ], [
+            'otp.required' => 'El código OTP es obligatorio.',
+            'otp.digits' => 'El código debe tener exactamente 6 dígitos.'
+        ]);
+
         $user = User::where('otp_code', $request->otp)
                     ->where('otp_expires_at', '>=', now())
                     ->first();
@@ -165,3 +165,4 @@ class ForgotPasswordController extends Controller
         return back()->with('status', 'Código reenviado a tu correo.');
     }
 }
+
