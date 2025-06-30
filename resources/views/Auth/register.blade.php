@@ -114,7 +114,7 @@
         <div class="input-group mb-3">
             <input type="text" name="Nombre_Usuario" id="Nombre_Usuario"
                 class="form-control @error('Nombre_Usuario') is-invalid @enderror" value="{{ old('Nombre_Usuario') }}"
-                placeholder="Nombre completo" required>
+                placeholder="Nombre completo" required maxlength="40">
             <div class="input-group-append">
                 <div class="input-group-text"><span class="fas fa-user-tag"></span></div>
             </div>
@@ -127,9 +127,12 @@
         <div class="input-group mb-3">
             <input type="email" name="Correo_Electronico"
                 class="form-control @error('Correo_Electronico') is-invalid @enderror"
-                value="{{ old('Correo_Electronico') }}" placeholder="Correo Electrónico" required>
+                value="{{ old('Correo_Electronico') }}" placeholder="Correo Electrónico" required id="Correo_Electronico">
             <div class="input-group-append">
                 <div class="input-group-text"><span class="fas fa-envelope"></span></div>
+            </div>
+            <div class="invalid-feedback d-none" id="correo-error-registro">
+                El correo debe ser de dominio gmail.com o hotmail.com
             </div>
             @error('Correo_Electronico')
                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
@@ -219,28 +222,78 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const campos = ['Usuario', 'Nombre_Usuario', 'Correo_Electronico', 'Contraseña', 'Contraseña_confirmation'];
+        // Bloquear clic derecho
+        document.getElementById('Usuario').addEventListener('contextmenu', e => e.preventDefault());
+        document.getElementById('Nombre_Usuario').addEventListener('contextmenu', e => e.preventDefault());
 
-        campos.forEach(id => {
-            const campo = document.getElementById(id);
+        // Bloquear teclas rápidas (Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A)
+        document.getElementById('Usuario').addEventListener('keydown', e => {
+            if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+        });
+        document.getElementById('Nombre_Usuario').addEventListener('keydown', e => {
+            if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+        });
+
+        // Bloquear acciones de copiar, pegar, cortar o soltar
+        document.getElementById('Usuario').addEventListener('paste', e => e.preventDefault());
+        document.getElementById('Usuario').addEventListener('copy', e => e.preventDefault());
+        document.getElementById('Usuario').addEventListener('cut', e => e.preventDefault());
+        document.getElementById('Usuario').addEventListener('drop', e => e.preventDefault());
+
+        document.getElementById('Nombre_Usuario').addEventListener('paste', e => e.preventDefault());
+        document.getElementById('Nombre_Usuario').addEventListener('copy', e => e.preventDefault());
+        document.getElementById('Nombre_Usuario').addEventListener('cut', e => e.preventDefault());
+        document.getElementById('Nombre_Usuario').addEventListener('drop', e => e.preventDefault());
+
+        // Bloquear caracteres especiales, pegar y cortar en Usuario y Nombre_Usuario
+        const campos = [
+            document.getElementById('Usuario'),
+            document.getElementById('Nombre_Usuario')
+        ];
+        campos.forEach(function(campo) {
             if (campo) {
-                // Bloquear clic derecho
-                campo.addEventListener('contextmenu', e => e.preventDefault());
-
-                // Bloquear teclas rápidas (Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A)
-                campo.addEventListener('keydown', e => {
-                    if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
+                campo.addEventListener('keypress', function(e) {
+                    const regex = /^[A-Za-z0-9 ]+$/;
+                    if (!regex.test(e.key)) {
                         e.preventDefault();
                     }
                 });
-
-                // Bloquear acciones de copiar, pegar, cortar o soltar
                 campo.addEventListener('paste', e => e.preventDefault());
                 campo.addEventListener('copy', e => e.preventDefault());
                 campo.addEventListener('cut', e => e.preventDefault());
                 campo.addEventListener('drop', e => e.preventDefault());
             }
         });
+
+        // Validación de dominio de correo en auto registro
+        const correoRegistro = document.getElementById('Correo_Electronico');
+        const errorCorreoRegistro = document.getElementById('correo-error-registro');
+        const formRegistro = document.querySelector('form[action="{{ route('register') }}"]');
+        if (correoRegistro && errorCorreoRegistro && formRegistro) {
+            correoRegistro.addEventListener('input', function() {
+                const val = this.value.trim().toLowerCase();
+                if (val && !val.endsWith('@gmail.com') && !val.endsWith('@hotmail.com')) {
+                    correoRegistro.classList.add('is-invalid');
+                    errorCorreoRegistro.classList.remove('d-none');
+                } else {
+                    correoRegistro.classList.remove('is-invalid');
+                    errorCorreoRegistro.classList.add('d-none');
+                }
+            });
+            formRegistro.addEventListener('submit', function(e) {
+                const val = correoRegistro.value.trim().toLowerCase();
+                if (val && !val.endsWith('@gmail.com') && !val.endsWith('@hotmail.com')) {
+                    correoRegistro.classList.add('is-invalid');
+                    errorCorreoRegistro.classList.remove('d-none');
+                    correoRegistro.focus();
+                    e.preventDefault();
+                }
+            });
+        }
     });
 </script>
 

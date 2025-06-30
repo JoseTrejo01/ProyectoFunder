@@ -103,7 +103,7 @@
             {{-- Campo Usuario --}}
             <div class="input-group mb-3">
                 <input type="text" name="Usuario" id="Usuario" class="form-control @error('Usuario') is-invalid @enderror"
-                    value="{{ old('Usuario') }}" placeholder="Usuario" autofocus>
+                    value="{{ old('Usuario') }}" placeholder="Usuario" autofocus style="text-transform:uppercase;">
                 <div class="input-group-append">
                     <div class="input-group-text">
                         <span class="fas fa-user"></span>
@@ -126,6 +126,16 @@
         </div>
     </form>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const usuarioInput = document.getElementById('Usuario');
+        if(usuarioInput) {
+            usuarioInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+    });
+</script>
 @stop
 
 @section('auth_footer')

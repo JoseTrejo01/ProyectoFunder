@@ -400,10 +400,7 @@ return [
     | Plugins Initialization
     |--------------------------------------------------------------------------
     |
-    | Here we can modify the plugins used inside the admin panel.
-    |
-    | For detailed instructions you can look the plugins section here:
-    | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Plugins-Configuration
+    | Aquí puedes activar los plugins de JS que quieras usar en AdminLTE.
     |
     */
 
@@ -425,11 +422,6 @@ return [
                     'type' => 'css',
                     'asset' => false,
                     'location' => 'https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css',
-                ],
-                [
-                    'type' => 'js',
-                    'asset' => false,
-                    'location' => 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json', // idioma español
                 ],
             ],
         ],
@@ -459,7 +451,7 @@ return [
             ],
         ],
         'Sweetalert2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',

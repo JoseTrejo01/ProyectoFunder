@@ -5,10 +5,19 @@
 
   <div class="container">
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: @json(session('success')),
+                    confirmButtonColor: '#5B8E3E',
+                    timer: 2500,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            });
+        </script>
     @endif
 
     <h2>Gestión de Usuarios</h2>
@@ -41,10 +50,10 @@
                             <button class="btn btn-xs btn-primary p-1" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}" title="Editar" style="font-size: 0.85rem;">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <form action="{{ route('usuarios.destroy', $usuario->Id_Usuario) }}" method="POST" style="display:inline-block">
+                            <form action="{{ route('usuarios.destroy', $usuario->Id_Usuario) }}" method="POST" style="display:inline-block" onsubmit="return confirmarEliminacion(event)">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-xs btn-danger p-1" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')" title="Borrar" style="font-size: 0.85rem;">
+                                <button type="submit" class="btn btn-xs btn-danger p-1" title="Borrar" style="font-size: 0.85rem;">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
@@ -77,7 +86,7 @@
                           </div>
                           <div class="mb-3">
                             <label for="Nombre_Usuario{{ $usuario->Id_Usuario }}" class="form-label">Nombre de Usuario</label>
-                            <input type="text" class="form-control" id="Nombre_Usuario{{ $usuario->Id_Usuario }}" name="Nombre_Usuario" value="{{ $usuario->Nombre_Usuario }}" required>
+                            <input type="text" class="form-control" id="Nombre_Usuario{{ $usuario->Id_Usuario }}" name="Nombre_Usuario" value="{{ $usuario->Nombre_Usuario }}" required maxlength="40>
                           </div>
                           <div class="mb-3">
                             <label for="Correo_Electronico{{ $usuario->Id_Usuario }}" class="form-label">Correo</label>
@@ -97,6 +106,8 @@
                               <option value="ACTIVO" @if($usuario->Estado_Usuario == 'ACTIVO') selected @endif>ACTIVO</option>
                               <option value="INACTIVO" @if($usuario->Estado_Usuario == 'INACTIVO') selected @endif>INACTIVO</option>
                               <option value="NUEVO" @if($usuario->Estado_Usuario == 'NUEVO') selected @endif>NUEVO</option>
+                              <option value="BLOQUEADO" @if($usuario->Estado_Usuario == 'BLOQUEADO') selected @endif>BLOQUEADO</option>
+                              <option value="VACACIONES" @if($usuario->Estado_Usuario == 'VACACIONES') selected @endif>VACACIONES</option>
                             </select>
                           </div>
                           <div class="mb-3">
@@ -156,7 +167,7 @@
               </div>
               <div class="mb-3">
                 <label for="Nombre_Usuario" class="form-label">Nombre de Usuario</label>
-                <input type="text" class="form-control" id="Nombre_Usuario" name="Nombre_Usuario" required>
+                <input type="text" class="form-control" id="Nombre_Usuario" name="Nombre_Usuario" required maxlength="40>
               </div>
               <div class="mb-3">
                 <label for="Correo_Electronico" class="form-label">Correo</label>
@@ -209,6 +220,7 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     @if ($errors->any())
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -218,10 +230,43 @@
   </script>
 @endif
     <script>
+    function confirmarEliminacion(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¡Esta acción inactivará al usuario!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                e.target.submit();
+            }
+        });
+        return false;
+    }
+    </script>
+
+    <script>
     $(document).ready(function() {
         $('#tabla-usuarios').DataTable({
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+                lengthMenu: 'Mostrar _MENU_ registros',
+                zeroRecords: 'No se encontraron resultados',
+                info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+                infoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 registros',
+                infoFiltered: '(filtrado de un total de _MAX_ registros)',
+                search: 'Buscar:',
+                paginate: {
+                    first: 'Primero',
+                    last: 'Último',
+                    next: 'Siguiente',
+                    previous: 'Anterior'
+                },
+                processing: 'Procesando...'
             },
             order: [[5, 'desc']], // Cambiado: 5 es la columna 'Fecha de Registro'
             searching: false
@@ -229,26 +274,43 @@
     });
     </script>
 
-        <script>
-    // Validar que campos de texto estén en MAYÚSCULAS automáticamente (excepto correo)
-    document.querySelectorAll('#modalNuevoUsuario input[type="text"]').forEach(input => {
-        if (input.name !== 'Correo_Electronico') {
-            input.addEventListener('input', function () {
-                this.value = this.value.toUpperCase();
+    <script>
+    // Aplica validaciones cada vez que se abre el modal Nuevo Usuario
+    document.addEventListener('DOMContentLoaded', function () {
+        var modalNuevoUsuario = document.getElementById('modalNuevoUsuario');
+        if (modalNuevoUsuario) {
+            modalNuevoUsuario.addEventListener('shown.bs.modal', function () {
+                // Forzar mayúsculas en Usuario y Nombre_Usuario
+                var usuarioInput = document.getElementById('Usuario');
+                var nombreUsuarioInput = document.getElementById('Nombre_Usuario');
+                if (usuarioInput) {
+                    usuarioInput.addEventListener('input', function () {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+                if (nombreUsuarioInput) {
+                    nombreUsuarioInput.setAttribute('maxlength', '40');
+                    nombreUsuarioInput.addEventListener('input', function () {
+                        this.value = this.value.toUpperCase();
+                        if (this.value.length > 40) {
+                            this.value = this.value.slice(0, 40);
+                        }
+                    });
+                }
+                // Bloquear caracteres especiales en Usuario y Nombre_Usuario
+                var campos = [usuarioInput, nombreUsuarioInput];
+                campos.forEach(function(campo) {
+                    if (campo) {
+                        campo.addEventListener('keypress', function(e) {
+                            const regex = /^[A-Za-z0-9 ]+$/;
+                            if (!regex.test(e.key)) {
+                                e.preventDefault();
+                            }
+                        });
+                    }
+                });
             });
         }
-    });
-
-    // Evitar caracteres especiales en campos de texto
-    function soloLetrasYNumeros(e) {  
-        const key = e.key;
-        const regex = /^[A-Za-z0-9 ]+$/;
-        if (!regex.test(key)) {
-            e.preventDefault();
-        }
-    }
-    document.querySelectorAll('#modalNuevoUsuario input[name="Usuario"], #modalNuevoUsuario input[name="Nombre_Usuario"]').forEach(input => {
-        input.addEventListener('keypress', soloLetrasYNumeros);
     });
     </script>
 

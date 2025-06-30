@@ -77,11 +77,23 @@ class LoginController extends Controller
             // Verificar si alcanzó el límite
             if ($user->Intentos_Fallidos >= $limiteIntentos) {
                 $user->Estado_Usuario = 'BLOQUEADO';
+                // Registrar en bitácora el bloqueo por intentos fallidos
+                try {
+                    $objeto = \App\Models\Objeto::where('Objeto', 'Usuarios')->first();
+                    if ($objeto) {
+                        EVENT_BITACORA(
+                            $user->Id_Usuario,
+                            $objeto->Id_Objeto,
+                            'Bloqueo',
+                            'El usuario fue bloqueado por intentos fallidos de inicio de sesión.'
+                        );
+                    }
+                } catch (\Throwable $e) {}
             }
             $user->save();
             return back()->withErrors([
                 'Usuario' => $user->Estado_Usuario === 'BLOQUEADO'
-                    ? 'Tu cuenta ha sido bloqueada por múltiples intentos fallidos.'
+                    ? 'Tu cuenta ha sido bloqueada'
                     : 'Usuario/contraseña inválidos'
             ])->withInput();
         }

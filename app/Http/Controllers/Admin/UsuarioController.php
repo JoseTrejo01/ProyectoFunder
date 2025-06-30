@@ -37,19 +37,21 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Usuario' => 'required|string|max:30|regex:/^[A-Z0-9]+$/|unique:tbl_ms_usuario,Usuario',
-            'Nombre_Usuario' => 'required|string|max:100|regex:/^[A-ZÑÁÉÍÓÚÜ ]+$/',
-            'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico',
-            'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
-            'Estado_Usuario' => 'required|string',
-            'Contraseña' => 'required|string|min:8',
+            'Usuario' => ['required', 'string', 'max:40', 'unique:tbl_ms_usuario,Usuario'],
+            'Nombre_Usuario' => ['required', 'string', 'max:40'],
+            'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario,Correo_Electronico'],
+            'Id_Rol' => ['required', 'integer', 'exists:tbl_ms_rol,Id_Rol'],
+            'Estado_Usuario' => ['required', 'string'],
         ], [
-            'Usuario.regex' => 'El usuario solo debe contener letras mayúsculas y números.',
-            'Nombre_Usuario.regex' => 'El nombre solo debe contener letras mayúsculas y espacios.',
-            'Correo_Electronico.email' => 'Debe ingresar un correo electrónico válido con @.',
+            'Usuario.required' => 'El campo usuario es obligatorio',
+            'Usuario.max' => 'El usuario no puede tener más de 40 caracteres.',
+            'Usuario.unique' => 'El usuario ya está registrado.',
+            'Nombre_Usuario.required' => 'El campo nombre de usuario es obligatorio',
+            'Nombre_Usuario.max' => 'El nombre de usuario no puede tener más de 40 caracteres.',
+            'Correo_Electronico.required' => 'El campo correo electrónico es obligatorio',
+            'Correo_Electronico.max' => 'El correo electrónico no puede tener más de 60 caracteres.',
             'Correo_Electronico.unique' => 'Este correo ya está registrado.',
-            'Usuario.unique' => 'Este nombre de usuario ya existe.',
-            'Usuario.max' => 'El usuario no puede tener más de 30 caracteres.',
+            'Correo_Electronico.email' => 'Debe ingresar un correo electrónico válido con @.',
         ]);
 
         $fechaCreacion = now();
@@ -101,14 +103,19 @@ class UsuarioController extends Controller
         ]);
 
         $usuario = User::findOrFail($id);
+        $diasVigencia = (int) \DB::table('tbl_parametros')
+            ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
+            ->value('Valor');
+        $fechaVencimiento = now()->copy()->addDays($diasVigencia);
         $updateData = [
             'Usuario' => $request->Usuario,
             'Nombre_Usuario' => $request->Nombre_Usuario,
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
             'Estado_Usuario' => $request->Estado_Usuario,
+            'Fecha_Vencimiento' => $fechaVencimiento,
         ];
-     
+        $usuario->update($updateData);
 
         // Registrar en bitácora la actualización de usuario
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
