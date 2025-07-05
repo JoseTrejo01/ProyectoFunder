@@ -73,3 +73,6 @@ Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuari
 Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
 Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
 Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+
+//rutas de socios 
+Route::resource('socios', App\Http\Controllers\SocioController::class);
