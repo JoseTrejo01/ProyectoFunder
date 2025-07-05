@@ -21,6 +21,18 @@ class SocioController extends Controller
         });
     }
 
+    if ($request->filled('genero')) {
+        $query->where('genero', $request->genero);
+    }
+
+    if ($request->filled('localidad')) {
+        $query->where('direccion', 'like', "%{$request->localidad}%");
+    }
+
+    if ($request->filled('tipo')) {
+        $query->where('Tipo_De_Socio', 'like', "%{$request->tipo}%");
+    }
+
     $socios = $query->paginate(10);
 
     return view('socios.index', compact('socios'));
