@@ -9,44 +9,45 @@ use Illuminate\Support\Facades\Auth;
 
 class BitacoraController extends Controller
 {
-    public function verBitacora(Request $request)
-    {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Bitacora', 'Consultar')) {
-            abort(403, 'No tienes permiso para ver la bitácora.');
-        }
-        // Registrar evento de acceso a la bitácora
-        if (Auth::check()) {
-            EVENT_BITACORA(Auth::user()->Id_Usuario, 4, 'Ingreso', 'El usuario accedió a la bitácora.');
-        }
-        $query = Bitacora::with(['usuario', 'objeto']);
-        // Filtros
-        if ($request->filled('usuario')) {
-            $query->whereHas('usuario', function($q) use ($request) {
-                $q->where('Nombre_Usuario', 'like', '%'.$request->usuario.'%');
-            });
-        }
-        if ($request->filled('objeto')) {
-            $query->whereHas('objeto', function($q) use ($request) {
-                $q->where('Objeto', 'like', '%'.$request->objeto.'%');
-            });
-        }
-        if ($request->filled('accion')) {
-            $query->where('Accion', 'like', '%'.$request->accion.'%');
-        }
-        if ($request->filled('fecha_desde')) {
-            $query->where('Fecha', '>=', $request->fecha_desde);
-        }
-        if ($request->filled('fecha_hasta')) {
-            // Si la fecha_hasta no tiene hora, agregar 23:59:59 para incluir todo el día
-            $fechaHasta = $request->fecha_hasta;
-            if (strlen($fechaHasta) === 10) { // formato YYYY-MM-DD
-                $fechaHasta .= ' 23:59:59';
-            }
-            $query->where('Fecha', '<=', $fechaHasta);
-        }
-        $registros = $query->orderBy('Fecha', 'desc')->get();
-        return view('admin.ver_bitacora', compact('registros'));
+  public function verBitacora(Request $request)
+{
+    // Primero verifica el permiso ANTES de registrar el evento
+    if (!auth()->user() || !auth()->user()->tienePermiso('Bitacora', 'Consultar')) {
+        abort(403, 'No tienes permiso para ver la bitácora.');
     }
+    // Registrar evento de acceso a la bitácora SOLO si tiene permiso
+    if (Auth::check()) {
+        EVENT_BITACORA(Auth::user()->Id_Usuario, 4, 'Ingreso', 'El usuario accedió a la bitácora.');
+    }
+    $query = Bitacora::with(['usuario', 'objeto']);
+    // Filtros
+    if ($request->filled('usuario')) {
+        $query->whereHas('usuario', function($q) use ($request) {
+            $q->where('Nombre_Usuario', 'like', '%'.$request->usuario.'%');
+        });
+    }
+    if ($request->filled('objeto')) {
+        $query->whereHas('objeto', function($q) use ($request) {
+            $q->where('Objeto', 'like', '%'.$request->objeto.'%');
+        });
+    }
+    if ($request->filled('accion')) {
+        $query->where('Accion', 'like', '%'.$request->accion.'%');
+    }
+    if ($request->filled('fecha_desde')) {
+        $query->where('Fecha', '>=', $request->fecha_desde);
+    }
+    if ($request->filled('fecha_hasta')) {
+        // Si la fecha_hasta no tiene hora, agregar 23:59:59 para incluir todo el día
+        $fechaHasta = $request->fecha_hasta;
+        if (strlen($fechaHasta) === 10) { // formato YYYY-MM-DD
+            $fechaHasta .= ' 23:59:59';
+        }
+        $query->where('Fecha', '<=', $fechaHasta);
+    }
+    $registros = $query->orderBy('Fecha', 'desc')->get();
+    return view('admin.ver_bitacora', compact('registros'));
+}
 
     public function borrarBitacora(Request $request)
     {
