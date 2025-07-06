@@ -103,3 +103,6 @@ Route::get('/parametros', [ParametroController::class, 'index'])->name('parametr
 Route::post('/parametros', [ParametroController::class, 'store'])->name('parametros.store');
 Route::put('/parametros/{id}', [ParametroController::class, 'update'])->name('parametros.update');
 Route::delete('/parametros/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
+
+//rutas de socios 
+Route::resource('socios', App\Http\Controllers\SocioController::class);
