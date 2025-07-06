@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 
 use App\Http\Controllers\Admin\PermisoController;
 use App\Http\Controllers\Admin\BitacoraController;
+use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\DatabaseController;
 

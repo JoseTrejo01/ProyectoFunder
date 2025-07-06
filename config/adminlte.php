@@ -297,82 +297,84 @@ return [
     |
     */
 
-   'menu' => [
-    // Navbar items:
-    [
-        'type' => 'navbar-search',
-        'text' => 'search',
-        'topnav_right' => true,
-    ],
-    [
-        'type' => 'fullscreen-widget',
-        'topnav_right' => true,
-    ],
+    'menu' => [
+        // Navbar items:
+        [
+            'type' => 'navbar-search',
+            'text' => 'search',
+            'topnav_right' => true,
+        ],
+        [
+            'type' => 'fullscreen-widget',
+            'topnav_right' => true,
+        ],
 
-    // Sidebar items:
-    [
-        'type' => 'sidebar-menu-search',
-        'text' => 'search',
-    ],
-
-    // --- Menú personalizado reorganizado ---
-    [
-        'text' => 'Administración',
-        'icon' => 'fas fa-cogs',
-        'can' => 'ver-administracion',
-        'submenu' => [
-            [
-                'text' => 'Gestión de Usuarios',
-                'url' => 'admin/usuarios',
-                'icon' => 'fas fa-users',
-            ],
-            [
-                'text' => 'Gestión de Base de Datos',
-                'url' => 'admin/database',
-                'icon' => 'fas fa-database',
-            ],
-            [
-                'text' => 'Bitácora',
-                'url' => 'ver-bitacora',
-                'icon' => 'fas fa-book',
+        // Sidebar items:
+        [
+            'type' => 'sidebar-menu-search',
+            'text' => 'search',
+        ],
+   
+       
+        // --- Menú personalizado ---
+        [
+            'text' => 'Administración',
+            'icon' => 'fas fa-cogs',
+            'can' => 'ver-administracion',
+            'submenu' => [
+                [
+                    'text' => 'Parámetros',
+                    'url' => 'parametros',
+                    'icon' => 'fas fa-sliders-h',
+                ],
+                [
+                    'text' => 'Gestión de Base de Datos',
+                    'url' => 'admin/database',
+                    'icon' => 'fas fa-database',
+                ],
             ],
         ],
-    ],
-    [
-        'text' => 'Seguridad',
-        'icon' => 'fas fa-shield-alt',
-        'can' => 'ver-seguridad',
-        'submenu' => [
-            [
-                'text' => 'Roles y Permisos',
-                'url' => '/asignar-permisos',
-                'icon' => 'fas fa-user-shield',
-            ],
-            [
-                'text' => 'Parámetros',
-                'url' => 'parametros',
-                'icon' => 'fas fa-sliders-h',
-            ],
-        ],
-    ],
-    [
-        'text' => 'Mantenimiento',
-        'icon' => 'fas fa-tools',
-        'submenu' => [
-            [
-                'text' => 'Roles',
-                'url' => 'admin/roles',
-                'icon' => 'fas fa-user-tag',
-            ],
-            [
-                'text' => 'Objetos',
-                'url' => 'admin/objetos',
-                'icon' => 'fas fa-cube',
+        [
+            'text' => 'Seguridad',
+            'icon' => 'fas fa-shield-alt',
+            'can' => 'ver-seguridad',
+            'submenu' => [
+                [
+                    'text' => 'Usuarios',
+                    'url' => 'admin/usuarios',
+                    'icon' => 'fas fa-users',
+                ],
+                [
+                    'text' => 'Roles y Permisos',
+                    'url' => '/asignar-permisos',
+                    'icon' => 'fas fa-user-shield',
+                ],
+                [
+                    'text' => 'Bitácora',
+                    'url' => 'ver-bitacora',
+                    'icon' => 'fas fa-book',
+                ],
             ],
         ],
-    ],
-],
+        [
+            'text' => 'Mantenimiento',
+            'icon' => 'fas fa-tools',
+            'can' => 'ver-mantenimiento',
+            'submenu' => [
+                [
+                    'text' => 'Roles',
+                    'url' => 'admin/roles',
+                    'icon' => 'fas fa-user-tag',
+                ],
+                [
+                    'text' => 'Objetos',
+                    'url' => 'admin/objetos',
+                    'icon' => 'fas fa-cube',
+                ],
+            ],
+        ],
 
+    ],
 
     /*
     |--------------------------------------------------------------------------
