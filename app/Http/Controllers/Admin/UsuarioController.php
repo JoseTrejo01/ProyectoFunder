@@ -18,6 +18,10 @@ class UsuarioController extends Controller
 {
     public function index()
     {
+        // Verificar permiso de consulta
+        if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para consultar usuarios']);
+        }
         // Obtener el objeto correspondiente a la vista de usuarios
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
@@ -36,6 +40,10 @@ class UsuarioController extends Controller
 
     public function store(Request $request)
     {
+        // Verificar permiso de inserción
+        if (!auth()->user()->tienePermiso('Usuarios', 'Insercion')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para crear usuarios']);
+        }
         $request->validate([
             'Usuario' => ['required', 'string', 'max:40', 'unique:tbl_ms_usuario,Usuario'],
             'Nombre_Usuario' => ['required', 'string', 'max:40'],
@@ -94,6 +102,10 @@ class UsuarioController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Verificar permiso de actualización
+        if (!auth()->user()->tienePermiso('Usuarios', 'Actualizacion')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para actualizar usuarios']);
+        }
         $request->validate([
             //'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
             'Nombre_Usuario' => 'required|string|max:100',
@@ -133,6 +145,10 @@ class UsuarioController extends Controller
 
     public function destroy($id)
     {
+        // Verificar permiso de eliminación
+        if (!auth()->user()->tienePermiso('Usuarios', 'Eliminacion')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para eliminar usuarios']);
+        }
         $usuario = User::findOrFail($id);
         $usuario->update(['Estado_Usuario' => 'INACTIVO']);
 

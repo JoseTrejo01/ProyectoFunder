@@ -11,6 +11,9 @@ class BitacoraController extends Controller
 {
     public function verBitacora(Request $request)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Bitacora', 'Consultar')) {
+            abort(403, 'No tienes permiso para ver la bitácora.');
+        }
         // Registrar evento de acceso a la bitácora
         if (Auth::check()) {
             EVENT_BITACORA(Auth::user()->Id_Usuario, 4, 'Ingreso', 'El usuario accedió a la bitácora.');
@@ -47,6 +50,9 @@ class BitacoraController extends Controller
 
     public function borrarBitacora(Request $request)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Bitacora', 'Eliminacion')) {
+            abort(403, 'No tienes permiso para borrar la bitácora.');
+        }
         $query = Bitacora::query();
         if ($request->filled('usuario')) {
             $query->whereHas('usuario', function($q) use ($request) {

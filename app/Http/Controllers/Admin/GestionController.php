@@ -11,6 +11,9 @@ class GestionController extends Controller
 {
     public function storeRol(Request $request)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Roles', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear roles.');
+        }
         $request->validate([
             'Rol' => 'required|string|max:100',
             'Descripcion' => 'nullable|string|max:255',
@@ -24,6 +27,9 @@ class GestionController extends Controller
 
     public function storeObjeto(Request $request)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Objetos', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear objetos.');
+        }
         $request->validate([
             'Objeto' => 'required|string|max:100',
             'Descripcion' => 'nullable|string|max:255',

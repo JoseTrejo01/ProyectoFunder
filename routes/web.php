@@ -13,6 +13,10 @@ use App\Http\Controllers\Admin\PermisoController;
 use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\Admin\DatabaseController;
+
+use App\Http\Controllers\Admin\ParametroController;
+
 
 // Ruta de bienvenida - redirige usuarios autenticados al dashboard
 Route::get('/', function () {
@@ -61,6 +65,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
     Route::post('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'changePassword'])->name('password.change');
 
+    // Pantalla de gestión de base de datos
+    Route::get('/admin/database', [DatabaseController::class, 'index'])->name('admin.database');
+    Route::post('/admin/database/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
+    Route::post('/admin/database/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
 });
 
 Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
@@ -73,3 +81,9 @@ Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuari
 Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
 Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
 Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+
+
+Route::get('/parametros', [ParametroController::class, 'index'])->name('parametros.index');
+Route::post('/parametros', [ParametroController::class, 'store'])->name('parametros.store');
+Route::put('/parametros/{id}', [ParametroController::class, 'update'])->name('parametros.update');
+Route::delete('/parametros/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');

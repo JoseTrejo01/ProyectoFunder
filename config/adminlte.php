@@ -297,81 +297,66 @@ return [
     |
     */
 
-    'menu' => [
-        // Navbar items:
-        [
-            'type' => 'navbar-search',
-            'text' => 'search',
-            'topnav_right' => true,
-        ],
-        [
-            'type' => 'fullscreen-widget',
-            'topnav_right' => true,
-        ],
-
-        // Sidebar items:
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ],
-   
-       
-        // --- Menú personalizado ---
-        [
-            'text' => 'Administración',
-            'icon' => 'fas fa-cogs',
-            'submenu' => [
-                [
-                    'text' => 'Parámetros',
-                    'url' => 'admin/parametros',
-                    'icon' => 'fas fa-sliders-h',
-                ],
-                [
-                    'text' => 'Respaldo de Base de Datos',
-                    'url' => 'admin/respaldo',
-                    'icon' => 'fas fa-database',
-                ],
-            ],
-        ],
-        [
-            'text' => 'Seguridad',
-            'icon' => 'fas fa-shield-alt',
-            'submenu' => [
-                [
-                    'text' => 'Usuarios',
-                    'url' => 'admin/usuarios',
-                    'icon' => 'fas fa-users',
-                ],
-                [
-                    'text' => 'Roles y Permisos',
-                    'url' => '/asignar-permisos',
-                    'icon' => 'fas fa-user-shield',
-                ],
-                [
-                    'text' => 'Bitácora',
-                    'url' => 'ver-bitacora',
-                    'icon' => 'fas fa-book',
-                ],
-            ],
-        ],
-        [
-            'text' => 'Mantenimiento',
-            'icon' => 'fas fa-tools',
-            'submenu' => [
-                [
-                    'text' => 'Roles',
-                    'url' => 'admin/roles',
-                    'icon' => 'fas fa-user-tag',
-                ],
-                [
-                    'text' => 'Objetos',
-                    'url' => 'admin/objetos',
-                    'icon' => 'fas fa-cube',
-                ],
-            ],
-        ],
-
+   'menu' => [
+    // Navbar items:
+    [
+        'type' => 'navbar-search',
+        'text' => 'search',
+        'topnav_right' => true,
     ],
+    [
+        'type' => 'fullscreen-widget',
+        'topnav_right' => true,
+    ],
+
+    // Sidebar items:
+    [
+        'type' => 'sidebar-menu-search',
+        'text' => 'search',
+    ],
+
+    // --- Menú personalizado reorganizado ---
+    [
+        'text' => 'Administración',
+        'icon' => 'fas fa-cogs',
+        'can' => 'ver-administracion',
+        'submenu' => [
+            [
+                'text' => 'Gestión de Usuarios',
+                'url' => 'admin/usuarios',
+                'icon' => 'fas fa-users',
+            ],
+            [
+                'text' => 'Gestión de Base de Datos',
+                'url' => 'admin/database',
+                'icon' => 'fas fa-database',
+            ],
+            [
+                'text' => 'Bitácora',
+                'url' => 'ver-bitacora',
+                'icon' => 'fas fa-book',
+            ],
+        ],
+    ],
+    [
+        'text' => 'Seguridad',
+        'icon' => 'fas fa-shield-alt',
+        'can' => 'ver-seguridad',
+        'submenu' => [
+            [
+                'text' => 'Roles y Permisos',
+                'url' => '/asignar-permisos',
+                'icon' => 'fas fa-user-shield',
+            ],
+            [
+                'text' => 'Parámetros',
+                'url' => 'parametros',
+                'icon' => 'fas fa-sliders-h',
+            ],
+        ],
+    ],
+],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -386,7 +371,8 @@ return [
     */
 
     'filters' => [
-        JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
+        
+JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\HrefFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\SearchFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\ActiveFilter::class,
