@@ -355,6 +355,22 @@ return [
             ],
         ],
     ],
+    [
+        'text' => 'Mantenimiento',
+        'icon' => 'fas fa-tools',
+        'submenu' => [
+            [
+                'text' => 'Roles',
+                'url' => 'admin/roles',
+                'icon' => 'fas fa-user-tag',
+            ],
+            [
+                'text' => 'Objetos',
+                'url' => 'admin/objetos',
+                'icon' => 'fas fa-cube',
+            ],
+        ],
+    ],
 ],
 
 

@@ -25,8 +25,6 @@
             </div>
             <div class="col-auto d-flex justify-content-end">
                 <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalAsignarPermisos">Asignar Permisos</button>
-                <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalNuevoRol">Nuevo Rol</button>
-                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoObjeto">Nuevo Objeto</button>
             </div>
         </div>
     </form>
@@ -105,69 +103,6 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
-</div>
-
-    <!-- Modal Nuevo Rol -->
-    <div class="modal fade" id="modalNuevoRol" tabindex="-1" aria-labelledby="modalNuevoRolLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form method="POST" action="{{ route('roles.store') }}">
-            @csrf
-            <div class="modal-header">
-              <h5 class="modal-title" id="modalNuevoRolLabel">Agregar Nuevo Rol</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="nombre_rol" class="form-label">Nombre del Rol</label>
-                <input type="text" class="form-control" id="nombre_rol" name="Rol" required>
-              </div>
-              <div class="mb-3">
-                <label for="descripcion_rol" class="form-label">Descripción</label>
-                <input type="text" class="form-control" id="descripcion_rol" name="Descripcion">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-success">Guardar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Nuevo Objeto -->
-    <div class="modal fade" id="modalNuevoObjeto" tabindex="-1" aria-labelledby="modalNuevoObjetoLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form method="POST" action="{{ route('objetos.store') }}">
-            @csrf
-            <div class="modal-header">
-              <h5 class="modal-title" id="modalNuevoObjetoLabel">Agregar Nuevo Objeto</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="nombre_objeto" class="form-label">Nombre del Objeto</label>
-                <input type="text" class="form-control" id="nombre_objeto" name="Objeto" required>
-              </div>
-              <div class="mb-3">
-                <label for="descripcion_objeto" class="form-label">Descripción</label>
-                <input type="text" class="form-control" id="descripcion_objeto" name="Descripcion">
-              </div>
-              <div class="mb-3">
-                <label for="tipo_objeto" class="form-label">Tipo de Objeto</label>
-                <input type="text" class="form-control" id="tipo_objeto" name="Tipo_Objeto">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-info">Guardar </button>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
 </div>
 @endsection

@@ -39,6 +39,6 @@ public function showForm()
             ]
         );
 
-        return back()->with('success', 'Permisos actualizados correctamente');
+        return back()->with('success', 'Permisos asignados correctamente');
     }
 }

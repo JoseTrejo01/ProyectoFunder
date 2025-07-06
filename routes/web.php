@@ -11,7 +11,6 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 
 use App\Http\Controllers\Admin\PermisoController;
 use App\Http\Controllers\Admin\BitacoraController;
-use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\DatabaseController;
 
@@ -75,8 +74,24 @@ Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('a
 Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
 Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
 Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
-Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');
-Route::post('/objetos/store', [GestionController::class, 'storeObjeto'])->name('objetos.store');
+
+
+// RUTAS DE MANTENIMIENTO: ROLES Y OBJETOS
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Roles
+    Route::get('/admin/roles', [\App\Http\Controllers\Admin\RolController::class, 'index'])->name('roles.index');
+    Route::post('/admin/roles', [\App\Http\Controllers\Admin\RolController::class, 'store'])->name('roles.store');
+    Route::put('/admin/roles/{id}', [\App\Http\Controllers\Admin\RolController::class, 'update'])->name('roles.update');
+    Route::delete('/admin/roles/{id}', [\App\Http\Controllers\Admin\RolController::class, 'destroy'])->name('roles.destroy');
+
+    // Objetos
+    Route::get('/admin/objetos', [\App\Http\Controllers\Admin\ObjetoController::class, 'index'])->name('objetos.index');
+    Route::post('/admin/objetos', [\App\Http\Controllers\Admin\ObjetoController::class, 'store'])->name('objetos.store');
+    Route::put('/admin/objetos/{id}', [\App\Http\Controllers\Admin\ObjetoController::class, 'update'])->name('objetos.update');
+    Route::delete('/admin/objetos/{id}', [\App\Http\Controllers\Admin\ObjetoController::class, 'destroy'])->name('objetos.destroy');
+});
+
+
 Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
 Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
 Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
