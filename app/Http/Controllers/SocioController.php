@@ -8,9 +8,14 @@ use Illuminate\Http\Request;
 class SocioController extends Controller
 {
     // listar
-   public function index(Request $request)
+public function index(Request $request)
 {
-    $query = Socio::where('estado', 1);
+    $query = Socio::query()
+        ->when(
+            $request->filled('estado'),
+            fn($q) => $q->where('estado', $request->estado),
+            fn($q) => $q->where('estado', 1) // por defecto activos
+        );
 
     if ($request->filled('search')) {
         $search = $request->search;
@@ -37,6 +42,7 @@ class SocioController extends Controller
 
     return view('socios.index', compact('socios'));
 }
+
     // mostrar formulario de creación
     public function create()
     {
@@ -79,7 +85,7 @@ class SocioController extends Controller
         $validated = $request->validate([
             'Id_Organizacion' => 'required|integer',
             'Nombre_Beneficiario' => 'required|max:100',
-            'DNI' => 'required|unique:tbl_beneficiario,DNI|max:30',
+            'DNI' => 'required|max:30|unique:tbl_beneficiario,DNI,' . $id . ',Id_Beneficiario',
             'genero' => 'required|in:M,F',
             'fecha_nacimiento' => 'nullable|date',
             'Telefono' => 'nullable|max:20',
@@ -106,4 +112,19 @@ class SocioController extends Controller
     ->with('success', 'Socio inactivado correctamente.');
 
     }
+    public function ficha($id)
+{
+    $socio = Socio::findOrFail($id);
+    return view('socios.ficha', compact('socio'));
+}
+
+public function reactivar($id)
+{
+    $socio = Socio::findOrFail($id);
+    $socio->estado = 1;
+    $socio->save();
+
+    return redirect()->route('socios.index')->with('success', 'Socio reactivado correctamente.');
+}
+
 }
