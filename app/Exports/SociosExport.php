@@ -37,10 +37,23 @@ class SociosExport implements FromCollection, WithHeadings
             $query->where('Tipo_De_Socio', 'like', "%{$this->filters['tipo']}%");
         }
 
+                if (!empty($this->filters['departamento'])) {
+            $query->where('departamento', $this->filters['departamento']);
+        }
+        if (!empty($this->filters['estado_civil'])) {
+            $query->where('estado_civil', $this->filters['estado_civil']);
+        }
+        if (!empty($this->filters['nivel_educativo'])) {
+            $query->where('nivel_educativo', $this->filters['nivel_educativo']);
+        }
+        if (!empty($this->filters['edad'])) {
+            $query->where('edad', $this->filters['edad']);
+        }
+
         return $query->get();
     }
 
-    public function headings(): array
+        public function headings(): array
     {
         return [
             'ID',
@@ -52,11 +65,21 @@ class SociosExport implements FromCollection, WithHeadings
             'Teléfono',
             'Género',
             'Fecha Nacimiento',
+            'Edad',
+            'Estado Civil',
+            'Nivel Educativo',
+            'Medio de Comunicación',
+            'Departamento',
+            'Municipio',
+            'Comunidad',
             'Dirección',
             'Actividad Económica',
+            'Actividad No Agrícola',
+            'Categoría',
             'Estado',
             'Creado',
             'Actualizado'
         ];
     }
+
 }

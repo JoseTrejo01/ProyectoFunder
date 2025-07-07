@@ -22,6 +22,13 @@
                 <li class="list-group-item"><strong>Estado:</strong> {{ $socio->estado == 1 ? 'Activo' : 'Inactivo' }}</li>
                 <li class="list-group-item"><strong>Creado en:</strong> {{ $socio->created_at }}</li>
                 <li class="list-group-item"><strong>Última Actualización:</strong> {{ $socio->updated_at }}</li>
+                <li class="list-group-item"><strong>Estado Civil:</strong> {{ $socio->estado_civil }}</li>
+                <li class="list-group-item"><strong>Nivel Educativo:</strong> {{ $socio->nivel_educativo }}</li>
+                <li class="list-group-item"><strong>Medio de Comunicación:</strong> {{ $socio->medio_comunicacion }}</li>
+                <li class="list-group-item"><strong>Departamento:</strong> {{ $socio->departamento }}</li>
+                <li class="list-group-item"><strong>Municipio:</strong> {{ $socio->municipio }}</li>
+                <li class="list-group-item"><strong>Comunidad:</strong> {{ $socio->comunidad }}</li>
+               
             </ul>
         </div>
         <div class="card-footer">

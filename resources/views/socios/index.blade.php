@@ -64,6 +64,36 @@
                     <i class="fas fa-search"></i> Buscar
                 </button>
             </div>
+                <div class="col-md-2 mt-2">
+    <select name="departamento" class="form-control">
+        <option value="">Departamento</option>
+        @foreach(["Atlántida","Choluteca","Colón","Comayagua","Copán","Cortés","El Paraíso","Francisco Morazán","Gracias a Dios","Intibucá","Islas de la Bahía","La Paz","Lempira","Ocotepeque","Olancho","Santa Bárbara","Valle","Yoro"] as $dep)
+            <option value="{{ $dep }}" {{ request('departamento') == $dep ? 'selected' : '' }}>{{ $dep }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="col-md-2 mt-2">
+    <select name="estado_civil" class="form-control">
+        <option value="">Estado Civil</option>
+        @foreach(["Soltero(a)","Casado(a)","Unión Libre","Viudo(a)"] as $estado)
+            <option value="{{ $estado }}" {{ request('estado_civil') == $estado ? 'selected' : '' }}>{{ $estado }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="col-md-2 mt-2">
+    <select name="nivel_educativo" class="form-control">
+        <option value="">Nivel Educativo</option>
+        @foreach(["Sin estudios","Educación básica","Educación media","Educación superior"] as $nivel)
+            <option value="{{ $nivel }}" {{ request('nivel_educativo') == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="col-md-2 mt-2">
+    <input type="number" name="edad" class="form-control"
+           placeholder="Edad" value="{{ request('edad') }}">
+</div>
+
+
         </div>
     </form>
     {{-- FIN BUSCADOR --}}
