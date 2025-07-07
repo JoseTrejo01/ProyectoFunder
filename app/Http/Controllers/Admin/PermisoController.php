@@ -10,15 +10,13 @@ use App\Http\Controllers\Controller;
 
 class PermisoController extends Controller
 {
+    public function showForm()
+    {
+        $roles = Rol::with(['permisos.objeto'])->get();
+        $objetos = Objeto::all();
+        return view('admin.asignar_permisos', compact('roles', 'objetos'));
+    }
 
-public function showForm()
-{
-    $roles = Rol::with(['permisos.objeto'])->get();
-    $objetos = Objeto::all();
-    $rolesObjetos = RolesObjeto::with(['rol', 'objeto'])->get();
-
-    return view('admin.asignar_permisos', compact('roles', 'objetos', 'rolesObjetos'));
-}
     public function asignarPermisos(Request $request)
     {
         $request->validate([
@@ -39,6 +37,6 @@ public function showForm()
             ]
         );
 
-        return back()->with('success', 'Permisos asignados correctamente');
+        return back()->with('success', 'Permisos actualizados correctamente');
     }
 }
