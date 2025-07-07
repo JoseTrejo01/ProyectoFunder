@@ -53,9 +53,6 @@ Route::middleware('guest')->group(function () {
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
 });
 
-<<<<<<< HEAD
-
-<<<<<<< HEAD
     // Vista para verificar el correo
     Route::get('/email/verify', function () {
         return view('auth.verify-email');
@@ -69,11 +66,6 @@ Route::middleware('guest')->group(function () {
 
     return redirect()->route('login')->with('success', 'Correo verificado correctamente. Ya puedes iniciar sesión.');
 
-=======
->>>>>>> rama-bitacora
-
-=======
->>>>>>> rama2nueva
 // RUTAS PARA USUARIOS AUTENTICADOS Y VERIFICADOS
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
