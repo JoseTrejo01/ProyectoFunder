@@ -13,6 +13,10 @@ use App\Http\Controllers\Admin\PermisoController;
 use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\Admin\DatabaseController;
+
+use App\Http\Controllers\Admin\ParametroController;
+
 
 // Ruta de bienvenida - redirige usuarios autenticados al dashboard
 Route::get('/', function () {
@@ -49,9 +53,8 @@ Route::middleware('guest')->group(function () {
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
 });
 
-// RUTAS PARA VERIFICACIÓN DE CORREO ELECTRÓNICO (AUTENTICADOS)
-Route::middleware('auth')->group(function () {
 
+<<<<<<< HEAD
     // Vista para verificar el correo
     Route::get('/email/verify', function () {
         return view('auth.verify-email');
@@ -65,6 +68,8 @@ Route::middleware('auth')->group(function () {
 
     return redirect()->route('login')->with('success', 'Correo verificado correctamente. Ya puedes iniciar sesión.');
 
+=======
+>>>>>>> rama-bitacora
 
 // RUTAS PARA USUARIOS AUTENTICADOS Y VERIFICADOS
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -72,21 +77,46 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
-    // Administrar permisos
-    Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
-    Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
 
-    // Ver y borrar bitácora
-    Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
-    Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
+    // Rutas para cambio de contraseña obligatorio
+    Route::get('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
+    Route::post('/cambiar-contraseña', [App\Http\Controllers\Auth\LoginController::class, 'changePassword'])->name('password.change');
 
-    // Gestión de roles y objetos
-    Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');
-    Route::post('/objetos/store', [GestionController::class, 'storeObjeto'])->name('objetos.store');
-
-    // Gestión de usuarios
-    Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
-    Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
-    Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-    Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+    // Pantalla de gestión de base de datos
+    Route::get('/admin/database', [DatabaseController::class, 'index'])->name('admin.database');
+    Route::post('/admin/database/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
+    Route::post('/admin/database/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
 });
+
+Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
+Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
+Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
+Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
+
+
+// RUTAS DE MANTENIMIENTO: ROLES Y OBJETOS
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Roles
+    Route::get('/admin/roles', [\App\Http\Controllers\Admin\RolController::class, 'index'])->name('roles.index');
+    Route::post('/admin/roles', [\App\Http\Controllers\Admin\RolController::class, 'store'])->name('roles.store');
+    Route::put('/admin/roles/{id}', [\App\Http\Controllers\Admin\RolController::class, 'update'])->name('roles.update');
+    Route::delete('/admin/roles/{id}', [\App\Http\Controllers\Admin\RolController::class, 'destroy'])->name('roles.destroy');
+
+    // Objetos
+    Route::get('/admin/objetos', [\App\Http\Controllers\Admin\ObjetoController::class, 'index'])->name('objetos.index');
+    Route::post('/admin/objetos', [\App\Http\Controllers\Admin\ObjetoController::class, 'store'])->name('objetos.store');
+    Route::put('/admin/objetos/{id}', [\App\Http\Controllers\Admin\ObjetoController::class, 'update'])->name('objetos.update');
+    Route::delete('/admin/objetos/{id}', [\App\Http\Controllers\Admin\ObjetoController::class, 'destroy'])->name('objetos.destroy');
+});
+
+
+Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+
+
+Route::get('/parametros', [ParametroController::class, 'index'])->name('parametros.index');
+Route::post('/parametros', [ParametroController::class, 'store'])->name('parametros.store');
+Route::put('/parametros/{id}', [ParametroController::class, 'update'])->name('parametros.update');
+Route::delete('/parametros/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');

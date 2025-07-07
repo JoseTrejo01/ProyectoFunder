@@ -131,7 +131,7 @@
 
         {{-- Campo Usuario --}}
         <div class="input-group mb-3">
-            <input type="text" name="Usuario" id="Usuario" class="form-control @error('Usuario') is-invalid @enderror"
+            <input type="text" name="Usuario" id="Usuario" maxlength="30" class="form-control @error('Usuario') is-invalid @enderror"
                 value="{{ old('Usuario') }}" placeholder="Usuario" autofocus>
 
             <div class="input-group-append">
@@ -146,24 +146,43 @@
                 </span>
             @enderror
         </div>
+       {{-- Campo Contraseña --}}
+<div class="input-group mb-4">
+    <input type="password" name="Contraseña" id="Contraseña" maxlength="8"
+        class="form-control @error('Contraseña') is-invalid @enderror" placeholder="Contraseña">
 
-        {{-- Campo Contraseña --}}
-        <div class="input-group mb-4">
-            <input type="password" name="Contraseña" id="Contraseña"
-                class="form-control @error('Contraseña') is-invalid @enderror" placeholder="Contraseña">
-
-            <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-lock"></span>
-                </div>
-            </div>
-
-            @error('Contraseña')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
+    {{-- Ojito para mostrar/ocultar contraseña --}}
+    <div class="input-group-append">
+        <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
+            <span class="fas fa-eye" id="eyeIcon"></span>
         </div>
+    </div>
+
+    @error('Contraseña')
+        <span class="invalid-feedback d-block" role="alert">
+            <strong>{{ $message }}</strong>
+        </span>
+    @enderror
+</div>
+
+{{-- Script directo para cambiar el tipo de input --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('Contraseña');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', function () {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+
+            // Cambiar el ícono
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
+    });
+</script>
+
 
         {{-- Botón de ingreso --}}
         <div class="row">
@@ -190,4 +209,35 @@
         <i class="fas fa-user-plus"></i> {{ __('Regístrate aquí') }}
     </a>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const campos = ['Usuario', 'Contraseña'];
+
+    campos.forEach(id => {
+        const campo = document.getElementById(id);
+
+        if (campo) {
+            // Bloquear clic derecho
+            campo.addEventListener('contextmenu', e => e.preventDefault());
+
+            // Bloquear combinaciones de teclado (Ctrl+C, Ctrl+V, Ctrl+X)
+            campo.addEventListener('keydown', e => {
+                if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
+                    e.preventDefault();
+                }
+            });
+
+            // Bloquear pegar (mouse, teclado o drag)
+            campo.addEventListener('paste', e => e.preventDefault());
+            campo.addEventListener('copy', e => e.preventDefault());
+            campo.addEventListener('cut', e => e.preventDefault());
+            campo.addEventListener('drop', e => e.preventDefault());
+        }
+    });
+});
+</script>
+
+
+
 @stop

@@ -86,8 +86,13 @@
         <div class="input-group mb-3">
             <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Nueva Contraseña" required autofocus>
             <div class="input-group-append">
+<<<<<<< HEAD
                 <div class="input-group-text">
                     <span class="fas fa-lock"></span>
+=======
+                <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
+                    <span class="fas fa-eye" id="eyeIcon"></span>
+>>>>>>> rama-bitacora
                 </div>
             </div>
             @error('password')
@@ -100,8 +105,13 @@
         <div class="input-group mb-4">
             <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" placeholder="Confirmar Contraseña" required>
             <div class="input-group-append">
+<<<<<<< HEAD
                 <div class="input-group-text">
                     <span class="fas fa-lock"></span>
+=======
+                <div class="input-group-text" style="cursor: pointer;" id="togglePasswordConfirm">
+                    <span class="fas fa-eye" id="eyeIconConfirm"></span>
+>>>>>>> rama-bitacora
                 </div>
             </div>
         </div>
@@ -115,3 +125,33 @@
     </form>
 </div>
 @stop
+<<<<<<< HEAD
+=======
+
+@section('adminlte_js')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Para el campo de nueva contraseña
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        togglePassword.addEventListener('click', function () {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
+        // Para el campo de confirmar contraseña
+        const togglePasswordConfirm = document.getElementById('togglePasswordConfirm');
+        const passwordInputConfirm = document.getElementById('password_confirmation');
+        const eyeIconConfirm = document.getElementById('eyeIconConfirm');
+        togglePasswordConfirm.addEventListener('click', function () {
+            const isPassword = passwordInputConfirm.type === 'password';
+            passwordInputConfirm.type = isPassword ? 'text' : 'password';
+            eyeIconConfirm.classList.toggle('fa-eye');
+            eyeIconConfirm.classList.toggle('fa-eye-slash');
+        });
+    });
+</script>
+@stop
+>>>>>>> rama-bitacora
