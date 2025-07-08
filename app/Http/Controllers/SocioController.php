@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Socio;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 
 
@@ -67,38 +68,41 @@ class SocioController extends Controller
     }
 
     // guardar nuevo socio
-   public function store(Request $request)
+ public function store(Request $request)
 {
     $validated = $request->validate([
         'Id_Organizacion'       => 'required|integer',
-        'Nombre_Beneficiario'   => 'required|max:150',
+        'Nombre_Caja'           => 'required|string|max:150',
+        'Nombre_Beneficiario'   => 'required|string|max:150',
         'DNI'                   => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI',
         'genero'                => 'required|in:M,F',
-        'Nombre_Caja'           => 'nullable|max:150',
         'fecha_nacimiento'      => 'nullable|date',
         'edad'                  => 'nullable|integer|min:15|max:100',
-        'estado_civil'          => 'nullable|max:50',
-        'etnia'                 => 'nullable|max:100',
-        'nivel_educativo'       => 'nullable|max:100',
-        'medio_comunicacion'    => 'nullable|max:100',
-        'departamento'          => 'nullable|max:100',
-        'municipio'             => 'nullable|max:100',
-        'comunidad'             => 'nullable|max:100',
-        'direccion'             => 'nullable|max:150',
-        'Telefono'              => 'nullable|digits_between:8,15',
-        'actividad_economica'   => 'nullable|max:150',
-        'actividad_no_agricola' => 'nullable|max:150',
-        'Tipo_Cargo'            => 'nullable|max:100',
-        'Tipo_De_Socio'         => 'nullable|max:100',
-        'categoria'             => 'nullable|max:100',
-        'estado'                => 'boolean'
+        'estado_civil'          => 'nullable|string|max:50',
+        'etnia'                 => 'nullable|string|max:100',
+        'nivel_educativo'       => 'nullable|string|max:100',
+        'medio_comunicacion'    => 'nullable|string|max:100',
+        'departamento'          => 'nullable|string|max:100',
+        'municipio'             => 'nullable|string|max:100',
+        'comunidad'             => 'nullable|string|max:100',
+        'direccion'             => 'nullable|string|max:150',
+        'Telefono'              => 'nullable|regex:/^\d{4}-\d{4}$/',
+        'actividad_economica'   => 'nullable|string|max:150',
+        'actividad_no_agricola' => 'nullable|string|max:150',
+        'Tipo_Cargo'            => 'nullable|string|max:100',
+        'Tipo_De_Socio'         => 'nullable|string|max:100',
+        'categoria'             => 'nullable|string|max:100',
+        'estado'                => 'required|boolean'
     ]);
 
-    Socio::create($validated);
-
-    return redirect()->route('socios.index')
-        ->with('success', 'Socio creado correctamente.');
+    try {
+        Socio::create($validated);
+        return redirect()->route('socios.index')->with('success', 'Socio creado correctamente.');
+    } catch (\Exception $e) {
+        return back()->withErrors(['error' => 'Ocurrió un error al guardar el socio: ' . $e->getMessage()]);
+    }
 }
+
 
 
     // mostrar formulario de edición
@@ -114,7 +118,10 @@ class SocioController extends Controller
         $validated = $request->validate([
             'Id_Organizacion'       => 'required|integer',
             'Nombre_Beneficiario'   => 'required|max:150',
-            'DNI'                   => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI',
+            'DNI'                   => [
+            'required',
+            'regex:/^\d{4}-\d{4}-\d{5}$/',
+            Rule::unique('tbl_beneficiario', 'DNI')->ignore($id, 'Id_Beneficiario'),],
             'genero'                => 'required|in:M,F',
             'Nombre_Caja'           => 'nullable|max:150',
             'fecha_nacimiento'      => 'nullable|date',

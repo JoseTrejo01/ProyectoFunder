@@ -5,57 +5,59 @@
 @stop
 
 @section('content')
-    <form action="{{ route('socios.update', $socio->Id_Beneficiario) }}" method="POST">
+    <form action="{{ route('socios.update', $socio->Id_Beneficiario) }}" method="POST" autocomplete="off">
         @csrf
         @method('PUT')
 
+        <input type="hidden" name="estado" value="{{ old('estado', $socio->estado) }}">
+
         <div class="form-group">
             <label>Organización (ID)</label>
-            <input type="number" name="Id_Organizacion" class="form-control" value="{{ $socio->Id_Organizacion }}" required>
+            <input type="number" name="Id_Organizacion" class="form-control" required value="{{ old('Id_Organizacion', $socio->Id_Organizacion) }}">
         </div>
 
         <div class="form-group">
             <label>Nombre de la Caja Rural</label>
-            <input type="text" name="Nombre_Caja" class="form-control" value="{{ $socio->Nombre_Caja }}">
+            <input type="text" name="Nombre_Caja" class="form-control" required value="{{ old('Nombre_Caja', $socio->Nombre_Caja) }}">
         </div>
 
         <div class="form-group">
             <label>Nombre completo</label>
-            <input type="text" name="Nombre_Beneficiario" class="form-control" value="{{ $socio->Nombre_Beneficiario }}" required>
+            <input type="text" name="Nombre_Beneficiario" class="form-control" required value="{{ old('Nombre_Beneficiario', $socio->Nombre_Beneficiario) }}">
         </div>
 
         <div class="form-group">
             <label>DNI</label>
-            <input type="text" name="DNI" class="form-control" value="{{ $socio->DNI }}" required>
+            <input type="text" name="DNI" class="form-control" required pattern="\d{4}-\d{4}-\d{5}" title="Formato: 0000-0000-00000" value="{{ old('DNI', $socio->DNI) }}">
         </div>
 
         <div class="form-group">
             <label>Género</label>
             <select name="genero" class="form-control" required>
                 <option value="">Seleccione</option>
-                <option value="M" {{ $socio->genero == 'M' ? 'selected' : '' }}>Masculino</option>
-                <option value="F" {{ $socio->genero == 'F' ? 'selected' : '' }}>Femenino</option>
+                <option value="M" {{ old('genero', $socio->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
+                <option value="F" {{ old('genero', $socio->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
             </select>
         </div>
 
         <div class="form-group">
             <label>Fecha de nacimiento</label>
-            <input type="date" name="fecha_nacimiento" class="form-control" value="{{ $socio->fecha_nacimiento }}">
+            <input type="date" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento', $socio->fecha_nacimiento) }}">
         </div>
 
         <div class="form-group">
             <label>Edad</label>
-            <input type="number" name="edad" class="form-control" value="{{ $socio->edad }}">
+            <input type="number" name="edad" class="form-control" min="15" max="100" value="{{ old('edad', $socio->edad) }}">
         </div>
 
         <div class="form-group">
             <label>Estado Civil</label>
             <select name="estado_civil" class="form-control">
                 <option value="">Seleccione</option>
-                <option value="Soltero(a)" {{ $socio->estado_civil == 'Soltero(a)' ? 'selected' : '' }}>Soltero(a)</option>
-                <option value="Casado(a)" {{ $socio->estado_civil == 'Casado(a)' ? 'selected' : '' }}>Casado(a)</option>
-                <option value="Unión Libre" {{ $socio->estado_civil == 'Unión Libre' ? 'selected' : '' }}>Unión Libre</option>
-                <option value="Viudo(a)" {{ $socio->estado_civil == 'Viudo(a)' ? 'selected' : '' }}>Viudo(a)</option>
+                <option value="Soltero(a)" {{ old('estado_civil', $socio->estado_civil) == 'Soltero(a)' ? 'selected' : '' }}>Soltero(a)</option>
+                <option value="Casado(a)" {{ old('estado_civil', $socio->estado_civil) == 'Casado(a)' ? 'selected' : '' }}>Casado(a)</option>
+                <option value="Unión Libre" {{ old('estado_civil', $socio->estado_civil) == 'Unión Libre' ? 'selected' : '' }}>Unión Libre</option>
+                <option value="Viudo(a)" {{ old('estado_civil', $socio->estado_civil) == 'Viudo(a)' ? 'selected' : '' }}>Viudo(a)</option>
             </select>
         </div>
 
@@ -63,8 +65,11 @@
             <label>Etnia</label>
             <select name="etnia" class="form-control">
                 <option value="">Seleccione</option>
-                @foreach(["Lenca","Garífuna","Miskito","Tawahka","Tolupan","Pech","Maya Chortí","Negro de habla inglesa o Creole","Mestizo"] as $etnia)
-                    <option value="{{ $etnia }}" {{ $socio->etnia == $etnia ? 'selected' : '' }}>{{ $etnia }}</option>
+                @php
+                    $etnias = ['Lenca', 'Garífuna', 'Miskito', 'Tawahka', 'Tolupan', 'Pech', 'Maya Chortí', 'Negro de habla inglesa o Creole', 'Mestizo'];
+                @endphp
+                @foreach($etnias as $etnia)
+                    <option value="{{ $etnia }}" {{ old('etnia', $socio->etnia) == $etnia ? 'selected' : '' }}>{{ $etnia }}</option>
                 @endforeach
             </select>
         </div>
@@ -72,100 +77,69 @@
         <div class="form-group">
             <label>Nivel Educativo</label>
             <select name="nivel_educativo" class="form-control">
-               <option value="">Seleccione</option>
-                <option value="Sin estudios">Sin estudios</option>
-                <option value="Educación básica">Educación básica</option>
-                 <option value="Educación media">Educación media</option>
-                <option value="Educación superior">Educación superior</option>
-         </select>
-</div>
-
+                @foreach(['Sin estudios', 'Educación básica', 'Educación media', 'Educación superior'] as $nivel)
+                    <option value="{{ $nivel }}" {{ old('nivel_educativo', $socio->nivel_educativo) == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
+                @endforeach
+            </select>
+        </div>
 
         <div class="form-group">
-    <label>Medio de Comunicación</label>
-    <select name="medio_comunicacion" class="form-control">
-        <option value="">Seleccione</option>
-        <option value="Teléfono">Teléfono</option>
-        <option value="Tablet">Tablet</option>
-        <option value="Computadora">Computadora</option>
-    </select>
-    </div>
-
+            <label>Medio de Comunicación</label>
+            <select name="medio_comunicacion" class="form-control">
+                @foreach(['Teléfono', 'Tablet', 'Computadora'] as $medio)
+                    <option value="{{ $medio }}" {{ old('medio_comunicacion', $socio->medio_comunicacion) == $medio ? 'selected' : '' }}>{{ $medio }}</option>
+                @endforeach
+            </select>
+        </div>
 
         <div class="form-group">
             <label>Teléfono</label>
-            <input type="text" name="Telefono" class="form-control" value="{{ $socio->Telefono }}">
+            <input type="text" name="Telefono" class="form-control" pattern="\d{4}-\d{4}" title="Formato: 1234-5678" value="{{ old('Telefono', $socio->Telefono) }}">
         </div>
 
         <div class="form-group">
             <label>Departamento</label>
-            <select name="departamento" id="departamento" class="form-control" required>
-                <option value="">Seleccione</option>
-                @foreach(["Atlántida","Choluteca","Colón","Comayagua","Copán","Cortés","El Paraíso","Francisco Morazán","Gracias a Dios","Intibucá","Islas de la Bahía","La Paz","Lempira","Ocotepeque","Olancho","Santa Bárbara","Valle","Yoro"] as $dep)
-                    <option value="{{ $dep }}" {{ $socio->departamento == $dep ? 'selected' : '' }}>{{ $dep }}</option>
-                @endforeach
-            </select>
+            <input type="text" name="departamento" class="form-control" value="{{ old('departamento', $socio->departamento) }}">
         </div>
 
         <div class="form-group">
             <label>Municipio</label>
-            <select name="municipio" id="municipio" class="form-control" required>
-                <option value="{{ $socio->municipio }}">{{ $socio->municipio }}</option>
-            </select>
+            <input type="text" name="municipio" class="form-control" value="{{ old('municipio', $socio->municipio) }}">
         </div>
 
         <div class="form-group">
             <label>Comunidad</label>
-            <select name="comunidad" id="comunidad" class="form-control">
-                <option value="{{ $socio->comunidad }}">{{ $socio->comunidad }}</option>
-            </select>
+            <input type="text" name="comunidad" class="form-control" value="{{ old('comunidad', $socio->comunidad) }}">
         </div>
 
         <div class="form-group">
             <label>Dirección</label>
-            <input type="text" name="direccion" class="form-control" value="{{ $socio->direccion }}">
+            <input type="text" name="direccion" class="form-control" value="{{ old('direccion', $socio->direccion) }}">
         </div>
 
         <div class="form-group">
             <label>Actividad económica</label>
-            <input type="text" name="actividad_economica" class="form-control" value="{{ $socio->actividad_economica }}">
+            <input type="text" name="actividad_economica" class="form-control" value="{{ old('actividad_economica', $socio->actividad_economica) }}">
         </div>
 
         <div class="form-group">
             <label>Actividades no agrícolas</label>
-            <input type="text" name="actividad_no_agricola" class="form-control" value="{{ $socio->actividad_no_agricola }}">
+            <input type="text" name="actividad_no_agricola" class="form-control" value="{{ old('actividad_no_agricola', $socio->actividad_no_agricola) }}">
         </div>
 
         <div class="form-group">
             <label>Tipo de Cargo</label>
-            <select name="Tipo_Cargo" class="form-control">
-                <option value="">Seleccione</option>
-                @foreach([
-                    "Presidente(a)",
-                    "Vicepresidente(a)",
-                    "Tesorero(a)",
-                    "Secretario(a)",
-                    "Vocal I",
-                    "Vocal II",
-                    "Vocal III",
-                    "Comité de Crédito y Cobros",
-                    "Junta de Vigilancia Presidente(a)",
-                    "Junta de Vigilancia Secretario(a)",
-                    "Junta de Vigilancia Vocal"
-                ] as $cargo)
-                    <option value="{{ $cargo }}" {{ $socio->Tipo_Cargo == $cargo ? 'selected' : '' }}>{{ $cargo }}</option>
-                @endforeach
-            </select>
+            <input type="text" name="Tipo_Cargo" class="form-control" value="{{ old('Tipo_Cargo', $socio->Tipo_Cargo) }}">
         </div>
 
         <div class="form-group">
             <label>Tipo de Socio</label>
-            <input type="text" name="Tipo_De_Socio" class="form-control" value="{{ $socio->Tipo_De_Socio }}">
+            <input type="text" name="Tipo_De_Socio" class="form-control" value="{{ old('Tipo_De_Socio', $socio->Tipo_De_Socio) }}">
         </div>
 
         <div class="form-group">
             <label>Categoría</label>
-            <input type="text" name="categoria" class="form-control" value="{{ $socio->categoria }}">
+            <input type="text" name="categoria" class="form-control" value="{{ old('categoria', $socio->categoria) }}">
         </div>
 
         <button class="btn btn-primary" type="submit">Actualizar</button>

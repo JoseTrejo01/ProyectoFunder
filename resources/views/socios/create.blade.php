@@ -5,8 +5,22 @@
 @stop
 
 @section('content')
-    <form action="{{ route('socios.store') }}" method="POST">
+
+    {{-- Mostrar errores de validación --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <strong>¡Ups!</strong> Hay algunos problemas con los datos ingresados.<br><br>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('socios.store') }}" method="POST" autocomplete="off">
         @csrf
+        <input type="hidden" name="estado" value="1">
 
         <div class="form-group">
             <label>Organización (ID)</label>
@@ -25,7 +39,7 @@
 
         <div class="form-group">
             <label>DNI</label>
-            <input type="text" name="DNI" class="form-control" required>
+            <input type="text" name="DNI" class="form-control" required pattern="\d{4}-\d{4}-\d{5}" title="Formato: 0000-0000-00000">
         </div>
 
         <div class="form-group">
@@ -44,19 +58,19 @@
 
         <div class="form-group">
             <label>Edad</label>
-            <input type="number" name="edad" class="form-control">
+            <input type="number" name="edad" class="form-control" min="15" max="100">
         </div>
 
-       <div class="form-group">
-    <label>Estado Civil</label>
-    <select name="estado_civil" class="form-control">
-        <option value="">Seleccione</option>
-        <option value="Soltero(a)">Soltero(a)</option>
-        <option value="Casado(a)">Casado(a)</option>
-        <option value="Unión Libre">Unión Libre</option>
-        <option value="Viudo(a)">Viudo(a)</option>
-    </select>
-    </div>
+        <div class="form-group">
+            <label>Estado Civil</label>
+            <select name="estado_civil" class="form-control">
+                <option value="">Seleccione</option>
+                <option value="Soltero(a)">Soltero(a)</option>
+                <option value="Casado(a)">Casado(a)</option>
+                <option value="Unión Libre">Unión Libre</option>
+                <option value="Viudo(a)">Viudo(a)</option>
+            </select>
+        </div>
 
         <div class="form-group">
             <label>Etnia</label>
@@ -74,75 +88,71 @@
             </select>
         </div>
 
-       <div class="form-group">
-    <label>Nivel Educativo</label>
-    <select name="nivel_educativo" class="form-control">
-        <option value="">Seleccione</option>
-        <option value="Sin estudios">Sin estudios</option>
-        <option value="Educación básica">Educación básica</option>
-        <option value="Educación media">Educación media</option>
-        <option value="Educación superior">Educación superior</option>
-    </select>
+        <div class="form-group">
+            <label>Nivel Educativo</label>
+            <select name="nivel_educativo" class="form-control">
+                <option value="">Seleccione</option>
+                <option value="Sin estudios">Sin estudios</option>
+                <option value="Educación básica">Educación básica</option>
+                <option value="Educación media">Educación media</option>
+                <option value="Educación superior">Educación superior</option>
+            </select>
         </div>
 
         <div class="form-group">
-    <label>Medio de Comunicación</label>
-    <select name="medio_comunicacion" class="form-control">
-        <option value="">Seleccione</option>
-        <option value="Teléfono">Teléfono</option>
-        <option value="Tablet">Tablet</option>
-        <option value="Computadora">Computadora</option>
-    </select>
-</div>
+            <label>Medio de Comunicación</label>
+            <select name="medio_comunicacion" class="form-control">
+                <option value="">Seleccione</option>
+                <option value="Teléfono">Teléfono</option>
+                <option value="Tablet">Tablet</option>
+                <option value="Computadora">Computadora</option>
+            </select>
+        </div>
 
         <div class="form-group">
             <label>Teléfono</label>
-            <input type="text" name="Telefono" class="form-control" required>
+            <input type="text" name="Telefono" class="form-control" pattern="\d{4}-\d{4}" title="Formato: 1234-5678">
             <small class="form-text text-muted">Formato: 1234-5678</small>
         </div>
 
         <div class="form-group">
-    <label>Departamento</label>
-    <select name="departamento" id="departamento" class="form-control" required>
-        <option value="">Seleccione</option>
-        <option value="Atlántida">Atlántida</option>
-        <option value="Choluteca">Choluteca</option>
-        <option value="Colón">Colón</option>
-        <option value="Comayagua">Comayagua</option>
-        <option value="Copán">Copán</option>
-        <option value="Cortés">Cortés</option>
-        <option value="El Paraíso">El Paraíso</option>
-        <option value="Francisco Morazán">Francisco Morazán</option>
-        <option value="Gracias a Dios">Gracias a Dios</option>
-        <option value="Intibucá">Intibucá</option>
-        <option value="Islas de la Bahía">Islas de la Bahía</option>
-        <option value="La Paz">La Paz</option>
-        <option value="Lempira">Lempira</option>
-        <option value="Ocotepeque">Ocotepeque</option>
-        <option value="Olancho">Olancho</option>
-        <option value="Santa Bárbara">Santa Bárbara</option>
-        <option value="Valle">Valle</option>
-        <option value="Yoro">Yoro</option>
-    </select>
-        </div>
-
-
-        <div class="form-group">
-    <label>Municipio</label>
-    <select name="municipio" id="municipio" class="form-control" required>
-        <option value="">Seleccione un municipio</option>
-        {{-- se llenará dinámicamente con JavaScript --}}
-    </select>
+            <label>Departamento</label>
+            <select name="departamento" id="departamento" class="form-control" required>
+                <option value="">Seleccione</option>
+                <option value="Atlántida">Atlántida</option>
+                <option value="Choluteca">Choluteca</option>
+                <option value="Colón">Colón</option>
+                <option value="Comayagua">Comayagua</option>
+                <option value="Copán">Copán</option>
+                <option value="Cortés">Cortés</option>
+                <option value="El Paraíso">El Paraíso</option>
+                <option value="Francisco Morazán">Francisco Morazán</option>
+                <option value="Gracias a Dios">Gracias a Dios</option>
+                <option value="Intibucá">Intibucá</option>
+                <option value="Islas de la Bahía">Islas de la Bahía</option>
+                <option value="La Paz">La Paz</option>
+                <option value="Lempira">Lempira</option>
+                <option value="Ocotepeque">Ocotepeque</option>
+                <option value="Olancho">Olancho</option>
+                <option value="Santa Bárbara">Santa Bárbara</option>
+                <option value="Valle">Valle</option>
+                <option value="Yoro">Yoro</option>
+            </select>
         </div>
 
         <div class="form-group">
-    <label>Comunidad</label>
-    <select name="comunidad" id="comunidad" class="form-control">
-        <option value="">Seleccione una comunidad</option>
-        {{-- se llenará dinámicamente con JavaScript --}}
-    </select>
+            <label>Municipio</label>
+            <select name="municipio" id="municipio" class="form-control" required>
+                <option value="">Seleccione un municipio</option>
+            </select>
         </div>
 
+        <div class="form-group">
+            <label>Comunidad</label>
+            <select name="comunidad" id="comunidad" class="form-control">
+                <option value="">Seleccione una comunidad</option>
+            </select>
+        </div>
 
         <div class="form-group">
             <label>Dirección</label>
@@ -190,7 +200,8 @@
         <button class="btn btn-success" type="submit">Guardar</button>
         <a href="{{ route('socios.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
-    <script>
+
+      <script>
     const municipios = {
         "Atlántida": ["La Ceiba", "Tela", "Jutiapa", "El Porvenir", "Esparta", "Arizona"],
         "Colón": ["Trujillo", "Tocoa", "Balfate", "Iriona", "Limón"],
