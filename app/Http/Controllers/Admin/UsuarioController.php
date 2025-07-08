@@ -11,19 +11,15 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Notifications\CredencialesUsuarioNuevo;
 
-// CONTROLADOR PARA QUE EL ADMIN CREE UN NUEVO USUARIO, ACTUALICE O ELIMINE UN USUARIO
 class UsuarioController extends Controller
 {
     public function index()
     {
-<<<<<<< HEAD
-=======
         // Verificar permiso de consulta
         if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para consultar usuarios']);
         }
-        // Obtener el objeto correspondiente a la vista de usuarios
->>>>>>> d478dda0226a15a3881b7fdc6c36e41c4df8482c
+
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
@@ -36,6 +32,7 @@ class UsuarioController extends Controller
 
         $usuarios = User::with('rol')->orderBy('Id_Usuario', 'desc')->get();
         $roles = Rol::all();
+
         return view('admin.usuarios', compact('usuarios', 'roles'));
     }
 
@@ -45,6 +42,7 @@ class UsuarioController extends Controller
         if (!auth()->user()->tienePermiso('Usuarios', 'Insercion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para crear usuarios']);
         }
+
         $request->validate([
             'Usuario' => ['required', 'string', 'max:40', 'unique:tbl_ms_usuario,Usuario'],
             'Nombre_Usuario' => ['required', 'string', 'max:40'],
@@ -67,16 +65,16 @@ class UsuarioController extends Controller
         $diasVigencia = (int) \DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
-        $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
 
-        $password = bin2hex(random_bytes(4)); // 8 caracteres hexadecimales
+        $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
+        $password = bin2hex(random_bytes(4)); // 8 caracteres
 
         $nuevoUsuario = User::create([
             'Usuario' => strtoupper($request->Usuario),
             'Nombre_Usuario' => strtoupper($request->Nombre_Usuario),
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
-            'Primer_Ingreso' => 1, // Forzar cambio de contraseña
+            'Primer_Ingreso' => 1,
             'Contraseña' => Hash::make($password),
             'Estado_Usuario' => 'NUEVO',
             'Fecha_Creacion' => $fechaCreacion,
@@ -104,8 +102,8 @@ class UsuarioController extends Controller
         if (!auth()->user()->tienePermiso('Usuarios', 'Actualizacion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para actualizar usuarios']);
         }
+
         $request->validate([
-            // 'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
             'Nombre_Usuario' => 'required|string|max:100',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
             'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
@@ -117,18 +115,17 @@ class UsuarioController extends Controller
         $diasVigencia = (int) \DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
+
         $fechaVencimiento = now()->copy()->addDays($diasVigencia);
 
-        $updateData = [
+        $usuario->update([
             'Usuario' => $request->Usuario,
             'Nombre_Usuario' => $request->Nombre_Usuario,
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
             'Estado_Usuario' => $request->Estado_Usuario,
             'Fecha_Vencimiento' => $fechaVencimiento,
-        ];
-
-        $usuario->update($updateData);
+        ]);
 
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
@@ -149,6 +146,7 @@ class UsuarioController extends Controller
         if (!auth()->user()->tienePermiso('Usuarios', 'Eliminacion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para eliminar usuarios']);
         }
+
         $usuario = User::findOrFail($id);
         $usuario->update(['Estado_Usuario' => 'INACTIVO']);
 
