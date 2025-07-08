@@ -10,18 +10,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Notifications\CredencialesUsuarioNuevo;
-<<<<<<< HEAD
-=======
 
->>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
-
-
-//CONTROLADOR PARA QUE EL ADMIN CREE UN NUEVO USUARIO, ACTULICE O ELIMINE UN USUARIO
+// CONTROLADOR PARA QUE EL ADMIN CREE UN NUEVO USUARIO, ACTUALICE O ELIMINE UN USUARIO
 class UsuarioController extends Controller
 {
     public function index()
     {
-        // Obtener el objeto correspondiente a la vista de usuarios
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
@@ -31,7 +25,7 @@ class UsuarioController extends Controller
                 'El usuario ingresó a la gestión de usuarios'
             );
         }
-      
+
         $usuarios = User::with('rol')->orderBy('Id_Usuario', 'desc')->get();
         $roles = Rol::all();
         return view('admin.usuarios', compact('usuarios', 'roles'));
@@ -40,20 +34,6 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-<<<<<<< HEAD
-            'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario',
-            'Nombre_Usuario' => 'required|string|max:100',
-            'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico',
-            'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
-            'Estado_Usuario' => 'required|string',
-        ]);
-
-        // Generar contraseña aleatoria segura
-        $password = bin2hex(random_bytes(4)); // 8 caracteres hexadecimales
-
-        // Obtener el valor de ADMIN_DIAS_VIGENCIA desde tbl_parametros
-        $diasVigencia = \DB::table('tbl_parametros')
-=======
             'Usuario' => ['required', 'string', 'max:40', 'unique:tbl_ms_usuario,Usuario'],
             'Nombre_Usuario' => ['required', 'string', 'max:40'],
             'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario,Correo_Electronico'],
@@ -73,12 +53,10 @@ class UsuarioController extends Controller
 
         $fechaCreacion = now();
         $diasVigencia = (int) \DB::table('tbl_parametros')
->>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
         $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
 
-        // Generar contraseña aleatoria segura
         $password = bin2hex(random_bytes(4)); // 8 caracteres hexadecimales
 
         $nuevoUsuario = User::create([
@@ -86,28 +64,22 @@ class UsuarioController extends Controller
             'Nombre_Usuario' => strtoupper($request->Nombre_Usuario),
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
-<<<<<<< HEAD
-            'Primer_Ingreso' => 1, // Forzar cambio de contraseña en primer ingreso
-=======
-            'Primer_Ingreso' => 1,
->>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
+            'Primer_Ingreso' => 1, // Forzar cambio de contraseña
             'Contraseña' => Hash::make($password),
             'Estado_Usuario' => 'NUEVO',
             'Fecha_Creacion' => $fechaCreacion,
             'Fecha_Vencimiento' => $fechaVencimiento,
         ]);
 
-        // Enviar notificación con credenciales
         $nuevoUsuario->notify(new CredencialesUsuarioNuevo($nuevoUsuario, $password));
 
-        // Registrar en bitácora la creación de un nuevo usuario
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
                 Auth::user()->Id_Usuario,
                 $objeto->Id_Objeto,
                 'Nuevo',
-                ' Creó un nuevo usuario: ' . $nuevoUsuario->Usuario
+                'Creó un nuevo usuario: ' . $nuevoUsuario->Usuario
             );
         }
 
@@ -117,7 +89,7 @@ class UsuarioController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            //'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
+            // 'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
             'Nombre_Usuario' => 'required|string|max:100',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
             'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
@@ -125,10 +97,12 @@ class UsuarioController extends Controller
         ]);
 
         $usuario = User::findOrFail($id);
+
         $diasVigencia = (int) \DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
         $fechaVencimiento = now()->copy()->addDays($diasVigencia);
+
         $updateData = [
             'Usuario' => $request->Usuario,
             'Nombre_Usuario' => $request->Nombre_Usuario,
@@ -137,13 +111,9 @@ class UsuarioController extends Controller
             'Estado_Usuario' => $request->Estado_Usuario,
             'Fecha_Vencimiento' => $fechaVencimiento,
         ];
-<<<<<<< HEAD
-      
-=======
->>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
+
         $usuario->update($updateData);
 
-        // Registrar en bitácora la actualización de usuario
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
@@ -162,7 +132,6 @@ class UsuarioController extends Controller
         $usuario = User::findOrFail($id);
         $usuario->update(['Estado_Usuario' => 'INACTIVO']);
 
-        // Registrar en bitácora la eliminación (inactivación) de usuario
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
