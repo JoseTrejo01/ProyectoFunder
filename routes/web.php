@@ -13,7 +13,6 @@ use App\Http\Controllers\Admin\PermisoController;
 use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Admin\UsuarioController;
-<<<<<<< HEAD
 use App\Http\Controllers\Admin\DatabaseController;
 use App\Http\Controllers\Admin\ParametroController;
 use App\Http\Controllers\Admin\RolController;
@@ -21,11 +20,8 @@ use App\Http\Controllers\Admin\ObjetoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SocioController;
 use App\Http\Controllers\ExportSociosController;
-=======
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoController;
-
->>>>>>> origin/luisj
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
@@ -38,10 +34,8 @@ Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcom
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
-
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // Recuperación con OTP
@@ -84,6 +78,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [RolController::class, 'store'])->name('roles.store');
         Route::put('/{id}', [RolController::class, 'update'])->name('roles.update');
         Route::delete('/{id}', [RolController::class, 'destroy'])->name('roles.destroy');
+        Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
     });
 
     // Objetos
@@ -92,6 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
         Route::put('/{id}', [ObjetoController::class, 'update'])->name('objetos.update');
         Route::delete('/{id}', [ObjetoController::class, 'destroy'])->name('objetos.destroy');
+        Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
     });
 
     // Permisos y bitácora
@@ -116,34 +112,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
     });
 
-    // Gestión de socios
+    // Socios
     Route::resource('socios', SocioController::class)->except(['show']);
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
 
-    // Exportación de socios
-    Route::get('/socios/export', function (Request $request) {
-        $filters = $request->only('search', 'genero', 'localidad', 'tipo');
-        return Excel::download(new SociosExport($filters), 'socios.xlsx');
-    })->name('socios.export');
+    // Exportación socios
+    Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
 
     Route::get('/socios/export-pdf', function (Request $request) {
         $query = \App\Models\Socio::query()->where('estado', 1);
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('Nombre_Beneficiario', 'like', "%$search%")
-                  ->orWhere('DNI', 'like', "%$search%")
-                  ->orWhere('Telefono', 'like', "%$search%");
+            $query->where(function ($q) use ($request) {
+                $q->where('Nombre_Beneficiario', 'like', "%{$request->search}%")
+                  ->orWhere('DNI', 'like', "%{$request->search}%")
+                  ->orWhere('Telefono', 'like', "%{$request->search}%");
             });
         }
+
         if ($request->filled('genero')) {
             $query->where('genero', $request->genero);
         }
+
         if ($request->filled('localidad')) {
             $query->where('direccion', 'like', "%{$request->localidad}%");
         }
+
         if ($request->filled('tipo')) {
             $query->where('Tipo_De_Socio', 'like', "%{$request->tipo}%");
         }
@@ -152,40 +147,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $pdf = Pdf::loadView('socios.pdf', compact('socios'));
         return $pdf->download('socios.pdf');
     })->name('socios.export-pdf');
+
+    // Préstamos
+    Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
+    Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
+    Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
+    Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
+    Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
+    Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
+    Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
+
+    // Pagos
+    Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
+    Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
+    Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
 });
-<<<<<<< HEAD
-=======
-
-Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
-Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
-Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
-Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
-Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');
-Route::post('/objetos/store', [GestionController::class, 'storeObjeto'])->name('objetos.store');
-Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
-Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
-Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-
-//rutas de socios 
-Route::resource('socios', App\Http\Controllers\SocioController::class);
-
-// Rutas de préstamos
-Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
-Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
-Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
-Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
-Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
-Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
-Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
-
-//pagos 
-Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
-Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
-Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
-Route::get('/prestamos/{prestamo}/pagos', [PagoController::class, 'index'])->name('pagos.index');
-// Desembolso debe ser POST porque en el formulario usamos method="POST"
-Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
-
-
->>>>>>> origin/luisj
