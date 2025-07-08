@@ -15,10 +15,14 @@ class UsuarioController extends Controller
 {
     public function index()
     {
+<<<<<<< HEAD
         if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para consultar usuarios']);
         }
 
+=======
+        // Obtener el objeto correspondiente a la vista de usuarios
+>>>>>>> rama2nueva
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
@@ -37,10 +41,13 @@ class UsuarioController extends Controller
 
     public function store(Request $request)
     {
+<<<<<<< HEAD
         if (!auth()->user()->tienePermiso('Usuarios', 'Insercion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para crear usuarios']);
         }
 
+=======
+>>>>>>> rama2nueva
         $request->validate([
             'Usuario' => ['required', 'string', 'max:60', 'unique:tbl_ms_usuario,Usuario'],
             'Nombre_Usuario' => ['required', 'string', 'max:100'],
@@ -96,10 +103,13 @@ class UsuarioController extends Controller
 
     public function update(Request $request, $id)
     {
+<<<<<<< HEAD
         if (!auth()->user()->tienePermiso('Usuarios', 'Actualizacion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para actualizar usuarios']);
         }
 
+=======
+>>>>>>> rama2nueva
         $request->validate([
             'Nombre_Usuario' => 'required|string|max:100',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
@@ -137,10 +147,13 @@ class UsuarioController extends Controller
 
     public function destroy($id)
     {
+<<<<<<< HEAD
         if (!auth()->user()->tienePermiso('Usuarios', 'Eliminacion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para eliminar usuarios']);
         }
 
+=======
+>>>>>>> rama2nueva
         $usuario = User::findOrFail($id);
         $usuario->update(['Estado_Usuario' => 'INACTIVO']);
 
