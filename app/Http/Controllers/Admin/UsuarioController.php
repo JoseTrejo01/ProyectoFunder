@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Notifications\CredencialesUsuarioNuevo;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
 
 
 //CONTROLADOR PARA QUE EL ADMIN CREE UN NUEVO USUARIO, ACTULICE O ELIMINE UN USUARIO
@@ -36,6 +40,7 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+<<<<<<< HEAD
             'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario',
             'Nombre_Usuario' => 'required|string|max:100',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico',
@@ -48,18 +53,44 @@ class UsuarioController extends Controller
 
         // Obtener el valor de ADMIN_DIAS_VIGENCIA desde tbl_parametros
         $diasVigencia = \DB::table('tbl_parametros')
+=======
+            'Usuario' => ['required', 'string', 'max:40', 'unique:tbl_ms_usuario,Usuario'],
+            'Nombre_Usuario' => ['required', 'string', 'max:40'],
+            'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario,Correo_Electronico'],
+            'Id_Rol' => ['required', 'integer', 'exists:tbl_ms_rol,Id_Rol'],
+            'Estado_Usuario' => ['required', 'string'],
+        ], [
+            'Usuario.required' => 'El campo usuario es obligatorio',
+            'Usuario.max' => 'El usuario no puede tener más de 40 caracteres.',
+            'Usuario.unique' => 'El usuario ya está registrado.',
+            'Nombre_Usuario.required' => 'El campo nombre de usuario es obligatorio',
+            'Nombre_Usuario.max' => 'El nombre de usuario no puede tener más de 40 caracteres.',
+            'Correo_Electronico.required' => 'El campo correo electrónico es obligatorio',
+            'Correo_Electronico.max' => 'El correo electrónico no puede tener más de 60 caracteres.',
+            'Correo_Electronico.unique' => 'Este correo ya está registrado.',
+            'Correo_Electronico.email' => 'Debe ingresar un correo electrónico válido con @.',
+        ]);
+
+        $fechaCreacion = now();
+        $diasVigencia = (int) \DB::table('tbl_parametros')
+>>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
-        $diasVigencia = (int) $diasVigencia;
-        $fechaCreacion = now();
         $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
 
+        // Generar contraseña aleatoria segura
+        $password = bin2hex(random_bytes(4)); // 8 caracteres hexadecimales
+
         $nuevoUsuario = User::create([
-            'Usuario' => $request->Usuario,
-            'Nombre_Usuario' => $request->Nombre_Usuario,
+            'Usuario' => strtoupper($request->Usuario),
+            'Nombre_Usuario' => strtoupper($request->Nombre_Usuario),
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
+<<<<<<< HEAD
             'Primer_Ingreso' => 1, // Forzar cambio de contraseña en primer ingreso
+=======
+            'Primer_Ingreso' => 1,
+>>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
             'Contraseña' => Hash::make($password),
             'Estado_Usuario' => 'NUEVO',
             'Fecha_Creacion' => $fechaCreacion,
@@ -86,7 +117,7 @@ class UsuarioController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
+            //'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
             'Nombre_Usuario' => 'required|string|max:100',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
             'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
@@ -94,14 +125,22 @@ class UsuarioController extends Controller
         ]);
 
         $usuario = User::findOrFail($id);
+        $diasVigencia = (int) \DB::table('tbl_parametros')
+            ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
+            ->value('Valor');
+        $fechaVencimiento = now()->copy()->addDays($diasVigencia);
         $updateData = [
             'Usuario' => $request->Usuario,
             'Nombre_Usuario' => $request->Nombre_Usuario,
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol' => $request->Id_Rol,
             'Estado_Usuario' => $request->Estado_Usuario,
+            'Fecha_Vencimiento' => $fechaVencimiento,
         ];
+<<<<<<< HEAD
       
+=======
+>>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
         $usuario->update($updateData);
 
         // Registrar en bitácora la actualización de usuario

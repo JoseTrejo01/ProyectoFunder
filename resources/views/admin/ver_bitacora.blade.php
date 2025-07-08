@@ -4,7 +4,7 @@
 <div class="container">
     <h2>Bitácora del Sistema</h2>
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        {{-- <div class="alert alert-success">{{ session('success') }}</div> --}}
     @endif
     <div class="row mb-3">
         <form method="GET" class="col-md-10 d-flex gap-2 align-items-end">
@@ -19,7 +19,7 @@
             </div>
         </form>
         <div class="col-md-2 d-flex align-items-end">
-            <form method="POST" action="{{ route('bitacora.borrar') }}" onsubmit="return confirm('¿Seguro que deseas borrar los registros filtrados?');" class="w-100">
+            <form method="POST" action="{{ route('bitacora.borrar') }}" onsubmit="return confirmarEliminacionBitacora(event);" class="w-100">
                 @csrf
                 <input type="hidden" name="fecha_desde" value="{{ request('fecha_desde') }}">
                 <input type="hidden" name="fecha_hasta" value="{{ request('fecha_hasta') }}">
@@ -61,11 +61,42 @@
 @endsection
 
 @section('js')
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@8"></script>
 <script>
+function confirmarEliminacionBitacora(e) {
+    e.preventDefault();
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¡Esta acción eliminará los registros filtrados de la bitácora!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.value) {
+            e.target.submit();
+        }
+    });
+    return false;
+}
 $(document).ready(function() {
     $('#tabla-bitacora').DataTable({
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            lengthMenu: 'Mostrar _MENU_ registros',
+            zeroRecords: 'No se encontraron resultados',
+            info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+            infoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 registros',
+            infoFiltered: '(filtrado de un total de _MAX_ registros)',
+            search: 'Buscar:',
+            paginate: {
+                first: 'Primero',
+                last: 'Último',
+                next: 'Siguiente',
+                previous: 'Anterior'
+            },
+            processing: 'Procesando...'
         },
         order: [[0, 'desc']],
         searching: false // Desactiva el buscador
