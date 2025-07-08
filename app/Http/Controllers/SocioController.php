@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Socio;
 use Illuminate\Http\Request;
 
+
+
 class SocioController extends Controller
 {
     // listar
@@ -65,38 +67,39 @@ class SocioController extends Controller
     }
 
     // guardar nuevo socio
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'Id_Organizacion'       => 'required|integer',
-            'Nombre_Beneficiario'   => 'required|max:150',
-            'DNI'                    => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI,'.$id.',Id_Beneficiario',
-            'genero'                => 'required|in:M,F',
-            'Nombre_Caja'           => 'nullable|max:150',
-            'fecha_nacimiento'      => 'nullable|date',
-            'edad'                  => 'nullable|integer|min:15|max:100',
-            'estado_civil'          => 'nullable|max:50',
-            'etnia'                 => 'nullable|max:100',
-            'nivel_educativo'       => 'nullable|max:100',
-            'medio_comunicacion'    => 'nullable|max:100',
-            'departamento'          => 'nullable|max:100',
-            'municipio'             => 'nullable|max:100',
-            'comunidad'             => 'nullable|max:100',
-            'direccion'             => 'nullable|max:150',
-            'Telefono'              => 'nullable|digits_between:8,15',
-            'actividad_economica'   => 'nullable|max:150',
-            'actividad_no_agricola' => 'nullable|max:150',
-            'Tipo_Cargo'            => 'nullable|max:100',
-            'Tipo_De_Socio'         => 'nullable|max:100',
-            'categoria'             => 'nullable|max:100',
-            'estado'                => 'boolean'
-        ]);
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'Id_Organizacion'       => 'required|integer',
+        'Nombre_Beneficiario'   => 'required|max:150',
+        'DNI'                   => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI',
+        'genero'                => 'required|in:M,F',
+        'Nombre_Caja'           => 'nullable|max:150',
+        'fecha_nacimiento'      => 'nullable|date',
+        'edad'                  => 'nullable|integer|min:15|max:100',
+        'estado_civil'          => 'nullable|max:50',
+        'etnia'                 => 'nullable|max:100',
+        'nivel_educativo'       => 'nullable|max:100',
+        'medio_comunicacion'    => 'nullable|max:100',
+        'departamento'          => 'nullable|max:100',
+        'municipio'             => 'nullable|max:100',
+        'comunidad'             => 'nullable|max:100',
+        'direccion'             => 'nullable|max:150',
+        'Telefono'              => 'nullable|digits_between:8,15',
+        'actividad_economica'   => 'nullable|max:150',
+        'actividad_no_agricola' => 'nullable|max:150',
+        'Tipo_Cargo'            => 'nullable|max:100',
+        'Tipo_De_Socio'         => 'nullable|max:100',
+        'categoria'             => 'nullable|max:100',
+        'estado'                => 'boolean'
+    ]);
 
-        Socio::create($validated);
+    Socio::create($validated);
 
-        return redirect()->route('socios.index')
-            ->with('success', 'Socio creado correctamente.');
-    }
+    return redirect()->route('socios.index')
+        ->with('success', 'Socio creado correctamente.');
+}
+
 
     // mostrar formulario de edición
     public function edit($id)
@@ -111,7 +114,7 @@ class SocioController extends Controller
         $validated = $request->validate([
             'Id_Organizacion'       => 'required|integer',
             'Nombre_Beneficiario'   => 'required|max:150',
-            'DNI'                   => 'required|max:30|unique:tbl_beneficiario,DNI,' . $id . ',Id_Beneficiario',
+            'DNI'                   => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI',
             'genero'                => 'required|in:M,F',
             'Nombre_Caja'           => 'nullable|max:150',
             'fecha_nacimiento'      => 'nullable|date',
@@ -168,3 +171,4 @@ class SocioController extends Controller
             ->with('success', 'Socio reactivado correctamente.');
     }
 }
+

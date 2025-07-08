@@ -98,6 +98,8 @@
         <div class="form-group">
             <label>Teléfono</label>
             <input type="text" name="Telefono" class="form-control" required>
+            <small class="form-text text-muted">Formato: 1234-5678</small>
+        </div>
 
         <div class="form-group">
     <label>Departamento</label>

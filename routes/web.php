@@ -120,6 +120,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // -------------------------
     // SOCIOS
     // -------------------------
+
+
+
     Route::resource('socios', SocioController::class)->except(['show']);
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
