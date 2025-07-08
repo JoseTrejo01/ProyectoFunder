@@ -25,8 +25,6 @@ use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoController;
 
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Exports\SociosExport;
-use Maatwebsite\Excel\Facades\Excel;
 
 // -------------------------
 // RUTA RAÍZ
@@ -120,18 +118,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // -------------------------
     // SOCIOS
     // -------------------------
-
-
-
     Route::resource('socios', SocioController::class)->except(['show']);
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
 
-    Route::get('/socios/export', function (Request $request) {
-        $filters = $request->only('search', 'genero', 'localidad', 'tipo');
-        return Excel::download(new SociosExport($filters), 'socios.xlsx');
-    })->name('socios.export');
+    // Exportar socios a Excel con PhpSpreadsheet
+    Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
 
+    // Exportar socios a PDF
     Route::get('/socios/export-pdf', function (Request $request) {
         $query = \App\Models\Socio::query()->where('estado', 1);
 
@@ -178,3 +172,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
 });
+
