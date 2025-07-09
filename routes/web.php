@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\UsuarioController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\AhorroController;
 
 // Ruta de bienvenida - redirige usuarios autenticados al dashboard
 Route::get('/', function () {
@@ -76,6 +77,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // rutas de socios
     Route::resource('socios', App\Http\Controllers\SocioController::class)->except(['show']);
+
+    // rutas de ahorros
+    Route::resource('ahorros', App\Http\Controllers\AhorroController::class);
+    Route::get('/ahorros/{id}/ficha', [App\Http\Controllers\AhorroController::class, 'ficha'])->name('ahorros.ficha');
+    Route::get('/ahorros/export-pdf', [App\Http\Controllers\AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
+
 
     // ficha del socio
     Route::get('/socios/{id}/ficha', [App\Http\Controllers\SocioController::class, 'ficha'])->name('socios.ficha');
