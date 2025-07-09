@@ -3,45 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\Socio;
+use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExportSociosController extends Controller
 {
-    public function export()
+    public function export(Request $request)
     {
-        $socios = Socio::where('estado', 1)->get();
+        // APLICAR FILTROS
+        $query = Socio::query()->where('estado', 1);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('Nombre_Beneficiario', 'like', "%$search%")
+                  ->orWhere('DNI', 'like', "%$search%")
+                  ->orWhere('Telefono', 'like', "%$search%");
+            });
+        }
+
+        if ($request->filled('genero')) {
+            $query->where('genero', $request->genero);
+        }
+
+        if ($request->filled('localidad')) {
+            $query->where('comunidad', 'like', "%{$request->localidad}%");
+        }
+
+        if ($request->filled('tipo')) {
+            $query->where('Tipo_De_Socio', 'like', "%{$request->tipo}%");
+        }
+
+        $socios = $query->get(); // Solo los filtrados
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // poner estilos de cabecera
-$sheet->getStyle('A1:O1')->applyFromArray([
-    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-    'fill' => [
-        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-        'startColor' => ['rgb' => '4CAF50'] // verde bonito
-    ],
-    'alignment' => [
-        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-    ],
-    'borders' => [
-        'allBorders' => [
-            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-            'color' => ['rgb' => '000000'],
-        ],
-    ],
-]);
+        // Estilos de cabecera
+        $sheet->getStyle('A1:O1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4CAF50']
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ]);
 
-// opcional: ancho automático de columnas
-foreach (range('A', 'O') as $col) {
-    $sheet->getColumnDimension($col)->setAutoSize(true);
-}
-
+        foreach (range('A', 'O') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
 
         // Encabezados
-     $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('A1', 'ID');
         $sheet->setCellValue('B1', 'Nombre');
         $sheet->setCellValue('C1', 'DNI');
         $sheet->setCellValue('D1', 'Teléfono');
@@ -58,7 +81,7 @@ foreach (range('A', 'O') as $col) {
         $sheet->setCellValue('O1', 'Estado');
 
         $fila = 2;
-       foreach ($socios as $socio) {
+        foreach ($socios as $socio) {
             $sheet->setCellValue("A{$fila}", $socio->Id_Beneficiario);
             $sheet->setCellValue("B{$fila}", $socio->Nombre_Beneficiario);
             $sheet->setCellValue("C{$fila}", $socio->DNI);
