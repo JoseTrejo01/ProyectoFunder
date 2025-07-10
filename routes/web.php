@@ -27,6 +27,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
+use App\Http\Controllers\EmprendimientoController;
+
 // Página de bienvenida
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
@@ -117,6 +119,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
 
+    // Emprendimientos
+    Route::resource('emprendimientos', EmprendimientoController::class);
+    
     // Exportación socios
     Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
 
