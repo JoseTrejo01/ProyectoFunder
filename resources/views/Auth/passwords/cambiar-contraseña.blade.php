@@ -86,8 +86,13 @@
         <div class="input-group mb-3">
             <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Nueva Contraseña" required autofocus>
             <div class="input-group-append">
+<<<<<<< HEAD
+                <div class="input-group-text">
+                    <span class="fas fa-lock"></span>
+=======
                 <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
                     <span class="fas fa-eye" id="eyeIcon"></span>
+>>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
                 </div>
             </div>
             @error('password')
@@ -100,8 +105,13 @@
         <div class="input-group mb-4">
             <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" placeholder="Confirmar Contraseña" required>
             <div class="input-group-append">
+<<<<<<< HEAD
+                <div class="input-group-text">
+                    <span class="fas fa-lock"></span>
+=======
                 <div class="input-group-text" style="cursor: pointer;" id="togglePasswordConfirm">
                     <span class="fas fa-eye" id="eyeIconConfirm"></span>
+>>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
                 </div>
             </div>
         </div>
@@ -115,6 +125,8 @@
     </form>
 </div>
 @stop
+<<<<<<< HEAD
+=======
 
 @section('adminlte_js')
 <script>
@@ -142,3 +154,4 @@
     });
 </script>
 @stop
+>>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22

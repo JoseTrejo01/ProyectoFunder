@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\Parametro;
+use App\Models\Objeto;
 
 class LoginController extends Controller
 {
@@ -19,9 +21,9 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        // 1. Validación de campos requeridos
+        // 1. Validación
         $validator = Validator::make($request->all(), [
-            'Usuario' => ['required', 'string','max:30'],
+            'Usuario' => ['required', 'string', 'max:30'],
             'Contraseña' => ['required', 'string', 'size:8', 'regex:/^\S*$/u']
         ], [
             'Usuario.required' => 'El campo usuario es obligatorio',
@@ -34,9 +36,8 @@ class LoginController extends Controller
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
-        // 2. Convertir usuario a mayúsculas
-        $usuario = strtoupper($request->Usuario);
 
+        $usuario = strtoupper($request->Usuario);
         $user = User::where('Usuario', $usuario)->first();
 
         if (!$user) {
@@ -45,41 +46,31 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        // 3. Obtener límite de intentos desde la tabla de parámetros
-        $parametro = Parametro::where('Nombre_Parametro', 'ADMIN_INTENTOS_INVALIDOS')->first();
-        $limiteIntentos = $parametro ? intval($parametro->Valor) : 3; // fallback a 3 si no existe
+        // 2. Parámetro de intentos fallidos
+        $limiteIntentos = Parametro::where('Nombre_Parametro', 'ADMIN_INTENTOS_INVALIDOS')->value('Valor') ?? 3;
 
-        // 4. Verificar si el usuario ya está bloqueado
+        // 3. Verificaciones de estado
         if (strtoupper(trim($user->Estado_Usuario)) === 'BLOQUEADO') {
-            return back()->withErrors([
-                'Usuario' => 'Tu cuenta ha sido bloqueada por múltiples intentos fallidos.'
-            ])->withInput();
+            return back()->withErrors(['Usuario' => 'Tu cuenta ha sido bloqueada por múltiples intentos fallidos.'])->withInput();
         }
 
-        // 5. Verificar si el usuario es nuevo de aprobación o es AUTO-REGISTRO
-        if ($user->Id_Rol == 3 ) {
-            return back()->withErrors([
-                'Usuario' => 'Tu usuario está pendiente de aprobación. Por favor, contacta a la administración para ser aceptado.'
-            ])->withInput();
+        if ($user->Id_Rol == 3) {
+            return back()->withErrors(['Usuario' => 'Tu usuario está pendiente de aprobación. Contacta a la administración.'])->withInput();
         }
 
-        // 6. Verificar estado activo o nuevo
-        if (strtoupper(trim($user->Estado_Usuario)) !== 'ACTIVO' && strtoupper(trim($user->Estado_Usuario)) !== 'NUEVO') {
-            return back()->withErrors([
-                'Usuario' => 'El usuario no está activo'
-            ])->withInput();
+        if (!in_array(strtoupper(trim($user->Estado_Usuario)), ['ACTIVO', 'NUEVO'])) {
+            return back()->withErrors(['Usuario' => 'El usuario no está activo'])->withInput();
         }
 
-        // 7. Verificar contraseña
+        // 4. Verificación de contraseña
         if (!Hash::check($request->Contraseña, $user->Contraseña)) {
-            // Incrementar intentos fallidos
             $user->Intentos_Fallidos = ($user->Intentos_Fallidos ?? 0) + 1;
-            // Verificar si alcanzó el límite
+
             if ($user->Intentos_Fallidos >= $limiteIntentos) {
                 $user->Estado_Usuario = 'BLOQUEADO';
-                // Registrar en bitácora el bloqueo por intentos fallidos
+
                 try {
-                    $objeto = \App\Models\Objeto::where('Objeto', 'Usuarios')->first();
+                    $objeto = Objeto::where('Objeto', 'Usuarios')->first();
                     if ($objeto) {
                         EVENT_BITACORA(
                             $user->Id_Usuario,
@@ -90,7 +81,9 @@ class LoginController extends Controller
                     }
                 } catch (\Throwable $e) {}
             }
+
             $user->save();
+
             return back()->withErrors([
                 'Usuario' => $user->Estado_Usuario === 'BLOQUEADO'
                     ? 'Tu cuenta ha sido bloqueada'
@@ -98,9 +91,8 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        // 8. Si el usuario está en estado NUEVO, forzar cambio de contraseña
+        // 5. Estado NUEVO: forzar cambio de contraseña
         if (strtoupper(trim($user->Estado_Usuario)) === 'NUEVO') {
-            // Reiniciar intentos fallidos
             $user->Intentos_Fallidos = 0;
             $user->save();
             Auth::login($user);
@@ -108,18 +100,17 @@ class LoginController extends Controller
             return redirect()->route('password.change.form');
         }
 
-        // 9. Si es primer ingreso, forzar doble verificación OTP
+        // 6. Primer ingreso: OTP obligatorio
         if ($user->Primer_Ingreso == 1) {
-            // Generar y guardar OTP
             $otp = rand(100000, 999999);
             $expiration = now()->addMinutes(10);
+
             $user->otp_code = $otp;
             $user->otp_expires_at = $expiration;
-            // Reiniciar intentos fallidos
             $user->Intentos_Fallidos = 0;
             $user->save();
 
-            \Mail::raw("Tu código de verificación es: $otp", function ($message) use ($user) {
+            Mail::raw("Tu código de verificación es: $otp", function ($message) use ($user) {
                 $message->to($user->Correo_Electronico)
                         ->subject('Código de verificación OTP');
             });
@@ -128,23 +119,30 @@ class LoginController extends Controller
             return redirect()->route('otp.form')->with('status', 'Código enviado a tu correo electrónico');
         }
 
-        // 10. Hacer Login solo si ya no es NUEVO ni Primer_Ingreso
+        // 7. Login exitoso
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Si el usuario tenía Primer_Ingreso en 1, actualizarlo a 0 tras el primer logeo (solo si no es NUEVO)
-        if ($user->Primer_Ingreso == 1 && strtoupper(trim($user->Estado_Usuario)) !== 'NUEVO') {
+        if ($user->Primer_Ingreso == 1) {
             $user->Primer_Ingreso = 0;
         }
-        // Reiniciar intentos fallidos
+
         $user->Intentos_Fallidos = 0;
         $user->save();
 
-        //Registrar en la bitacora
         EVENT_BITACORA($user->Id_Usuario, 1, 'Ingreso', 'El usuario ha iniciado sesión.');
 
-        // Redirigir al dashboard 
         return redirect()->intended('/dashboard');
+    }
+
+    public function logout(Request $request)
+    {
+        EVENT_BITACORA(Auth::user()->Id_Usuario, 2, 'Salida', 'El usuario ha cerrado sesión.');
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home')->with('success', 'Sesión cerrada correctamente');
     }
 
     public function showChangePasswordForm()
@@ -163,21 +161,10 @@ class LoginController extends Controller
         $user->Estado_Usuario = 'ACTIVO';
         $user->save();
 
-        // Cerrar sesión y redirigir al login
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Contraseña cambiada correctamente. Por favor, inicia sesión con tu nueva contraseña.');
-    }
-
-    public function logout(Request $request)
-    {
-        // Registrar en la bitácora
-        EVENT_BITACORA(Auth::user()->Id_Usuario, 2, 'Salida', 'El usuario ha cerrado sesión.');
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('home')->with('success', 'Sesión cerrada correctamente');
+        return redirect()->route('login')->with('success', 'Contraseña cambiada correctamente. Por favor, inicia sesión.');
     }
 }
