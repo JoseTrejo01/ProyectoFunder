@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Socio;
@@ -56,7 +55,7 @@ class SocioController extends Controller
 }
 
 
-        $socios = $query->paginate(10);
+        $socios = $query->with('actividades')->paginate(10);
 
         return view('socios.index', compact('socios'));
     }
@@ -64,7 +63,8 @@ class SocioController extends Controller
     // mostrar formulario de creación
     public function create()
     {
-        return view('socios.create');
+        $organizaciones = \App\Models\Organizacion::with(['aldea.municipio.departamento'])->get();
+        return view('socios.create', compact('organizaciones'));
     }
 
     // guardar nuevo socio
@@ -72,7 +72,6 @@ class SocioController extends Controller
 {
     $validated = $request->validate([
         'Id_Organizacion'       => 'required|integer',
-        'Nombre_Caja'           => 'required|string|max:150',
         'Nombre_Beneficiario'   => 'required|string|max:150',
         'DNI'                   => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI',
         'genero'                => 'required|in:M,F',
@@ -96,7 +95,20 @@ class SocioController extends Controller
     ]);
 
     try {
-        Socio::create($validated);
+        $socio = Socio::create($validated);
+        // Guardar actividades económicas
+        if ($request->has('actividades')) {
+            foreach ($request->actividades as $i => $actividad) {
+                \DB::table('tbl_actividad_economica')->insert([
+                    'Id_Beneficiario' => $socio->Id_Beneficiario,
+                    'Tipo' => $actividad['tipo'],
+                    'Numero' => $i + 1,
+                    'Rubro' => $actividad['rubro'],
+                    'Unidad_Medida' => $actividad['unidad'],
+                    'Cantidad' => $actividad['cantidad'],
+                ]);
+            }
+        }
         return redirect()->route('socios.index')->with('success', 'Socio creado correctamente.');
     } catch (\Exception $e) {
         return back()->withErrors(['error' => 'Ocurrió un error al guardar el socio: ' . $e->getMessage()]);
@@ -105,18 +117,11 @@ class SocioController extends Controller
 
 
 
-    // mostrar formulario de edición
-    public function edit($id)
-    {
-        $socio = Socio::findOrFail($id);
-        return view('socios.edit', compact('socio'));
-    }
-
     // actualizar socio
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'Id_Organizacion'       => 'required|integer',
+            // 'Id_Organizacion'       => 'required|integer',
             'Nombre_Beneficiario'   => 'required|max:150',
             'DNI'                   => [
             'required',
@@ -145,6 +150,46 @@ class SocioController extends Controller
 
         $socio = Socio::findOrFail($id);
         $socio->update($validated);
+
+        // Actualizar actividades económicas
+        if ($request->has('actividades')) {
+            $idsEnviados = [];
+            foreach ($request->actividades as $i => $actividad) {
+                // Si existe Id_Actividad, actualizar; si no, crear
+                if (!empty($actividad['id'])) {
+                    \DB::table('tbl_actividad_economica')
+                        ->where('Id_Actividad', $actividad['id'])
+                        ->update([
+                            'Tipo' => $actividad['tipo'],
+                            'Numero' => $actividad['numero'],
+                            'Rubro' => $actividad['rubro'],
+                            'Unidad_Medida' => $actividad['unidad'],
+                            'Cantidad' => $actividad['cantidad'],
+                        ]);
+                    $idsEnviados[] = $actividad['id'];
+                } else {
+                    $nuevoId = \DB::table('tbl_actividad_economica')->insertGetId([
+                        'Id_Beneficiario' => $socio->Id_Beneficiario,
+                        'Tipo' => $actividad['tipo'],
+                        'Numero' => $actividad['numero'],
+                        'Rubro' => $actividad['rubro'],
+                        'Unidad_Medida' => $actividad['unidad'],
+                        'Cantidad' => $actividad['cantidad'],
+                    ]);
+                    $idsEnviados[] = $nuevoId;
+                }
+            }
+            // Eliminar actividades que no fueron enviadas
+            \DB::table('tbl_actividad_economica')
+                ->where('Id_Beneficiario', $socio->Id_Beneficiario)
+                ->whereNotIn('Id_Actividad', $idsEnviados)
+                ->delete();
+        } else {
+            // Si no se envió ninguna actividad, eliminar todas
+            \DB::table('tbl_actividad_economica')
+                ->where('Id_Beneficiario', $socio->Id_Beneficiario)
+                ->delete();
+        }
 
         return redirect()->route('socios.index')
             ->with('success', 'Socio actualizado correctamente.');
@@ -177,5 +222,62 @@ class SocioController extends Controller
         return redirect()->route('socios.index')
             ->with('success', 'Socio reactivado correctamente.');
     }
+
+
+        // Vista de distribución de cargos por caja rural
+    public function cargosPorCaja()
+    {
+        $cajas = Socio::select('Id_Organizacion')
+            ->groupBy('Id_Organizacion')
+            ->get()
+            ->map(function($caja) {
+                $org = \App\Models\Organizacion::find($caja->Id_Organizacion);
+                $caja->nombre_organizacion = $org ? $org->Nombre_Organizacion : '';
+                $caja->presidente_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Presidente(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->presidente_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Presidente(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vicepresidente_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'vicepresidente(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->vicepresidente_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'vicepresidente(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->tesorero_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Tesorero(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->tesorero_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Tesorero(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->secretario_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Secretario(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->secretario_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Secretario(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal1 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->exists();
+                $caja->vocal2 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->exists();
+                $caja->vocal3 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->exists();
+                return $caja;
+            });
+        return view('socios.cargos', compact('cajas'));
+    }
+
 }
 

@@ -298,6 +298,7 @@ return [
     */
 
     'menu' => [
+    
         // Navbar items:
         [
             'type' => 'navbar-search',
@@ -373,6 +374,12 @@ return [
                 ],
             ],
         ],
+
+        [
+        'text' => 'Organización',
+        'url'  => 'organizaciones',
+        'icon' => 'fas fa-building',
+    ],
         [
         'text' => 'Socios / Clientes',
         'url'  => 'socios',
@@ -395,7 +402,7 @@ return [
     ],
     [
         'text' => 'Cargos Directivos',
-        'url'  => 'directivos',
+        'url'  => 'socios/cargos',
         'icon' => 'fas fa-user-tie',
     ],
     [

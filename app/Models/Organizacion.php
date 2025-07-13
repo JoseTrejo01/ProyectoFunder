@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Organizacion extends Model
+ 
 {
     protected $table = 'tbl_organizacion';
     protected $primaryKey = 'Id_Organizacion';
@@ -18,7 +19,22 @@ class Organizacion extends Model
     ];
 
     public function prestamos()
-{
-    return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
-}
+    {
+        return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
+    }
+
+    public function aldea()
+    {
+        return $this->belongsTo(Aldea::class, 'Id_Aldea', 'Id_Aldea');
+    }
+
+    public function municipio()
+    {
+        return $this->aldea ? $this->aldea->municipio : null;
+    }
+
+    public function departamento()
+    {
+        return $this->municipio() ? $this->municipio()->departamento : null;
+    }
 }

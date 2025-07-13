@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -119,9 +120,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // SOCIOS
     // -------------------------
     Route::resource('socios', SocioController::class)->except(['show']);
+    Route::put('/socios/{id}', [SocioController::class, 'update'])->name('socios.update');
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
-
+ 
+    Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
     // Exportar socios a Excel con PhpSpreadsheet
     Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
 
@@ -173,3 +176,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
 });
 
+
+// Rutas para organizaciones
+Route::resource('organizaciones', App\Http\Controllers\OrganizacionController::class)->except(['show']);
