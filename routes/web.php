@@ -18,6 +18,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\AhorroController;
+use App\Http\Controllers\IndicadorGeneroController;
 
 // Ruta de bienvenida - redirige usuarios autenticados al dashboard
 Route::get('/', function () {
@@ -82,6 +83,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('ahorros', App\Http\Controllers\AhorroController::class);
     Route::get('/ahorros/{id}/ficha', [App\Http\Controllers\AhorroController::class, 'ficha'])->name('ahorros.ficha');
     Route::get('/ahorros/export-pdf', [App\Http\Controllers\AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
+   
+    //ruta de genero
+    Route::resource('genero', IndicadorGeneroController::class);
 
 
     // ficha del socio
@@ -123,3 +127,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/socios/export', [App\Http\Controllers\ExportSociosController::class, 'export'])->name('socios.export');
 //reactivas socios
 Route::post('/socios/{id}/reactivar', [App\Http\Controllers\SocioController::class, 'reactivar'])->name('socios.reactivar');
+
+Route::get('/prueba', function() {
+    return view('prueba');
+});
