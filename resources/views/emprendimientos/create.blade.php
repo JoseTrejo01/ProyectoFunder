@@ -16,17 +16,34 @@
             @error('Caja_Rural') <small class="text-danger">{{ $message }}</small> @enderror
         </div>
 
+        {{-- Select de Departamento --}}
         <div class="form-group">
-            <label for="Id_Municipio">Municipio</label>
-            <select name="Id_Municipio" class="form-control" required>
-                <option value="">Seleccione un municipio</option>
-                @foreach($municipios as $municipio)
-                    <option value="{{ $municipio->Id_Municipio }}" {{ old('Id_Municipio') == $municipio->Id_Municipio ? 'selected' : '' }}>
-                        {{ $municipio->Nombre_Municipio ?? $municipio->Id_Municipio }}
+            <label for="departamento">Departamento</label>
+            <select id="departamento" class="form-control" required>
+                <option value="">Seleccione un departamento</option>
+                @foreach($departamentos as $departamento)
+                    <option value="{{ $departamento->Id_Departamento }}">
+                        {{ $departamento->Nombre_Departamento }}
                     </option>
                 @endforeach
             </select>
+        </div>
+
+        {{-- Select de Municipio --}}
+        <div class="form-group">
+            <label for="Id_Municipio">Municipio</label>
+            <select name="Id_Municipio" id="municipio" class="form-control" required>
+                <option value="">Seleccione un municipio</option>
+            </select>
             @error('Id_Municipio') <small class="text-danger">{{ $message }}</small> @enderror
+        </div>
+
+        {{-- Select de Aldea --}}
+        <div class="form-group">
+            <label for="aldea">Aldea</label>
+            <select name="aldea_id" id="aldea" class="form-control">
+                <option value="">Seleccione una aldea</option>
+            </select>
         </div>
 
         <div class="form-group">
@@ -95,22 +112,66 @@
 @stop
 
 @section('js')
-    <script>
-        function actualizarTotales() {
-            const hombres = parseInt(document.querySelector('[name="Socios_Hombres"]').value || 0);
-            const mujeres = parseInt(document.querySelector('[name="Socios_Mujeres"]').value || 0);
-            document.getElementById('Total_Socios').value = hombres + mujeres;
+<script>
+    function actualizarTotales() {
+        const hombres = parseInt(document.querySelector('[name="Socios_Hombres"]').value || 0);
+        const mujeres = parseInt(document.querySelector('[name="Socios_Mujeres"]').value || 0);
+        document.getElementById('Total_Socios').value = hombres + mujeres;
 
-            const empH = parseInt(document.querySelector('[name="Empleos_Hombres"]').value || 0);
-            const empM = parseInt(document.querySelector('[name="Empleos_Mujeres"]').value || 0);
-            document.getElementById('Total_Empleos').value = empH + empM;
+        const empH = parseInt(document.querySelector('[name="Empleos_Hombres"]').value || 0);
+        const empM = parseInt(document.querySelector('[name="Empleos_Mujeres"]').value || 0);
+        document.getElementById('Total_Empleos').value = empH + empM;
+    }
+
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', actualizarTotales);
+    });
+
+    actualizarTotales();
+
+    // AJAX dinámico para selects
+    document.getElementById('departamento').addEventListener('change', function () {
+        const departamentoId = this.value;
+        const municipioSelect = document.getElementById('municipio');
+        const aldeaSelect = document.getElementById('aldea');
+
+        municipioSelect.innerHTML = '<option value="">Cargando municipios...</option>';
+        aldeaSelect.innerHTML = '<option value="">Seleccione una aldea</option>';
+
+        if (departamentoId) {
+            fetch(`/municipios/${departamentoId}`)
+                .then(res => res.json())
+                .then(data => {
+                    municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
+                    data.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m.id;
+                        opt.textContent = m.nombre;
+                        municipioSelect.appendChild(opt);
+                    });
+                });
         }
+    });
 
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', actualizarTotales);
-        });
+    document.getElementById('municipio').addEventListener('change', function () {
+        const municipioId = this.value;
+        const aldeaSelect = document.getElementById('aldea');
 
-        // Ejecutar al cargar
-        actualizarTotales();
-    </script>
+        aldeaSelect.innerHTML = '<option value="">Cargando aldeas...</option>';
+
+        if (municipioId) {
+            fetch(`/aldeas/${municipioId}`)
+                .then(res => res.json())
+                .then(data => {
+                    aldeaSelect.innerHTML = '<option value="">Seleccione una aldea</option>';
+                    data.forEach(a => {
+                        const opt = document.createElement('option');
+                        opt.value = a.id;
+                        opt.textContent = a.nombre;
+                        aldeaSelect.appendChild(opt);
+                    });
+                });
+        }
+    });
+</script>
 @stop

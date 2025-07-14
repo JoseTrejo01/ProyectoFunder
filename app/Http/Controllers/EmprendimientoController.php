@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-
+use App\Models\Departamento;
 class EmprendimientoController extends Controller
 {
     public function index(Request $request)
@@ -41,33 +41,38 @@ class EmprendimientoController extends Controller
 
     public function create()
     {
-        $municipios = Municipio::all();
+        $departamentos = Departamento::all(); // nuevo
         $tecnicos = User::all();
-        return view('emprendimientos.create', compact('municipios', 'tecnicos'));
+        return view('emprendimientos.create', compact('departamentos', 'tecnicos'));
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'Caja_Rural' => 'required|string|max:100',
-            'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
-            'Comunidad' => 'nullable|string|max:100',
-            'Socios_Hombres' => 'nullable|integer|min:0',
-            'Socios_Mujeres' => 'nullable|integer|min:0',
-            'Tipo_Negocio' => 'required|string|max:255',
-            'Ventas_Trimestrales' => 'nullable|numeric|min:0',
-            'Empleos_Hombres' => 'nullable|integer|min:0',
-            'Empleos_Mujeres' => 'nullable|integer|min:0',
-            'Fecha_Levantamiento' => 'required|date',
-        ]);
+  public function store(Request $request)
+{
+    $validated = $request->validate([
+        'Caja_Rural' => 'required|string|max:100',
+        'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
+        'aldea_id' => 'nullable|integer|exists:tbl_aldea,Id_Aldea', // <--- NUEVO
+        'Comunidad' => 'nullable|string|max:100',
+        'Socios_Hombres' => 'nullable|integer|min:0',
+        'Socios_Mujeres' => 'nullable|integer|min:0',
+        'Tipo_Negocio' => 'required|string|max:255',
+        'Ventas_Trimestrales' => 'nullable|numeric|min:0',
+        'Empleos_Hombres' => 'nullable|integer|min:0',
+        'Empleos_Mujeres' => 'nullable|integer|min:0',
+        'Fecha_Levantamiento' => 'required|date',
+    ]);
 
-        $validated['Fecha_Inicio_Operaciones'] = Carbon::now();
-        $validated['Id_Tecnico'] = Auth::user()->Id_Usuario;
+    $validated['Fecha_Inicio_Operaciones'] = now();
+    $validated['Id_Tecnico'] = Auth::user()->Id_Usuario;
 
-        Emprendimiento::create($validated);
+    // Guardar con Id_Aldea si está presente
+    $validated['Id_Aldea'] = $validated['aldea_id'] ?? null;
+    unset($validated['aldea_id']); // Ya lo guardamos en el campo correcto
 
-        return redirect()->route('emprendimientos.index')->with('success', 'Registro creado exitosamente');
-    }
+    Emprendimiento::create($validated);
+
+    return redirect()->route('emprendimientos.index')->with('success', 'Registro creado exitosamente');
+}
 
     public function show(Emprendimiento $emprendimiento)
     {

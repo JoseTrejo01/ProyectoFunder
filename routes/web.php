@@ -28,7 +28,7 @@ use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Http\Controllers\EmprendimientoController;
-
+use App\Http\Controllers\UbicacionController;
 // Página de bienvenida
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
@@ -121,7 +121,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Emprendimientos
     Route::resource('emprendimientos', EmprendimientoController::class);
-    
+
+    // AJAX: Selects dependientes de ubicación
+    Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
+    Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
+
     // Exportación socios
     Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
 

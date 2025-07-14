@@ -20,4 +20,15 @@ class Municipio extends Model
     {
         return $this->hasMany(Emprendimiento::class, 'Id_Municipio');
     }
+
+    public function departamento()
+    {
+    return $this->belongsTo(Departamento::class, 'Id_Departamento');
+    }
+
+    public function aldeas()
+    {
+    return $this->hasMany(Aldea::class, 'Id_Municipio');
+    }
+
 }
