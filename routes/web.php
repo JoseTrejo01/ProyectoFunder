@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -129,11 +130,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Socios
     Route::resource('socios', SocioController::class)->except(['show']);
+    Route::put('/socios/{id}', [SocioController::class, 'update'])->name('socios.update');
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
+<<<<<<< HEAD
 
     // Exportar socios a Excel
     Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
+=======
+ 
+    Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
+    // Exportar socios a Excel con PhpSpreadsheet
+    Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
+>>>>>>> 4afe5262c050935ee5c5c2afda518b7af2f8d855
 
     // Exportar socios a PDF
     Route::get('/socios/export-pdf', function (Request $request) {
@@ -181,3 +190,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
 });
+<<<<<<< HEAD
+=======
+
+
+// Rutas para organizaciones
+Route::resource('organizaciones', App\Http\Controllers\OrganizacionController::class)->except(['show']);
+>>>>>>> 4afe5262c050935ee5c5c2afda518b7af2f8d855
