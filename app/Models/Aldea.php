@@ -1,9 +1,5 @@
 <?php
-<<<<<<< HEAD
-// app/Models/Aldea.php
-=======
 
->>>>>>> 4afe5262c050935ee5c5c2afda518b7af2f8d855
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -21,10 +17,6 @@ class Aldea extends Model
 
     public function municipio()
     {
-<<<<<<< HEAD
         return $this->belongsTo(Municipio::class, 'Id_Municipio');
-=======
-        return $this->belongsTo(Municipio::class, 'Id_Municipio', 'Id_Municipio');
->>>>>>> 4afe5262c050935ee5c5c2afda518b7af2f8d855
     }
 }

@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -26,19 +25,16 @@ use App\Http\Controllers\ExportSociosController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\EmprendimientoController;
+use App\Http\Controllers\OrganizacionController;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-// -------------------------
 // RUTA RAÍZ
-// -------------------------
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
-// -------------------------
 // INVITADOS
-// -------------------------
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
@@ -46,7 +42,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // Recuperación de contraseña con OTP
+    // OTP
     Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('password/reset', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('otp.send');
     Route::get('password/verify-otp', [ForgotPasswordController::class, 'showOtpForm'])->name('otp.form');
@@ -56,9 +52,7 @@ Route::middleware('guest')->group(function () {
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
 });
 
-// -------------------------
 // VERIFICACIÓN DE CORREO
-// -------------------------
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
@@ -68,9 +62,7 @@ Route::middleware('auth')->group(function () {
     })->middleware(['signed'])->name('verification.verify');
 });
 
-// -------------------------
-// AUTENTICADOS Y VERIFICADOS
-// -------------------------
+// USUARIOS AUTENTICADOS Y VERIFICADOS
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard
@@ -122,7 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
     });
 
-    // Permisos y bitácora
+    // Permisos y Bitácora
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
@@ -133,18 +125,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/socios/{id}', [SocioController::class, 'update'])->name('socios.update');
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
-<<<<<<< HEAD
-
-    // Exportar socios a Excel
-    Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
-=======
- 
     Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
-    // Exportar socios a Excel con PhpSpreadsheet
-    Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
->>>>>>> 4afe5262c050935ee5c5c2afda518b7af2f8d855
 
-    // Exportar socios a PDF
+    // Exportaciones socios
+    Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
     Route::get('/socios/export-pdf', function (Request $request) {
         $query = \App\Models\Socio::query()->where('estado', 1);
 
@@ -155,15 +139,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
                   ->orWhere('Telefono', 'like', "%{$request->search}%");
             });
         }
-
         if ($request->filled('genero')) {
             $query->where('genero', $request->genero);
         }
-
         if ($request->filled('localidad')) {
             $query->where('direccion', 'like', "%{$request->localidad}%");
         }
-
         if ($request->filled('tipo')) {
             $query->where('Tipo_De_Socio', 'like', "%{$request->tipo}%");
         }
@@ -175,6 +156,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Emprendimientos
     Route::resource('emprendimientos', EmprendimientoController::class);
+
+    // Organizaciones
+    Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
 
     // Préstamos
     Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
@@ -190,10 +174,3 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
 });
-<<<<<<< HEAD
-=======
-
-
-// Rutas para organizaciones
-Route::resource('organizaciones', App\Http\Controllers\OrganizacionController::class)->except(['show']);
->>>>>>> 4afe5262c050935ee5c5c2afda518b7af2f8d855
