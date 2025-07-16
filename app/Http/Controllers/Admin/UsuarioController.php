@@ -42,13 +42,8 @@ class UsuarioController extends Controller
         }
 
         $request->validate([
-<<<<<<< HEAD
-            'Usuario' => ['required', 'string', 'max:40', 'unique:tbl_ms_usuario,Usuario'],
-            'Nombre_Usuario' => ['required', 'string', 'max:40'],
-=======
             'Usuario' => ['required', 'string', 'max:60', 'unique:tbl_ms_usuario,Usuario'],
             'Nombre_Usuario' => ['required', 'string', 'max:100'],
->>>>>>> 8ad241892a49651188d0907be69562e2560963aa
             'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario,Correo_Electronico'],
             'Id_Rol' => ['required', 'integer', 'exists:tbl_ms_rol,Id_Rol'],
             'Estado_Usuario' => ['required', 'string'],
@@ -68,13 +63,9 @@ class UsuarioController extends Controller
         $diasVigencia = (int) \DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
-
-<<<<<<< HEAD
         $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
-        $password = bin2hex(random_bytes(4)); // 8 caracteres
-=======
-        $password = bin2hex(random_bytes(4));
->>>>>>> 8ad241892a49651188d0907be69562e2560963aa
+
+        $password = bin2hex(random_bytes(4)); // genera 8 caracteres
 
         $nuevoUsuario = User::create([
             'Usuario' => strtoupper($request->Usuario),
@@ -121,12 +112,7 @@ class UsuarioController extends Controller
         $diasVigencia = (int) \DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
-<<<<<<< HEAD
-
         $fechaVencimiento = now()->copy()->addDays($diasVigencia);
-=======
-        $fechaVencimiento = now()->addDays($diasVigencia);
->>>>>>> 8ad241892a49651188d0907be69562e2560963aa
 
         $usuario->update([
             'Usuario' => $request->Usuario,
