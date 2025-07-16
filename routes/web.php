@@ -33,7 +33,13 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
+<<<<<<< HEAD
 // RUTA RAÍZ
+=======
+use App\Http\Controllers\EmprendimientoController;
+use App\Http\Controllers\UbicacionController;
+// Página de bienvenida
+>>>>>>> d70bdda475d362f8a33abf55ed6e0d1420a15beb
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
 // INVITADOS
@@ -128,11 +134,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
     Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
 
+<<<<<<< HEAD
     // Exportar socios
     Route::get('/socios/export', function (Request $request) {
         $filters = $request->only('search', 'genero', 'localidad', 'tipo');
         return Excel::download(new SociosExport($filters), 'socios.xlsx');
     })->name('socios.export');
+=======
+    // Emprendimientos
+    Route::resource('emprendimientos', EmprendimientoController::class);
+
+    // AJAX: Selects dependientes de ubicación
+    Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
+    Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
+
+    // Exportación socios
+    Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
+>>>>>>> d70bdda475d362f8a33abf55ed6e0d1420a15beb
 
     Route::get('/socios/export-pdf', function (Request $request) {
         $query = \App\Models\Socio::query()->where('estado', 1);
