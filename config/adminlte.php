@@ -320,16 +320,15 @@ return [
         [
             'text' => 'Administración',
             'icon' => 'fas fa-cogs',
-            'can' => 'ver-administracion',
             'submenu' => [
                 [
                     'text' => 'Parámetros',
-                    'url' => 'parametros',
+                    'url' => 'admin/parametros',
                     'icon' => 'fas fa-sliders-h',
                 ],
                 [
-                    'text' => 'Gestión de Base de Datos',
-                    'url' => 'admin/database',
+                    'text' => 'Respaldo de Base de Datos',
+                    'url' => 'admin/respaldo',
                     'icon' => 'fas fa-database',
                 ],
             ],
@@ -337,7 +336,6 @@ return [
         [
             'text' => 'Seguridad',
             'icon' => 'fas fa-shield-alt',
-            'can' => 'ver-seguridad',
             'submenu' => [
                 [
                     'text' => 'Usuarios',
@@ -359,7 +357,6 @@ return [
         [
             'text' => 'Mantenimiento',
             'icon' => 'fas fa-tools',
-            'can' => 'ver-mantenimiento',
             'submenu' => [
                 [
                     'text' => 'Roles',
@@ -429,8 +426,7 @@ return [
     */
 
     'filters' => [
-        
-JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
+        JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\HrefFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\SearchFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\ActiveFilter::class,

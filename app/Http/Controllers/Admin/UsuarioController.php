@@ -15,7 +15,6 @@ class UsuarioController extends Controller
 {
     public function index()
     {
-        // Verificar permiso de consulta
         if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para consultar usuarios']);
         }
@@ -38,23 +37,27 @@ class UsuarioController extends Controller
 
     public function store(Request $request)
     {
-        // Verificar permiso de inserción
         if (!auth()->user()->tienePermiso('Usuarios', 'Insercion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para crear usuarios']);
         }
 
         $request->validate([
+<<<<<<< HEAD
             'Usuario' => ['required', 'string', 'max:40', 'unique:tbl_ms_usuario,Usuario'],
             'Nombre_Usuario' => ['required', 'string', 'max:40'],
+=======
+            'Usuario' => ['required', 'string', 'max:60', 'unique:tbl_ms_usuario,Usuario'],
+            'Nombre_Usuario' => ['required', 'string', 'max:100'],
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
             'Correo_Electronico' => ['required', 'string', 'email', 'max:60', 'unique:tbl_ms_usuario,Correo_Electronico'],
             'Id_Rol' => ['required', 'integer', 'exists:tbl_ms_rol,Id_Rol'],
             'Estado_Usuario' => ['required', 'string'],
         ], [
             'Usuario.required' => 'El campo usuario es obligatorio',
-            'Usuario.max' => 'El usuario no puede tener más de 40 caracteres.',
+            'Usuario.max' => 'El usuario no puede tener más de 60 caracteres.',
             'Usuario.unique' => 'El usuario ya está registrado.',
             'Nombre_Usuario.required' => 'El campo nombre de usuario es obligatorio',
-            'Nombre_Usuario.max' => 'El nombre de usuario no puede tener más de 40 caracteres.',
+            'Nombre_Usuario.max' => 'El nombre de usuario no puede tener más de 100 caracteres.',
             'Correo_Electronico.required' => 'El campo correo electrónico es obligatorio',
             'Correo_Electronico.max' => 'El correo electrónico no puede tener más de 60 caracteres.',
             'Correo_Electronico.unique' => 'Este correo ya está registrado.',
@@ -66,8 +69,12 @@ class UsuarioController extends Controller
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
 
+<<<<<<< HEAD
         $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
         $password = bin2hex(random_bytes(4)); // 8 caracteres
+=======
+        $password = bin2hex(random_bytes(4));
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
 
         $nuevoUsuario = User::create([
             'Usuario' => strtoupper($request->Usuario),
@@ -98,7 +105,6 @@ class UsuarioController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Verificar permiso de actualización
         if (!auth()->user()->tienePermiso('Usuarios', 'Actualizacion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para actualizar usuarios']);
         }
@@ -115,8 +121,12 @@ class UsuarioController extends Controller
         $diasVigencia = (int) \DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
+<<<<<<< HEAD
 
         $fechaVencimiento = now()->copy()->addDays($diasVigencia);
+=======
+        $fechaVencimiento = now()->addDays($diasVigencia);
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
 
         $usuario->update([
             'Usuario' => $request->Usuario,
@@ -142,7 +152,6 @@ class UsuarioController extends Controller
 
     public function destroy($id)
     {
-        // Verificar permiso de eliminación
         if (!auth()->user()->tienePermiso('Usuarios', 'Eliminacion')) {
             return view('errors.403', ['mensaje' => 'No tiene permiso para eliminar usuarios']);
         }
