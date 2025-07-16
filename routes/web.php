@@ -30,6 +30,8 @@ use App\Http\Controllers\OrganizacionController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\AhorroController;
+use App\Http\Controllers\IndicadorGeneroController;
 
 // RUTA RAÍZ
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
@@ -127,8 +129,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
     Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
 
+<<<<<<< HEAD
     // Exportaciones socios
     Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
+=======
+    // rutas de ahorros
+    Route::resource('ahorros', App\Http\Controllers\AhorroController::class);
+    Route::get('/ahorros/{id}/ficha', [App\Http\Controllers\AhorroController::class, 'ficha'])->name('ahorros.ficha');
+    Route::get('/ahorros/export-pdf', [App\Http\Controllers\AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
+   
+    //ruta de genero
+    Route::resource('genero', IndicadorGeneroController::class);
+
+
+    // ficha del socio
+    Route::get('/socios/{id}/ficha', [App\Http\Controllers\SocioController::class, 'ficha'])->name('socios.ficha');
+
+    // exportar socios a excel
+    Route::get('/socios/export', function (Request $request) {
+        $filters = $request->only('search','genero','localidad','tipo');
+        return Excel::download(new SociosExport($filters), 'socios.xlsx');
+    })->name('socios.export');
+
+    // exportar socios a pdf
+>>>>>>> 3b8049d8e452bca8bdcadfdc5b17d78096c1a497
     Route::get('/socios/export-pdf', function (Request $request) {
         $query = \App\Models\Socio::query()->where('estado', 1);
 
@@ -174,3 +198,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
 });
+<<<<<<< HEAD
+=======
+Route::get('/socios/export', [App\Http\Controllers\ExportSociosController::class, 'export'])->name('socios.export');
+//reactivas socios
+Route::post('/socios/{id}/reactivar', [App\Http\Controllers\SocioController::class, 'reactivar'])->name('socios.reactivar');
+
+Route::get('/prueba', function() {
+    return view('prueba');
+});
+>>>>>>> 3b8049d8e452bca8bdcadfdc5b17d78096c1a497
