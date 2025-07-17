@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container">
-    <h2>Bitácora del Sistema</h2>
+    <h2 class="text-center my-4 font-weight-bold">Bitácora del Sistema</h2>
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        {{-- <div class="alert alert-success">{{ session('success') }}</div> --}}
     @endif
     <div class="row mb-3">
         <form method="GET" class="col-md-10 d-flex gap-2 align-items-end">
@@ -19,7 +19,7 @@
             </div>
         </form>
         <div class="col-md-2 d-flex align-items-end">
-            <form method="POST" action="{{ route('bitacora.borrar') }}" onsubmit="return confirm('¿Seguro que deseas borrar los registros filtrados?');" class="w-100">
+            <form method="POST" action="{{ route('bitacora.borrar') }}" onsubmit="return confirmarEliminacionBitacora(event);" class="w-100">
                 @csrf
                 <input type="hidden" name="fecha_desde" value="{{ request('fecha_desde') }}">
                 <input type="hidden" name="fecha_hasta" value="{{ request('fecha_hasta') }}">
@@ -27,32 +27,34 @@
             </form>
         </div>
     </div>
-    <table id="tabla-bitacora" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Usuario</th>
-                <th>Objeto</th>
-                <th>Acción</th>
-                <th>Descripción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($registros as $registro)
+    <div class="table-responsive">
+        <table id="tabla-bitacora" class="table table-bordered table-striped table-hover shadow-sm">
+            <thead class="thead-dark">
                 <tr>
-                    <td>{{ $registro->Fecha }}</td>
-                    <td>{{ $registro->usuario->Nombre_Usuario ?? 'N/A' }}</td>
-                    <td>{{ $registro->objeto->Objeto ?? 'N/A' }}</td>
-                    <td>{{ $registro->Accion }}</td>
-                    <td>{{ $registro->Descripcion }}</td>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Objeto</th>
+                    <th>Acción</th>
+                    <th>Descripción</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="text-center">No hay registros para los filtros seleccionados.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse($registros as $registro)
+                    <tr>
+                        <td>{{ $registro->Fecha }}</td>
+                        <td>{{ $registro->usuario->Nombre_Usuario ?? 'N/A' }}</td>
+                        <td>{{ $registro->objeto->Objeto ?? 'N/A' }}</td>
+                        <td>{{ $registro->Accion }}</td>
+                        <td>{{ $registro->Descripcion }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center">No hay registros para los filtros seleccionados.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection
 
@@ -61,11 +63,42 @@
 @endsection
 
 @section('js')
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@8"></script>
 <script>
+function confirmarEliminacionBitacora(e) {
+    e.preventDefault();
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¡Esta acción eliminará los registros filtrados de la bitácora!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.value) {
+            e.target.submit();
+        }
+    });
+    return false;
+}
 $(document).ready(function() {
     $('#tabla-bitacora').DataTable({
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            lengthMenu: 'Mostrar _MENU_ registros',
+            zeroRecords: 'No se encontraron resultados',
+            info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+            infoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 registros',
+            infoFiltered: '(filtrado de un total de _MAX_ registros)',
+            search: 'Buscar:',
+            paginate: {
+                first: 'Primero',
+                last: 'Último',
+                next: 'Siguiente',
+                previous: 'Anterior'
+            },
+            processing: 'Procesando...'
         },
         order: [[0, 'desc']],
         searching: false // Desactiva el buscador
