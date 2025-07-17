@@ -34,19 +34,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-<<<<<<< HEAD
 // Página de bienvenida
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
-=======
-
-// Ruta de bienvenida - redirige usuarios autenticados al dashboard
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect('/dashboard');
-    }
-    return view('welcome');
-})->name('home');
->>>>>>> de5f57e1fe011d1876cb347c39438cd771c04e18
 
 // INVITADOS
 Route::middleware('guest')->group(function () {
@@ -102,7 +91,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
     });
 
-<<<<<<< HEAD
     // Objetos
     Route::prefix('admin/objetos')->group(function () {
         Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
@@ -188,9 +176,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Préstamos
     Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
+    Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
+    Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
     Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
     Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
-    Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
     Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
     Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
     Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
@@ -207,7 +196,3 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Vista de prueba
 Route::get('/prueba', fn () => view('prueba'));
-=======
-
-Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
->>>>>>> de5f57e1fe011d1876cb347c39438cd771c04e18

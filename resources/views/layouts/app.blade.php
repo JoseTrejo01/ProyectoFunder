@@ -55,15 +55,10 @@
         @yield('content')
     </main>
 
-<<<<<<< HEAD
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Tus scripts personalizados -->
     <script src="{{ asset('js/app.js') }}"></script>
-=======
-    <!-- Bootstrap 5 JS Bundle con Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
->>>>>>> de5f57e1fe011d1876cb347c39438cd771c04e18
 </body>
 </html>
