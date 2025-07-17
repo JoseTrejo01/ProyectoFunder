@@ -33,4 +33,9 @@ class Socio extends Model
         'categoria',
         'estado'
     ];
+
+    public function actividades()
+{
+    return $this->hasMany(ActividadEconomica::class, 'Id_Beneficiario', 'Id_Beneficiario');
+}
 }

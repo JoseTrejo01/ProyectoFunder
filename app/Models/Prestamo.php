@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Prestamo extends Model
 {
-    protected $table = 'prestamos';
+    protected $table = 'tbl_prestamos';
     protected $primaryKey = 'id'; // o el nombre real si es diferente
 
     public $timestamps = true; // Usa created_at y updated_at

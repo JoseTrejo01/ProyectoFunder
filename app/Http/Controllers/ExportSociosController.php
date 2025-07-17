@@ -103,6 +103,11 @@ class ExportSociosController extends Controller
         $writer = new Xlsx($spreadsheet);
 
         $filename = "socios.xlsx";
+        // Limpiar cualquier salida previa
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+       
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=\"$filename\"");
         $writer->save("php://output");

@@ -107,7 +107,11 @@
                     value="{{ old('Usuario') }}" placeholder="Usuario" autofocus>
 =======
                     value="{{ old('Usuario') }}" placeholder="Usuario" autofocus style="text-transform:uppercase;">
+<<<<<<< HEAD
 >>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
+=======
+>>>>>>> rama-bitacora
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
                 <div class="input-group-append">
                     <div class="input-group-text">
                         <span class="fas fa-user"></span>
@@ -142,7 +146,11 @@
         }
     });
 </script>
+<<<<<<< HEAD
 >>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
+=======
+>>>>>>> rama-bitacora
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
 @stop
 
 @section('auth_footer')

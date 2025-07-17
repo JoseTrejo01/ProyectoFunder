@@ -1,122 +1,172 @@
-@extends('adminlte::page')
+    @extends('adminlte::page')
 
-@section('title', 'Registrar Solicitud de Préstamo')
+    @section('title', 'Registrar Solicitud de Préstamo')
 
-@section('content_header')
-    <h1>Registrar Solicitud de Préstamo</h1>
-@stop
+    @section('content_header')
+        <h1>Registrar Solicitud de Préstamo</h1>
+    @stop
 
-@section('content')
-<div class="container-fluid">
+    @section('content')
+<div class="container d-flex justify-content-center">
+    <div class="w-100" style="max-width: 700px;">
 
-    {{-- Mensaje de éxito --}}
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+        {{-- Errores --}}
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Corrige los errores:</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    {{-- Mostrar errores de validación --}}
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>¡Corrige los siguientes errores!</strong>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
+        <form id="prestamoForm" action="{{ route('prestamos.store') }}" method="POST">
+            @csrf
+
+            {{-- Tabs --}}
+            <ul class="nav nav-tabs" id="prestamoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="datos-tab" data-bs-toggle="tab" data-bs-target="#datos" type="button" role="tab">Datos Generales</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="finanzas-tab" data-bs-toggle="tab" data-bs-target="#finanzas" type="button" role="tab">Finanzas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="otros-tab" data-bs-toggle="tab" data-bs-target="#otros" type="button" role="tab">Otros</button>
+                </li>
             </ul>
-        </div>
-    @endif
 
-    <form action="{{ route('prestamos.store') }}" method="POST">
-        @csrf
+            <div class="tab-content pt-3" id="prestamoTabsContent">
+                {{-- TAB 1: Datos Generales --}}
+                <div class="tab-pane fade show active" id="datos" role="tabpanel">
+                    <div class="mb-3">
+                        <label for="socio_id" class="form-label">Organización (Socio)</label>
+                        <select name="socio_id" id="socio_id" class="form-control" required>
+                            <option value="">Seleccione una</option>
+                            @foreach($organizaciones as $org)
+                                <option value="{{ $org->Id_Organizacion }}">{{ $org->Nombre_Organizacion }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-        {{-- Organización (Socio) --}}
-        <div class="mb-3">
-            <label for="socio_id" class="form-label">Organización (Socio)</label>
-            <select name="socio_id" id="socio_id" class="form-select" required>
-                <option value="">Seleccione una organización</option>
-                @foreach($organizaciones as $org)
-                    <option value="{{ $org->Id_Organizacion }}" {{ old('socio_id') == $org->Id_Organizacion ? 'selected' : '' }}>
-                        {{ $org->Nombre_Organizacion }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+                    <div class="mb-3">
+                        <label for="nombre_caja_rural">Caja Rural</label>
+                        <input type="text" name="nombre_caja_rural" class="form-control" required>
+                    </div>
 
-        {{-- Nombre de la Caja Rural --}}
-        <div class="mb-3">
-            <label for="nombre_caja_rural" class="form-label">Nombre de la Caja Rural</label>
-            <input type="text" name="nombre_caja_rural" class="form-control" value="{{ old('nombre_caja_rural') }}" required>
-        </div>
+                    <div class="mb-3">
+                        <label for="monto_solicitado">Monto Solicitado</label>
+                        <input type="number" name="monto_solicitado" class="form-control" required>
+                    </div>
 
-        {{-- Monto solicitado --}}
-        <div class="mb-3">
-            <label for="monto_solicitado" class="form-label">Monto Solicitado (Lps)</label>
-            <input type="number" name="monto_solicitado" class="form-control" step="0.01" value="{{ old('monto_solicitado') }}" required>
-        </div>
+                    <div class="mb-3">
+                        <label for="plazo_meses">Plazo (meses)</label>
+                        <input type="number" name="plazo_meses" class="form-control" required>
+                    </div>
 
-        {{-- Plazo en meses --}}
-        <div class="mb-3">
-            <label for="plazo_meses" class="form-label">Plazo en Meses</label>
-            <input type="number" name="plazo_meses" class="form-control" value="{{ old('plazo_meses') }}" required>
-        </div>
+                    <div class="mb-3">
+                        <label for="destino">Destino</label>
+                        <input type="text" name="destino" class="form-control" required>
+                    </div>
 
-        {{-- Destino --}}
-        <div class="mb-3">
-            <label for="destino" class="form-label">Destino del Préstamo</label>
-            <input type="text" name="destino" class="form-control" value="{{ old('destino') }}" required>
-        </div>
+                    <div class="mb-3 text-end">
+                        <button type="button" class="btn btn-primary" onclick="nextTab('finanzas')">Siguiente</button>
+                    </div>
+                </div>
 
-        {{-- Tipo de Crédito --}}
-        <div class="mb-3">
-            <label for="tipo_credito" class="form-label">Tipo de Crédito</label>
-            <input type="text" name="tipo_credito" class="form-control" value="{{ old('tipo_credito') }}" required>
-        </div>
+                {{-- TAB 2: Finanzas --}}
+                <div class="tab-pane fade" id="finanzas" role="tabpanel">
+                    <div class="mb-3">
+                        <label for="tipo_credito">Tipo de Crédito</label>
+                        <input type="text" name="tipo_credito" class="form-control" required>
+                    </div>
 
-        {{-- Fecha de Solicitud --}}
-        <div class="mb-3">
-            <label for="fecha_solicitud" class="form-label">Fecha de Solicitud</label>
-            <input type="date" name="fecha_solicitud" class="form-control" value="{{ old('fecha_solicitud') }}" required>
-        </div>
+                    <div class="mb-3">
+                        <label for="fecha_solicitud">Fecha de Solicitud</label>
+                        <input type="date" name="fecha_solicitud" class="form-control" required>
+                    </div>
 
-        {{-- Porcentaje de Mora --}}
-        <div class="mb-3">
-            <label for="porcentaje_mora_caja" class="form-label">% de Mora de la Caja</label>
-            <input type="number" name="porcentaje_mora_caja" class="form-control" step="0.01" value="{{ old('porcentaje_mora_caja') }}">
-        </div>
+                    <div class="mb-3">
+                        <label for="porcentaje_mora_caja">% de Mora</label>
+                        <input type="number" step="0.01" name="porcentaje_mora_caja" class="form-control">
+                    </div>
 
-        {{-- Intereses Cobrados --}}
-        <div class="mb-3">
-            <label for="intereses_cobrados" class="form-label">Intereses Cobrados y Otros Ingresos</label>
-            <input type="number" name="intereses_cobrados" class="form-control" step="0.01" value="{{ old('intereses_cobrados') }}">
-        </div>
+                    <div class="mb-3">
+                        <label for="intereses_cobrados">Intereses Cobrados</label>
+                        <input type="number" step="0.01" name="intereses_cobrados" class="form-control">
+                    </div>
 
-        {{-- Capital Social --}}
-        <div class="mb-3">
-            <label for="capital_social" class="form-label">Capital Social (Lps)</label>
-            <input type="number" name="capital_social" class="form-control" step="0.01" value="{{ old('capital_social') }}">
-        </div>
+                    <div class="mb-3 text-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="nextTab('datos')">Atrás</button>
+                        <button type="button" class="btn btn-primary" onclick="nextTab('otros')">Siguiente</button>
+                    </div>
+                </div>
 
-        {{-- Capital de Trabajo --}}
-        <div class="mb-3">
-            <label for="capital_trabajo" class="form-label">Capital de Trabajo (Lps)</label>
-            <input type="number" name="capital_trabajo" class="form-control" step="0.01" value="{{ old('capital_trabajo') }}">
-        </div>
+                {{-- TAB 3: Otros --}}
+                <div class="tab-pane fade" id="otros" role="tabpanel">
+                    <div class="mb-3">
+                        <label for="capital_social">Capital Social</label>
+                        <input type="number" step="0.01" name="capital_social" class="form-control">
+                    </div>
 
-        {{-- Reservas --}}
-        <div class="mb-3">
-            <label for="reservas" class="form-label">Reservas (Lps)</label>
-            <input type="number" name="reservas" class="form-control" step="0.01" value="{{ old('reservas') }}">
-        </div>
+                    <div class="mb-3">
+                        <label for="capital_trabajo">Capital de Trabajo</label>
+                        <input type="number" step="0.01" name="capital_trabajo" class="form-control">
+                    </div>
 
-        {{-- Observaciones --}}
-        <div class="mb-3">
-            <label for="observaciones" class="form-label">Observaciones</label>
-            <textarea name="observaciones" class="form-control" rows="3">{{ old('observaciones') }}</textarea>
-        </div>
+                    <div class="mb-3">
+                        <label for="reservas">Reservas</label>
+                        <input type="number" step="0.01" name="reservas" class="form-control">
+                    </div>
 
-        <button type="submit" class="btn btn-success">Guardar Solicitud</button>
-    </form>
+                    <div class="mb-3">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea name="observaciones" class="form-control"></textarea>
+                    </div>
+
+                    <div class="mb-3 text-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="nextTab('finanzas')">Atrás</button>
+                        <button type="submit" class="btn btn-success">Guardar Solicitud</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
-@stop
+@endsection
+
+
+    @section('js')
+    <script>
+        function nextTab(id) {
+            const form = document.getElementById('prestamoForm');
+            const currentTab = document.querySelector('.tab-pane.active');
+
+            // Validar campos visibles en el tab actual
+            const inputs = currentTab.querySelectorAll('input, select, textarea');
+            for (let input of inputs) {
+                if (!input.checkValidity()) {
+                    input.reportValidity();
+                    return;
+                }
+            }
+
+            // Ocultar todos los tabs
+            const allTabs = document.querySelectorAll('.tab-pane');
+            allTabs.forEach(tab => tab.classList.remove('show', 'active'));
+
+            // Mostrar tab deseado
+            const targetTab = document.querySelector(`#${id}`);
+            targetTab.classList.add('show', 'active');
+
+            // Activar botón en nav-tabs
+            const allNavButtons = document.querySelectorAll('#prestamoTabs button');
+            allNavButtons.forEach(btn => btn.classList.remove('active'));
+
+            const targetBtn = document.querySelector(`#prestamoTabs button[data-bs-target="#${id}"]`);
+            if (targetBtn) targetBtn.classList.add('active');
+        }
+    </script>
+    @stop

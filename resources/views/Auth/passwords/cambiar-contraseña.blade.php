@@ -92,7 +92,11 @@
 =======
                 <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
                     <span class="fas fa-eye" id="eyeIcon"></span>
+<<<<<<< HEAD
 >>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
+=======
+>>>>>>> rama-bitacora
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
                 </div>
             </div>
             @error('password')
@@ -111,7 +115,11 @@
 =======
                 <div class="input-group-text" style="cursor: pointer;" id="togglePasswordConfirm">
                     <span class="fas fa-eye" id="eyeIconConfirm"></span>
+<<<<<<< HEAD
 >>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
+=======
+>>>>>>> rama-bitacora
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
                 </div>
             </div>
         </div>
@@ -154,4 +162,8 @@
     });
 </script>
 @stop
+<<<<<<< HEAD
 >>>>>>> 52e54cf8bd6684abc982ecd42d1a543333613d22
+=======
+>>>>>>> rama-bitacora
+>>>>>>> 8ad241892a49651188d0907be69562e2560963aa
