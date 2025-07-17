@@ -17,6 +17,7 @@ use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoController;
 
 
+
 // Ruta de bienvenida - redirige usuarios autenticados al dashboard
 Route::get('/', function () {
     if (auth()->check()) {
@@ -98,3 +99,5 @@ Route::get('/prestamos/{prestamo}/pagos', [PagoController::class, 'index'])->nam
 Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
 
 
+
+Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
