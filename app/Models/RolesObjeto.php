@@ -18,4 +18,9 @@ class RolesObjeto extends Model
     {
         return $this->belongsTo(Objeto::class, 'Id_Objeto', 'Id_Objeto');
     }
+
+    public function rol()
+    {
+        return $this->belongsTo(Rol::class, 'Id_Rol', 'Id_Rol');
+    }
 }
