@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h2>Bitácora del Sistema</h2>
+    <h2 class="text-center my-4 font-weight-bold">Bitácora del Sistema</h2>
     @if(session('success'))
         {{-- <div class="alert alert-success">{{ session('success') }}</div> --}}
     @endif
@@ -27,32 +27,34 @@
             </form>
         </div>
     </div>
-    <table id="tabla-bitacora" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Usuario</th>
-                <th>Objeto</th>
-                <th>Acción</th>
-                <th>Descripción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($registros as $registro)
+    <div class="table-responsive">
+        <table id="tabla-bitacora" class="table table-bordered table-striped table-hover shadow-sm">
+            <thead class="thead-dark">
                 <tr>
-                    <td>{{ $registro->Fecha }}</td>
-                    <td>{{ $registro->usuario->Nombre_Usuario ?? 'N/A' }}</td>
-                    <td>{{ $registro->objeto->Objeto ?? 'N/A' }}</td>
-                    <td>{{ $registro->Accion }}</td>
-                    <td>{{ $registro->Descripcion }}</td>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Objeto</th>
+                    <th>Acción</th>
+                    <th>Descripción</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="text-center">No hay registros para los filtros seleccionados.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse($registros as $registro)
+                    <tr>
+                        <td>{{ $registro->Fecha }}</td>
+                        <td>{{ $registro->usuario->Nombre_Usuario ?? 'N/A' }}</td>
+                        <td>{{ $registro->objeto->Objeto ?? 'N/A' }}</td>
+                        <td>{{ $registro->Accion }}</td>
+                        <td>{{ $registro->Descripcion }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center">No hay registros para los filtros seleccionados.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection
 

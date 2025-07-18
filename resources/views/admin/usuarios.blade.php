@@ -20,23 +20,24 @@
         </script>
     @endif
 
-    <h2>Gestión de Usuarios</h2>
+    <h2 class="text-center my-4 font-weight-bold">Gestión de Usuarios</h2>
     <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">Nuevo Usuario</button>
-    <table id="tabla-usuarios" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Usuario</th>
-                <th>Nombre de Usuario</th>
-                <th>Correo</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Fecha de Registro</th>
-                <th>Fecha de Vencimiento</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($usuarios as $usuario)
+    <div class="table-responsive">
+        <table id="tabla-usuarios" class="table table-bordered table-striped table-hover shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Registro</th>
+                    <th>Vencimiento</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($usuarios as $usuario)
                 <tr>
                     <td>{{ $usuario->Usuario }}</td>
                     <td>{{ $usuario->Nombre_Usuario }}</td>
@@ -132,6 +133,7 @@
             @endforeach
         </tbody>
     </table>
+</div>
 
     <!-- Modal Nuevo Usuario -->
     <div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalNuevoUsuarioLabel" aria-hidden="true">
@@ -220,7 +222,7 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if ($errors->any())
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -229,6 +231,16 @@
     });
   </script>
 @endif
+    @if(session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Acceso denegado',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    @endif
     <script>
     function confirmarEliminacion(e) {
         e.preventDefault();
