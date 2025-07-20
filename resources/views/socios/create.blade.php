@@ -277,95 +277,124 @@
     </form>
 
       <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const orgSelect = document.querySelector('select[name="Id_Organizacion"]');
+    const departamentoInput = document.getElementById('departamento');
+    const municipioInput = document.getElementById('municipio');
+    const comunidadInput = document.getElementById('comunidad');
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const orgSelect = document.querySelector('select[name="Id_Organizacion"]');
-        const departamentoInput = document.getElementById('departamento');
-        const municipioInput = document.getElementById('municipio');
-        const comunidadInput = document.getElementById('comunidad');
-
-        // Calcular edad automáticamente
-        const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
-        const edadInput = document.getElementById('edad');
-        fechaNacimientoInput.addEventListener('change', function() {
-            const fecha = this.value;
-            if (fecha) {
-                const hoy = new Date();
-                const nacimiento = new Date(fecha);
-                let edad = hoy.getFullYear() - nacimiento.getFullYear();
-                const m = hoy.getMonth() - nacimiento.getMonth();
-                if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
-                    edad--;
-                }
-                edadInput.value = edad;
-            } else {
-                edadInput.value = '';
-            }
-        });
-
-        orgSelect.addEventListener('change', function() {
-            const selected = orgSelect.options[orgSelect.selectedIndex];
-            departamentoInput.value = selected.getAttribute('data-departamento') || '';
-            municipioInput.value = selected.getAttribute('data-municipio') || '';
-            comunidadInput.value = selected.getAttribute('data-aldea') || '';
-        });
-
-        // Dinámico actividades económicas
-        let actividades = [];
-        const btnAgregar = document.getElementById('agregar-actividad');
-        const tabla = document.getElementById('tabla-actividades');
-        const tbody = tabla.querySelector('tbody');
-
-        btnAgregar.addEventListener('click', function() {
-            const idx = actividades.length + 1;
-            const actividad = {
-                tipo: '',
-                rubro: '',
-                unidad: '',
-                cantidad: ''
-            };
-            actividades.push(actividad);
-            renderActividades();
-        });
-
-        function renderActividades() {
-            tbody.innerHTML = '';
-            if (actividades.length > 0) {
-                tabla.style.display = '';
-            } else {
-                tabla.style.display = 'none';
-            }
-            actividades.forEach((act, i) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${i+1}</td>
-                    <td>
-                        <select name="actividades[${i}][tipo]" class="form-control form-control-sm" required>
-                            <option value="">Seleccione</option>
-                            <option value="Agrícola" ${act.tipo==='Agrícola'?'selected':''}>Agrícola</option>
-                            <option value="No Agrícola" ${act.tipo==='No Agrícola'?'selected':''}>No Agrícola</option>
-                        </select>
-                    </td>
-                    <td><input type="text" name="actividades[${i}][rubro]" class="form-control form-control-sm" value="${act.rubro}" required></td>
-                    <td>
-                        <select name="actividades[${i}][unidad]" class="form-control form-control-sm" required>
-                            <option value="">Seleccione</option>
-                            <option value="Manzanas" ${act.unidad==='Manzanas'?'selected':''}>Manzanas</option>
-                            <option value="Lempiras" ${act.unidad==='Lempiras'?'selected':''}>Lempiras</option>
-                        </select>
-                    </td>
-                    <td><input type="number" name="actividades[${i}][cantidad]" class="form-control form-control-sm" value="${act.cantidad}" min="0" step="0.01" required></td>
-                    <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(${i})">Eliminar</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
+    const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
+    const edadInput = document.getElementById('edad');
+    fechaNacimientoInput?.addEventListener('change', function () {
+        const fecha = this.value;
+        if (fecha) {
+            const hoy = new Date();
+            const nacimiento = new Date(fecha);
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const m = hoy.getMonth() - nacimiento.getMonth();
+            if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+            edadInput.value = edad;
+        } else {
+            edadInput.value = '';
         }
-
-        window.eliminarActividad = function(idx) {
-            actividades.splice(idx, 1);
-            renderActividades();
-        };
     });
+
+    orgSelect?.addEventListener('change', function () {
+        const selected = orgSelect.options[orgSelect.selectedIndex];
+        departamentoInput.value = selected.getAttribute('data-departamento') || '';
+        municipioInput.value = selected.getAttribute('data-municipio') || '';
+        comunidadInput.value = selected.getAttribute('data-aldea') || '';
+    });
+
+    // Estructura educativa
+    const estructuraEducativa = {
+        "Sin estudios": "0",
+        "Educación Prebásica": "2 a 3 años",
+        "Primaria": "6 años (Total: 8 incluyendo Prebásica)",
+        "Ciclo Común": "3 años (Total: 11)",
+        "Diversificado": "1 a 3 años (Total: 14)",
+        "Universitario": "1 a 5 años (Total: 19)",
+        "Post grado": "2 años (Total: 21)",
+        "Doctorado": "3 a 5 años (Total: 22)"
+    };
+    const nivelEducativo = document.getElementById('nivel_educativo');
+    const aniosEducacion = document.getElementById('anios_educacion');
+    nivelEducativo?.addEventListener('change', function () {
+        const nivel = this.value;
+        aniosEducacion.value = estructuraEducativa[nivel] || '';
+    });
+
+    // Actividades económicas
+    let actividades = [];
+    const btnAgregar = document.getElementById('agregar-actividad');
+    const tabla = document.getElementById('tabla-actividades');
+    const tbody = tabla.querySelector('tbody');
+
+    btnAgregar?.addEventListener('click', function () {
+        const idx = actividades.length;
+        actividades.push({ tipo: '', rubro: '', unidad: '', cantidad: '' });
+        renderActividades();
+    });
+
+    function renderActividades() {
+        tbody.innerHTML = '';
+        if (actividades.length > 0) tabla.style.display = '';
+        else tabla.style.display = 'none';
+
+        actividades.forEach((act, i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${i + 1}</td>
+                <td>
+                    <select name="actividades[${i}][tipo]" class="form-control form-control-sm tipo-select" data-idx="${i}" required>
+                        <option value="">Seleccione</option>
+                        <option value="Agrícola">Agrícola</option>
+                        <option value="No Agrícola">No Agrícola</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="actividades[${i}][rubro]" class="form-control form-control-sm rubro-select" required></select>
+                </td>
+                <td>
+                    <select name="actividades[${i}][unidad]" class="form-control form-control-sm" required>
+                        <option value="">Seleccione</option>
+                        <option value="Manzanas">Manzanas</option>
+                        <option value="Lempiras">Lempiras</option>
+                    </select>
+                </td>
+                <td><input type="number" name="actividades[${i}][cantidad]" class="form-control form-control-sm" min="0" step="0.01" required></td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(${i})">Eliminar</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    window.eliminarActividad = function (idx) {
+        actividades.splice(idx, 1);
+        renderActividades();
+    };
+
+    const rubrosPorTipo = {
+        'Agrícola': ['Granos básicos', 'Vegetales', 'Café', 'Otros cultivos'],
+        'No Agrícola': ['Pecuario', 'Servicio', 'Comercio', 'Consumo', 'Otros']
+    };
+
+    document.addEventListener('change', function (e) {
+        if (e.target.matches('.tipo-select')) {
+            const idx = e.target.dataset.idx;
+            const rubroSelect = document.querySelector(`select[name="actividades[${idx}][rubro]"]`);
+            if (rubroSelect) {
+                rubroSelect.innerHTML = '<option value="">Seleccione</option>';
+                rubrosPorTipo[e.target.value]?.forEach(rubro => {
+                    const option = document.createElement('option');
+                    option.value = rubro;
+                    option.textContent = rubro;
+                    rubroSelect.appendChild(option);
+                });
+            }
+        }
+    });
+});
       </script>
 </script>
 @stop
