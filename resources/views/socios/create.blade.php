@@ -158,15 +158,25 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Nivel Educativo</label>
-                            <select name="nivel_educativo" class="form-control">
-                                <option value="">Seleccione</option>
-                                <option value="Sin estudios">Sin estudios</option>
-                                <option value="Educación básica">Educación básica</option>
-                                <option value="Educación media">Educación media</option>
-                                <option value="Educación superior">Educación superior</option>
-                            </select>
-                        </div>
+                        <label>Nivel Educativo</label>
+                        <select name="nivel_educativo" id="nivel_educativo" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option value="Sin estudios">Sin estudios</option>
+                            <option value="Educación Prebásica">Educación Prebásica</option>
+                            <option value="Primaria">Primaria</option>
+                            <option value="Ciclo Común">Ciclo Común</option>
+                            <option value="Diversificado">Diversificado</option>
+                            <option value="Universitario">Universitario</option>
+                            <option value="Post grado">Post grado</option>
+                            <option value="Doctorado">Doctorado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Años estimados cursados</label>
+                        <input type="text" id="anios_educacion" class="form-control" readonly>
+                    </div>
+                </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
