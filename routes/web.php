@@ -29,6 +29,7 @@ use App\Http\Controllers\OrganizacionController;
 use App\Http\Controllers\AhorroController;
 use App\Http\Controllers\IndicadorGeneroController;
 use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\CoordenadasMapaController;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
@@ -196,3 +197,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Vista de prueba
 Route::get('/prueba', fn () => view('prueba'));
+// Coordenadas del mapa
+Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
+
+

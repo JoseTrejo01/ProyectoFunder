@@ -19,10 +19,18 @@
     </script>
 @endif
 <div class="container">
-     <h2 class="text-center my-4 font-weight-bold">Cajas Rurales</h2>
-    <div class="d-flex justify-content-start align-items-center mb-2">
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarOrg">Registrar</button>
-    </div>
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <!-- Botón Registrar -->
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarOrg">
+        <i class="fas fa-plus-circle"></i> Registrar
+    </button>
+
+    <!-- Botón Ver Mapa -->
+    <a href="{{ route('organizaciones.mapa') }}" class="btn btn-outline-info" title="Ver Mapa de Cajas Rurales">
+        <i class="fas fa-map-marked-alt"></i> Ver Mapa
+    </a>
+</div>
+
     <div class="table-responsive">
         <table id="tabla-organizaciones" class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="thead-dark">
@@ -167,6 +175,20 @@
             <label for="Nombre_Aldea" class="form-label">Aldea</label>
             <input type="text" class="form-control" name="Nombre_Aldea" required>
           </div>
+          <div class="mb-3">
+            <label for="map">Ubicación geográfica</label>
+            <div id="map" style="height: 300px;"></div>
+          </div>
+          <div class="row">
+              <div class="col">
+                  <label for="coordenada_y">Latitud</label>
+                  <input type="text" name="coordenada_y" id="coordenada_y" class="form-control" readonly required>
+              </div>
+              <div class="col">
+                  <label for="coordenada_x">Longitud</label>
+                  <input type="text" name="coordenada_x" id="coordenada_x" class="form-control" readonly required>
+              </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -177,27 +199,28 @@
   </div>
 </div>
 
+
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Municipios por departamento
     const municipios = @json($municipiosPorDepto);
+    const coordenadasPorMunicipio = @json($coordenadas);
     document.getElementById('departamento').addEventListener('change', function() {
-        const deptoId = this.value;
-        const municipioSelect = document.getElementById('municipio');
-        municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
-        if (municipios[deptoId]) {
-            municipios[deptoId].forEach(muni => {
-                const option = document.createElement('option');
-                option.value = muni.Id_Municipio;
-                option.textContent = muni.Nombre_Municipio;
-                municipioSelect.appendChild(option);
-            });
-        }
-    });
-
+    const deptoId = this.value;
+    const municipioSelect = document.getElementById('municipio');
+    municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
+    if (municipios[deptoId]) {
+        municipios[deptoId].forEach(muni => {
+            const option = document.createElement('option');
+            option.value = muni.Id_Municipio;
+            option.textContent = muni.Nombre_Municipio;
+            municipioSelect.appendChild(option);
+        });
+    }
+});
     $(document).ready(function() {
         $('#tabla-organizaciones').DataTable({
             language: {
@@ -237,5 +260,34 @@
         });
         return false;
     }
+
+    // Mapa centrado en Honduras
+    const map = L.map('map', {
+        center: [14.634915, -87.849243],  // Coordenadas más representativas de Honduras
+        zoom: 8,
+        zoomControl: true,
+        scrollWheelZoom: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+    }).addTo(map);
+
+    let marker;
+
+    map.on('click', function (e) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker(e.latlng).addTo(map);
+        document.getElementById('coordenada_y').value = e.latlng.lat.toFixed(8);
+        document.getElementById('coordenada_x').value = e.latlng.lng.toFixed(8);
+    });
+    // Detectar apertura del modal y redibujar el mapa
+$('#modalRegistrarOrg').on('shown.bs.modal', function () {
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 200); // pequeño retardo para asegurar que el modal esté visible
+});
+
 </script>
 @endsection
