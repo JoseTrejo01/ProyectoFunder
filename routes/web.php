@@ -132,10 +132,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
 
     // Exportar socios
-    Route::get('/socios/export', function (Request $request) {
-        $filters = $request->only('search', 'genero', 'localidad', 'tipo');
-        return Excel::download(new SociosExport($filters), 'socios.xlsx');
-    })->name('socios.export');
+   Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
 
 
 // Exportar PDF

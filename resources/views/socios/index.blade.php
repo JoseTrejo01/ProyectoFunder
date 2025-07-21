@@ -11,9 +11,9 @@
             <i class="fas fa-plus"></i> Nuevo Socio
         </a>
         <div>
-            <a href="{{ route('socios.export') }}" class="btn btn-success me-2">
-                <i class="fas fa-file-excel"></i> Exportar Excel
-            </a>
+            <a href="{{ route('socios.export', request()->query()) }}" class="btn btn-success me-2">
+    <i class="fas fa-file-excel"></i> Exportar Excel
+</a>
             <a href="{{ route('socios.export-pdf', request()->query()) }}" class="btn btn-danger">
                 <i class="fas fa-file-pdf"></i> Exportar PDF
             </a>
