@@ -9,9 +9,10 @@ class Ahorro extends Model
 {
     use HasFactory;
 
-    protected $table = 'ahorros';
+    protected $table = 'tbl_ahorros';
 
     protected $fillable = [
+        'Id_Organizacion',
         'nombre_caja_rural',
         'socios_no',
         'socios_ahorros',
@@ -29,4 +30,9 @@ class Ahorro extends Model
         'total_ahorros',
         'total_promedio'
     ];
+
+    public function organizacion()
+    {
+        return $this->belongsTo(Organizacion::class, 'Id_Organizacion');
+    }
 }

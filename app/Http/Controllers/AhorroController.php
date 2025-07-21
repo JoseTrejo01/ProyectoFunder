@@ -3,29 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ahorro;
+use App\Models\Organizacion;
+use App\Models\Beneficiario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class AhorroController extends Controller
 {
-    // Mostrar lista paginada de ahorros
+    // Página principal del módulo de ahorros
     public function index()
     {
-        $ahorros = Ahorro::paginate(15);
-        return view('ahorros.index', compact('ahorros'));
+        $organizaciones = Organizacion::all();
+        return view('ahorros.index', compact('organizaciones'));
     }
+
+    // Endpoint para obtener el resumen por caja rural
+   public function resumen($id)
+{
+    $num_socios = \DB::table('tbl_beneficiario')
+        ->where('Id_Organizacion', $id)
+        ->where('Tipo_De_Socio', 'Socio')
+        ->count();
+
+    $total_ahorros = \DB::table('tbl_ahorros')
+        ->where('Id_Organizacion', $id)
+        ->sum('total_ahorros');
+
+    $promedio_ahorros = $num_socios > 0 ? $total_ahorros / $num_socios : 0;
+
+    return response()->json([
+        'num_socios' => $num_socios,
+        'total_ahorros' => $total_ahorros,
+        'promedio_ahorros' => $promedio_ahorros,
+    ]);
+}
+
 
     // Mostrar formulario para crear nuevo registro
     public function create()
     {
-        return view('ahorros.create');
+        $cajas = Organizacion::all();
+        return view('ahorros.create', compact('cajas'));
+    }
+
+    public function contarSocios($id)
+    {
+        $totalSocios = Beneficiario::where('Id_Organizacion', $id)
+                        ->where('Tipo_De_Socio', 'Socio')
+                        ->count();
+
+        return response()->json([
+            'socios_no' => $totalSocios
+        ]);
     }
 
     // Guardar nuevo registro
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nombre_caja_rural' => 'required|string|max:255',
+            'organizacion_id' => 'required|integer',
 
             'socios_no' => 'required|integer',
             'socios_ahorros' => 'required|numeric',
@@ -57,7 +94,8 @@ class AhorroController extends Controller
     public function edit($id)
     {
         $ahorro = Ahorro::findOrFail($id);
-        return view('ahorros.edit', compact('ahorro'));
+        $cajas = Organizacion::all();
+        return view('ahorros.edit', compact('ahorro', 'cajas'));
     }
 
     // Actualizar un registro existente
@@ -66,7 +104,7 @@ class AhorroController extends Controller
         $ahorro = Ahorro::findOrFail($id);
 
         $data = $request->validate([
-            'nombre_caja_rural' => 'required|string|max:255',
+            'organizacion_id' => 'required|integer',
 
             'socios_no' => 'required|integer',
             'socios_ahorros' => 'required|numeric',
@@ -103,14 +141,14 @@ class AhorroController extends Controller
         return redirect()->route('ahorros.index')->with('success', 'Ahorro eliminado correctamente.');
     }
 
-    // ✅ Mostrar ficha individual
+    // Mostrar ficha individual
     public function ficha($id)
     {
         $ahorro = Ahorro::findOrFail($id);
         return view('ahorros.ficha', compact('ahorro'));
     }
 
-    // 🟥 Exportar todos los ahorros a PDF
+    // Exportar todos los ahorros a PDF
     public function exportPdf()
     {
         $ahorros = Ahorro::all();
