@@ -30,6 +30,7 @@ use App\Http\Controllers\AhorroController;
 use App\Http\Controllers\IndicadorGeneroController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CoordenadasMapaController;
+use App\Http\Controllers\ExportSociosPdfController;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
@@ -136,30 +137,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Excel::download(new SociosExport($filters), 'socios.xlsx');
     })->name('socios.export');
 
-    Route::get('/socios/export-pdf', function (Request $request) {
-        $query = \App\Models\Socio::query()->where('estado', 1);
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('Nombre_Beneficiario', 'like', "%{$request->search}%")
-                  ->orWhere('DNI', 'like', "%{$request->search}%")
-                  ->orWhere('Telefono', 'like', "%{$request->search}%");
-            });
-        }
-        if ($request->filled('genero')) {
-            $query->where('genero', $request->genero);
-        }
-        if ($request->filled('localidad')) {
-            $query->where('direccion', 'like', "%{$request->localidad}%");
-        }
-        if ($request->filled('tipo')) {
-            $query->where('Tipo_De_Socio', 'like', "%{$request->tipo}%");
-        }
+// Exportar PDF
+Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
 
-        $socios = $query->get();
-        $pdf = Pdf::loadView('socios.pdf', compact('socios'));
-        return $pdf->download('socios.pdf');
-    })->name('socios.export-pdf');
+
 
     // Ahorros
     Route::resource('ahorros', AhorroController::class);

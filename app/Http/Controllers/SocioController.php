@@ -73,7 +73,7 @@ class SocioController extends Controller
     $validated = $request->validate([
         'Id_Organizacion'       => 'required|integer',
         'Nombre_Beneficiario'   => 'required|string|max:150',
-        'DNI'                   => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI',
+        'DNI'                   => 'required|regex:/^\d{13}$/|unique:tbl_beneficiario,DNI',
         'genero'                => 'required|in:M,F',
         'fecha_nacimiento'      => 'nullable|date',
         'edad'                  => 'nullable|integer|min:15|max:100',
@@ -123,10 +123,10 @@ class SocioController extends Controller
         $validated = $request->validate([
             // 'Id_Organizacion'       => 'required|integer',
             'Nombre_Beneficiario'   => 'required|max:150',
-            'DNI'                   => [
-            'required',
-            'regex:/^\d{4}-\d{4}-\d{5}$/',
-            Rule::unique('tbl_beneficiario', 'DNI')->ignore($id, 'Id_Beneficiario'),],
+            'DNI' => [
+    'required',
+    'regex:/^\d{13,14}$/',
+    Rule::unique('tbl_beneficiario', 'DNI')->ignore($id, 'Id_Beneficiario'),],
             'genero'                => 'required|in:M,F',
             'Nombre_Caja'           => 'nullable|max:150',
             'fecha_nacimiento'      => 'nullable|date',
