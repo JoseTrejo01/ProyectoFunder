@@ -10,7 +10,6 @@ use App\Models\Municipio;
 use App\Models\Aldea;
 use App\Models\CoordenadaMunicipio;
 
-
 class OrganizacionController extends Controller
 {
     public function index()
@@ -19,13 +18,11 @@ class OrganizacionController extends Controller
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
 
-        // Agrupar municipios por departamento para JS
         $municipiosPorDepto = [];
         foreach ($municipios as $muni) {
             $municipiosPorDepto[$muni->Id_Departamento][] = $muni;
         }
 
-        // Coordenadas por municipio
         $coordenadas = DB::table('tbl_coordenadas_municipio')
             ->select('Id_Municipio', 'coordenada_x', 'coordenada_y')
             ->get()
@@ -57,7 +54,6 @@ class OrganizacionController extends Controller
             'Id_Usuario' => auth()->id() ?? 1,
         ]);
 
-        // Registrar coordenadas si no existen
         DB::table('tbl_coordenadas_municipio')->updateOrInsert(
             [
                 'Id_Municipio' => $request->municipio,
@@ -112,26 +108,49 @@ class OrganizacionController extends Controller
 
         return redirect()->route('organizaciones.index')->with('success', 'Organización actualizada correctamente');
     }
+
     public function vistaMapa()
-{
-    $organizaciones = Organizacion::with([
-        'aldea.municipio.coordenada',
-        'aldea.municipio.departamento'
-    ])->get();
+    {
+        $organizaciones = Organizacion::with([
+            'aldea.municipio.coordenada',
+            'aldea.municipio.departamento'
+        ])
+        ->withCount('socios') // 👈 total de socios disponibles en Blade
+        ->get();
 
-    $departamentos = Departamento::all();
-    $municipios = Municipio::all();
+        $departamentos = Departamento::all();
+        $municipios = Municipio::all();
 
-    // Agrupar municipios por departamento
-    $municipiosPorDepto = $municipios->groupBy('Id_Departamento')->map(function ($group) {
-        return $group->map(function ($muni) {
-            return [
-                'Id_Municipio' => $muni->Id_Municipio,
-                'Nombre_Municipio' => $muni->Nombre_Municipio
-            ];
-        })->values();
-    });
+        $municipiosPorDepto = $municipios->groupBy('Id_Departamento')->map(function ($group) {
+            return $group->map(function ($muni) {
+                return [
+                    'Id_Municipio' => $muni->Id_Municipio,
+                    'Nombre_Municipio' => $muni->Nombre_Municipio
+                ];
+            })->values();
+        });
 
-    return view('organizaciones.mapa', compact('organizaciones', 'departamentos', 'municipios', 'municipiosPorDepto'));
-}
+        return view('organizaciones.mapa', compact('organizaciones', 'departamentos', 'municipios', 'municipiosPorDepto'));
+    }
+
+    public function obtenerCajasConSocios()
+    {
+        $cajas = Organizacion::withCount('socios')
+            ->with(['aldea.municipio.departamento'])
+            ->get()
+            ->map(function ($caja) {
+                return [
+                    'nombre' => $caja->Nombre_Organizacion,
+                    'aldea' => optional($caja->aldea)->Nombre_Aldea,
+                    'municipio' => optional($caja->aldea->municipio)->Nombre_Municipio ?? '',
+                    'departamento' => optional($caja->aldea->municipio->departamento)->Nombre_Departamento ?? '',
+                    'estado' => $caja->Estado_Organizacion,
+                    'lat' => optional(optional($caja->aldea)->municipio)->coordenada->coordenada_y,
+                    'lng' => optional(optional($caja->aldea)->municipio)->coordenada->coordenada_x,
+                    'total_socios' => $caja->socios_count,
+                ];
+            });
+
+        return response()->json($cajas);
+    }
 }

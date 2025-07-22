@@ -1,5 +1,7 @@
 @extends('adminlte::page')
 
+@section('title', 'Socio/Clientes') {{-- Cambia el título de la pestaña --}}
+
 @section('content_header')
     <h1>Listado de Socios</h1>
 @stop
@@ -319,40 +321,8 @@
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
-    function agregarActividad(containerId) {
-      var container = document.getElementById(containerId);
-      var index = container.querySelectorAll('.actividad-item').length;
-      var row = document.createElement('div');
-      row.className = 'row mb-2 actividad-item';
-      row.innerHTML = `
-        <div class=\"col-md-2\"> ... 
-      `;
-      container.appendChild(row);
-    }
-    function eliminarActividad(btn) {
-      var row = btn.closest('.actividad-item');
-      row.remove();
-    }
-    function confirmarEliminacion(e) {
-        e.preventDefault();
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: '¡Esta acción inactivará al socio!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.value) {
-                e.target.form.submit();
-            }
-        });
-        return false;
-    }
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 function agregarActividad(containerId) {
   var container = document.getElementById(containerId);
@@ -360,36 +330,58 @@ function agregarActividad(containerId) {
   var row = document.createElement('div');
   row.className = 'row mb-2 actividad-item';
   row.innerHTML = `
-    <div class=\"col-md-2\">
-      <input type=\"text\" name=\"actividades[${index}][rubro]\" class=\"form-control\" placeholder=\"Rubro\" required>
+    <div class="col-md-2">
+      <input type="text" name="actividades[${index}][rubro]" class="form-control" placeholder="Rubro" required>
     </div>
-    <div class=\"col-md-2\">
-      <select name=\"actividades[${index}][tipo]\" class=\"form-control\" required>
-        <option value=\"Agrícola\">Agrícola</option>
-        <option value=\"No Agrícola\">No Agrícola</option>
+    <div class="col-md-2">
+      <select name="actividades[${index}][tipo]" class="form-control" required>
+        <option value="Agrícola">Agrícola</option>
+        <option value="No Agrícola">No Agrícola</option>
       </select>
     </div>
-    <div class=\"col-md-2\">
-      <select name=\"actividades[${index}][unidad]\" class=\"form-control\" required>
-        <option value=\"Manzanas\">Manzanas</option>
-        <option value=\"Lempiras\">Lempiras</option>
+    <div class="col-md-2">
+      <select name="actividades[${index}][unidad]" class="form-control" required>
+        <option value="Manzanas">Manzanas</option>
+        <option value="Lempiras">Lempiras</option>
       </select>
     </div>
-    <div class=\"col-md-2\">
-      <input type=\"number\" step=\"0.01\" name=\"actividades[${index}][cantidad]\" class=\"form-control\" placeholder=\"Cantidad\" required>
+    <div class="col-md-2">
+      <input type="number" step="0.01" name="actividades[${index}][cantidad]" class="form-control" placeholder="Cantidad" required>
     </div>
-    <div class=\"col-md-2\">
-      <input type=\"number\" name=\"actividades[${index}][numero]\" class=\"form-control\" placeholder=\"N°\" required>
+    <div class="col-md-2">
+      <input type="number" name="actividades[${index}][numero]" class="form-control" placeholder="N°" required>
     </div>
-    <div class=\"col-md-2\">
-      <button type=\"button\" class=\"btn btn-danger btn-sm\" onclick=\"eliminarActividad(this)\"><i class=\"fas fa-trash\"></i></button>
+    <div class="col-md-2">
+      <button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(this)">
+        <i class="fas fa-trash"></i>
+      </button>
     </div>
   `;
   container.appendChild(row);
 }
+
 function eliminarActividad(btn) {
   var row = btn.closest('.actividad-item');
   row.remove();
+}
+
+function confirmarEliminacion(e) {
+  e.preventDefault();
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: '¡Esta acción inactivará al socio!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.value) {
+      e.target.form.submit();
+    }
+  });
+  return false;
 }
 </script>
 @endsection

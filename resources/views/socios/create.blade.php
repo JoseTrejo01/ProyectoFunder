@@ -1,5 +1,7 @@
 @extends('adminlte::page')
 
+@section('title', 'Nuevo Socio') {{-- Cambia el título de la pestaña --}}
+
 @section('content_header')
     <h1>Nuevo Socio</h1>
 @stop
@@ -427,7 +429,7 @@ dniInput?.addEventListener('input', function () {
     });
 
       </script>
-</script>
+       </script>
 @stop
 
 @section('js')
