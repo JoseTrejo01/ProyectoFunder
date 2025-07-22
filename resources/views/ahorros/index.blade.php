@@ -9,6 +9,11 @@
 @section('content')
     <div class="card">
         <div class="card-body">
+            {{-- Botón para crear nuevo ahorro --}}
+            <a href="{{ route('ahorros.create') }}" class="btn btn-primary mb-3">
+                <i class="fas fa-plus"></i> Nuevo Ahorro
+            </a>
+
             <form id="formCajaRural">
                 <div class="form-group">
                     <label for="cajaRural">Seleccione una Caja Rural:</label>
@@ -26,7 +31,7 @@
             <div id="datosCaja" style="display:none;">
                 <h5><strong>Resumen de la Caja Rural Seleccionada:</strong></h5>
                 <ul class="list-group">
-                    <li class="list-group-item">📌 <strong>No. de Socios:</strong> <span id="numSocios">0</span></li>
+                    <li class="list-group-item">📌 <strong>No. de Ahorrantes:</strong> <span id="numSocios">0</span></li>
                     <li class="list-group-item">💰 <strong>Total de Ahorros:</strong> L. <span id="totalAhorros">0.00</span></li>
                     <li class="list-group-item">📊 <strong>Promedio de Ahorros:</strong> L. <span id="promedioAhorros">0.00</span></li>
                 </ul>

@@ -37,4 +37,8 @@ class Organizacion extends Model
     {
         return $this->municipio() ? $this->municipio()->departamento : null;
     }
+
+    public function beneficiarios() {
+    return $this->hasMany(Beneficiario::class, 'Id_Organizacion');
+}
 }

@@ -1,83 +1,87 @@
-@csrf
+@extends('adminlte::page')
 
-<div class="form-group">
-    <label for="organizacion_id">Caja Rural</label>
-    <select name="organizacion_id" id="organizacion_id" class="form-control">
-        <option value="">Seleccione una caja rural</option>
-        @foreach($cajas as $caja)
-            <option value="{{ $caja->Id_Organizacion }}">{{ $caja->Nombre_Organizacion }}</option>
-        @endforeach
-    </select>
-</div>
+@section('title', 'Nuevo Ahorro')
 
-{{-- Tabs --}}
-<ul class="nav nav-tabs" id="ahorroTabs" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link active" id="socios-tab" data-toggle="tab" href="#socios" role="tab">Socios</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="no-socios-tab" data-toggle="tab" href="#no-socios" role="tab">No Socios</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="totales-tab" data-toggle="tab" href="#totales" role="tab">Totales</a>
-    </li>
-</ul>
+@section('content_header')
+    <h1>Registrar Nuevo Ahorro</h1>
+@stop
 
-<div class="tab-content mt-3" id="ahorroTabsContent">
-    {{-- Tab: Socios --}}
-    <div class="tab-pane fade show active" id="socios" role="tabpanel">
+@section('content')
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <form action="{{ route('ahorros.store') }}" method="POST">
+        @csrf
+
         <div class="form-group">
-            <label for="socios_no">No. de Socios</label>
-            <input type="number" name="socios_no" id="socios_no" class="form-control" readonly>
+            <label for="Id_Organizacion">Caja Rural:</label>
+            <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
+                <option value="">-- Seleccione una --</option>
+                @foreach ($organizaciones as $org)
+                    <option value="{{ $org->Id_Organizacion }}" {{ old('Id_Organizacion') == $org->Id_Organizacion ? 'selected' : '' }}>
+                        {{ $org->Nombre_Organizacion }}
+                    </option>
+                @endforeach
+            </select>
+            @error('Id_Organizacion')
+                <small class="text-danger">{{ $message }}</small>
+            @enderror
         </div>
+
         <div class="form-group">
-            <label for="socios_ahorros">Ahorros</label>
-            <input type="number" name="socios_ahorros" class="form-control" step="0.01">
+            <label for="beneficiario_id">Socio:</label>
+            <select name="beneficiario_id" id="beneficiario_id" class="form-control" required>
+                <option value="">-- Seleccione una caja primero --</option>
+            </select>
+            @error('beneficiario_id')
+                <small class="text-danger">{{ $message }}</small>
+            @enderror
         </div>
+
         <div class="form-group">
-            <label for="socios_promedio">Promedio</label>
-            <input type="number" name="socios_promedio" class="form-control" step="0.01">
+            <label for="monto">Monto (L.):</label>
+            <input type="number" name="monto" id="monto" step="0.01" class="form-control" value="{{ old('monto') }}" required>
+            @error('monto')
+                <small class="text-danger">{{ $message }}</small>
+            @enderror
         </div>
-    </div>
 
-    {{-- Tab: No Socios --}}
-    <div class="tab-pane fade" id="no-socios" role="tabpanel">
-        {{-- ... aquí va tu código para no socios ... --}}
-    </div>
+        <div class="form-group">
+            <label for="fecha">Fecha:</label>
+            <input type="date" name="fecha" id="fecha" class="form-control" value="{{ old('fecha') }}" required>
+            @error('fecha')
+                <small class="text-danger">{{ $message }}</small>
+            @enderror
+        </div>
 
-    {{-- Tab: Totales --}}
-    <div class="tab-pane fade" id="totales" role="tabpanel">
-        {{-- ... aquí va tu código para totales ... --}}
-    </div>
-</div>
+        <button type="submit" class="btn btn-primary">Guardar Ahorro</button>
+    </form>
+@stop
 
-{{-- Botón Guardar --}}
-<div class="form-group mt-3">
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</div>
-
-{{-- Script para cargar automáticamente el número de socios --}}
+@section('js')
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const select = document.getElementById("organizacion_id");
-        const sociosNoInput = document.getElementById("socios_no");
+    document.getElementById('Id_Organizacion').addEventListener('change', function() {
+        const cajaId = this.value;
+        const selectBeneficiario = document.getElementById('beneficiario_id');
+        selectBeneficiario.innerHTML = '<option value="">Cargando...</option>';
 
-        select.addEventListener("change", function () {
-            const organizacionId = this.value;
-            if (organizacionId) {
-                fetch(`/organizacion/${organizacionId}/socios`)
-                    .then(response => response.json())
-                    .then(data => {
-                        sociosNoInput.value = data.total_socios ?? 0;
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar socios:', error);
-                        sociosNoInput.value = '';
-                    });
-            } else {
-                sociosNoInput.value = '';
-            }
-        });
+        if (!cajaId) {
+            selectBeneficiario.innerHTML = '<option value="">-- Seleccione una caja primero --</option>';
+            return;
+        }
+
+        fetch(`/api/cajas/${cajaId}/socios`)
+            .then(response => response.json())
+            .then(data => {
+                selectBeneficiario.innerHTML = '<option value="">-- Seleccione un socio --</option>';
+                data.forEach(socio => {
+                    selectBeneficiario.innerHTML += `<option value="${socio.Id_Beneficiario}">${socio.Nombre}</option>`;
+                });
+            })
+            .catch(() => {
+                selectBeneficiario.innerHTML = '<option value="">Error al cargar socios</option>';
+            });
     });
 </script>
-
+@stop

@@ -38,4 +38,13 @@ class Socio extends Model
 {
     return $this->hasMany(ActividadEconomica::class, 'Id_Beneficiario', 'Id_Beneficiario');
 }
+
+    public function ahorros()
+    {
+    return $this->hasMany(Ahorro::class, 'beneficiario_id', 'Id_Beneficiario');
+}
+public function organizacion()
+{
+    return $this->belongsTo(Organizacion::class, 'organizacion_id');
+}
 }
