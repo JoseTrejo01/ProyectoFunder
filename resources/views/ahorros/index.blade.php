@@ -25,56 +25,41 @@
         </div>
     @endif
 
-    {{-- TABLA DE AHORROS --}}
+    {{-- TABLA RESUMEN AGRUPADO --}}
     <table class="table table-bordered table-hover table-striped">
         <thead class="table-primary">
             <tr>
-                <th>No.</th>
-                <th>Nombre Caja Rural</th>
-                <th>Socios<br><small>(No. / Ahorros / Prom.)</small></th>
-                <th>Adultos<br><small>(No. / Ahorros / Prom.)</small></th>
-                <th>Niños<br><small>(No. / Ahorros / Prom.)</small></th>
-                <th>SubTotal No Socios<br><small>(No. / Ahorros / Prom.)</small></th>
-                <th>Total<br><small>(No. / Ahorros / Prom.)</small></th>
-                <th>Acciones</th>
+                <th>Caja Rural</th>
+                <th>Socios<br><small>(Cantidad / Total / Promedio)</small></th>
+                <th>No Socios Adultos<br><small>(Cantidad / Total / Promedio)</small></th>
+                <th>No Socios Jóvenes<br><small>(Cantidad / Total / Promedio)</small></th>
             </tr>
         </thead>
         <tbody>
-            @forelse($ahorros as $index => $ahorro)
+            @forelse($agrupados as $caja => $datos)
                 <tr>
-                    <td>{{ $loop->iteration + ($ahorros->currentPage() - 1) * $ahorros->perPage() }}</td>
-                    <td>{{ $ahorro->nombre_caja_rural }}</td>
-                    <td>{{ $ahorro->socios_no }} / {{ number_format($ahorro->socios_ahorros, 2) }} / {{ number_format($ahorro->socios_promedio, 2) }}</td>
-                    <td>{{ $ahorro->adultos_no }} / {{ number_format($ahorro->adultos_ahorros, 2) }} / {{ number_format($ahorro->adultos_promedio, 2) }}</td>
-                    <td>{{ $ahorro->ninos_no }} / {{ number_format($ahorro->ninos_ahorros, 2) }} / {{ number_format($ahorro->ninos_promedio, 2) }}</td>
-                    <td>{{ $ahorro->subtotal_no_socios_no }} / {{ number_format($ahorro->subtotal_no_socios_ahorros, 2) }} / {{ number_format($ahorro->subtotal_no_socios_promedio, 2) }}</td>
-                    <td>{{ $ahorro->total_no }} / {{ number_format($ahorro->total_ahorros, 2) }} / {{ number_format($ahorro->total_promedio, 2) }}</td>
+                    <td>{{ $caja }}</td>
                     <td>
-                        <a href="{{ route('ahorros.edit', $ahorro->id) }}" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                        <a href="{{ route('ahorros.ficha', $ahorro->id) }}" class="btn btn-info btn-sm">
-                            <i class="fas fa-eye"></i> Ficha
-                        </a>
-                        <form action="{{ route('ahorros.destroy', $ahorro->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro de eliminar este registro?')">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
-                        </form>
+                        {{ $datos['socios']['cantidad'] }}<br>
+                        L {{ number_format($datos['socios']['total'], 2) }}<br>
+                        L {{ number_format($datos['socios']['promedio'], 2) }}
+                    </td>
+                    <td>
+                        {{ $datos['no_socios_adultos']['cantidad'] }}<br>
+                        L {{ number_format($datos['no_socios_adultos']['total'], 2) }}<br>
+                        L {{ number_format($datos['no_socios_adultos']['promedio'], 2) }}
+                    </td>
+                    <td>
+                        {{ $datos['no_socios_jovenes']['cantidad'] }}<br>
+                        L {{ number_format($datos['no_socios_jovenes']['total'], 2) }}<br>
+                        L {{ number_format($datos['no_socios_jovenes']['promedio'], 2) }}
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center">No hay registros de ahorros.</td>
+                    <td colspan="4" class="text-center">No hay registros de ahorros.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
-
-    {{-- PAGINACIÓN --}}
-    <div class="d-flex justify-content-center">
-        {{ $ahorros->withQueryString()->links() }}
-    </div>
 @stop

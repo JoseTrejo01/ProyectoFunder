@@ -11,12 +11,11 @@
             <i class="fas fa-plus"></i> Nuevo Socio
         </a>
         <div>
-            <a href="{{ route('socios.export', request()->query()) }}" class="btn btn-success me-2">
-    <i class="fas fa-file-excel"></i> Exportar Excel
-</a>
-            <a href="{{ route('socios.export-pdf', request()->query()) }}" class="btn btn-danger">
-                <i class="fas fa-file-pdf"></i> Exportar PDF
+            <a href="{{ route('socios.export') }}" class="btn btn-success me-2">
+                <i class="fas fa-file-excel"></i> Exportar Excel
             </a>
+            <a href="{{ route('socios.export-pdf', request()->query()) }}" class="btn btn-danger">Exportar PDF</a>
+
         </div>
     </div>
     {{-- FIN BOTONES --}}
@@ -138,176 +137,267 @@
                     <td>{{ $socio->Nombre_Beneficiario }}</td>
                     <td>{{ $socio->DNI }}</td>
                     <td>{{ $socio->Telefono }}</td>
-                    <td>
-                        <!-- Botón para abrir el modal de edición -->
-                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarSocio{{ $socio->Id_Beneficiario }}">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <a href="{{ route('socios.ficha', $socio->Id_Beneficiario) }}" class="btn btn-info btn-sm">
-                            <i class="fas fa-eye"></i> Ficha
-                        </a>
+                    
+                  <td class="text-center py-3">
+    <div class="d-flex justify-content-center flex-wrap">
+        <button class="btn btn-warning btn-sm mx-1" data-bs-toggle="modal" data-bs-target="#modalEditarSocio{{ $socio->Id_Beneficiario }}">
+            <i class="fas fa-edit"></i> Editar
+        </button>
 
-                        @if($socio->estado == 1)
-                            {{-- Botón inactivar --}}
-                            <form action="{{ route('socios.destroy', $socio->Id_Beneficiario) }}"
-                                  method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm"
-                                        onclick="return confirmarEliminacion(event)">
-                                    <i class="fas fa-trash"></i> Inactivar
-                                </button>
-                            </form>
-                        @else
-                            {{-- Botón reactivar --}}
-                            <form action="{{ route('socios.reactivar', $socio->Id_Beneficiario) }}"
-                                  method="POST" style="display:inline;">
-                                @csrf
-                                <button class="btn btn-success btn-sm"
-                                        onclick="return confirm('¿Seguro de reactivar este socio?')">
-                                    <i class="fas fa-check"></i> Activar
-                                </button>
-                            </form>
-                        @endif
-                    </td>
+        <a href="{{ route('socios.ficha', $socio->Id_Beneficiario) }}" class="btn btn-info btn-sm mx-1">
+            <i class="fas fa-eye"></i> Ficha
+        </a>
+
+        @if($socio->estado == 1)
+            <form action="{{ route('socios.destroy', $socio->Id_Beneficiario) }}" method="POST" class="mx-1">
+                @csrf
+                @method('DELETE')
+                <button class="btn btn-danger btn-sm" onclick="return confirmarEliminacion(event)">
+                    <i class="fas fa-trash"></i> Inactivar
+                </button>
+            </form>
+        @else
+            <form action="{{ route('socios.reactivar', $socio->Id_Beneficiario) }}" method="POST" class="mx-1">
+                @csrf
+                <button class="btn btn-success btn-sm" onclick="return confirm('¿Seguro de reactivar este socio?')">
+                    <i class="fas fa-check"></i> Activar
+                </button>
+            </form>
+        @endif
+    </div>
+</td>
+
                 </tr>
-               <!-- MODAL DE EDICIÓN -->
+                <!-- Modal Editar Socio -->
 <div class="modal fade" id="modalEditarSocio{{ $socio->Id_Beneficiario }}" tabindex="-1" aria-labelledby="modalEditarSocioLabel{{ $socio->Id_Beneficiario }}" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form action="{{ route('socios.update', $socio->Id_Beneficiario) }}" method="POST" autocomplete="off">
+      <form method="POST" action="{{ route('socios.update', $socio->Id_Beneficiario) }}">
         @csrf
         @method('PUT')
         <div class="modal-header">
-          <h5 class="modal-title">Editar Socio: {{ $socio->Nombre_Beneficiario }}</h5>
+          <h5 class="modal-title" id="modalEditarSocioLabel{{ $socio->Id_Beneficiario }}">Editar Socio</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
-
-          {{-- DATOS PERSONALES --}}
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label>Nombre completo</label>
-              <input type="text" name="Nombre_Beneficiario" class="form-control" value="{{ $socio->Nombre_Beneficiario }}" required>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label>DNI</label>
-              <input type="text" name="DNI" class="form-control" maxlength="13" pattern="\d{1,13}" value="{{ $socio->DNI }}" required>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label>Género</label>
-              <select name="genero" class="form-control" required>
-                <option value="">Seleccione</option>
-                <option value="M" {{ $socio->genero == 'M' ? 'selected' : '' }}>Masculino</option>
-                <option value="F" {{ $socio->genero == 'F' ? 'selected' : '' }}>Femenino</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-4 mb-3">
-              <label>Fecha de nacimiento</label>
-              <input type="date" name="fecha_nacimiento" id="fecha_nacimiento{{ $socio->Id_Beneficiario }}" class="form-control" value="{{ $socio->fecha_nacimiento }}">
-            </div>
-            <div class="col-md-2 mb-3">
-              <label>Edad</label>
-              <input type="number" name="edad" id="edad{{ $socio->Id_Beneficiario }}" class="form-control" value="{{ $socio->edad }}" readonly>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label>Nivel Educativo</label>
-              <select name="nivel_educativo" id="nivel_educativo{{ $socio->Id_Beneficiario }}" class="form-control">
-                <option value="">Seleccione</option>
-                @php
-                    $niveles = ['Sin estudios', 'Educación Prebásica', 'Primaria', 'Ciclo Común', 'Diversificado', 'Universitario', 'Post grado', 'Doctorado'];
-                @endphp
-                @foreach($niveles as $nivel)
-                  <option value="{{ $nivel }}" {{ $socio->nivel_educativo == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
-                @endforeach
-              </select>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label>Años de Educación</label>
-              <input type="text" class="form-control" id="anios_educacion{{ $socio->Id_Beneficiario }}" name="anios_educacion" value="{{ $socio->anios_educacion }}" readonly>
-            </div>
-          </div>
-
-          {{-- INFORMACIÓN ADICIONAL --}}
-          <div class="row">
-            <div class="col-md-4 mb-3">
-              <label>Tipo de Socio</label>
-              <select name="Tipo_De_Socio" id="Tipo_De_Socio{{ $socio->Id_Beneficiario }}" class="form-control">
-                <option value="">Seleccione</option>
-                <option value="Socio" {{ $socio->Tipo_De_Socio == 'Socio' ? 'selected' : '' }}>Socio</option>
-                <option value="Cliente" {{ $socio->Tipo_De_Socio == 'Cliente' ? 'selected' : '' }}>Cliente</option>
-              </select>
-            </div>
-            <div class="col-md-4 mb-3" id="tipo_cargo_group{{ $socio->Id_Beneficiario }}">
-              <label>Tipo de Cargo</label>
-              <select name="Tipo_Cargo" class="form-control">
-                <option value="">Seleccione</option>
-                @php
-                  $cargos = ['Presidente(a)', 'Vicepresidente(a)', 'Tesorero(a)', 'Secretario(a)', 'Vocal I', 'Vocal II', 'Vocal III', 'Comité de Crédito y Cobros', 'Junta de Vigilancia Presidente(a)', 'Junta de Vigilancia Secretario(a)', 'Junta de Vigilancia Vocal'];
-                @endphp
-                @foreach($cargos as $cargo)
-                  <option value="{{ $cargo }}" {{ $socio->Tipo_Cargo == $cargo ? 'selected' : '' }}>{{ $cargo }}</option>
-                @endforeach
-              </select>
-            </div>
-            <div class="col-md-4 mb-3">
-              <label>Categoría</label>
-              <input type="text" name="categoria" class="form-control" value="{{ $socio->categoria }}">
-            </div>
-          </div>
-
-          {{-- ACTIVIDADES ECONÓMICAS --}}
-          <div>
-            <h5 class="mt-3">Actividades Económicas</h5>
-            <div id="actividadesContainer{{ $socio->Id_Beneficiario }}">
-              @if($socio->actividades && count($socio->actividades))
-                @foreach($socio->actividades as $i => $actividad)
-                <div class="row mb-2 actividad-item">
-                  <div class="col-md-2">
-                    <input type="text" name="actividades[{{ $i }}][rubro]" class="form-control" placeholder="Rubro" value="{{ $actividad->Rubro }}" required>
-                  </div>
-                  <div class="col-md-2">
-                    <select name="actividades[{{ $i }}][tipo]" class="form-control" required>
-                      <option value="Agrícola" {{ $actividad->Tipo == 'Agrícola' ? 'selected' : '' }}>Agrícola</option>
-                      <option value="No Agrícola" {{ $actividad->Tipo == 'No Agrícola' ? 'selected' : '' }}>No Agrícola</option>
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <select name="actividades[{{ $i }}][unidad]" class="form-control" required>
-                      <option value="Manzanas" {{ $actividad->Unidad == 'Manzanas' ? 'selected' : '' }}>Manzanas</option>
-                      <option value="Lempiras" {{ $actividad->Unidad == 'Lempiras' ? 'selected' : '' }}>Lempiras</option>
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <input type="number" step="0.01" name="actividades[{{ $i }}][cantidad]" class="form-control" placeholder="Cantidad" value="{{ $actividad->Cantidad }}" required>
-                  </div>
-                  <div class="col-md-2">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(this)"><i class="fas fa-trash"></i></button>
-                  </div>
+          <ul class="nav nav-tabs" id="editTabs{{ $socio->Id_Beneficiario }}" role="tablist">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#datosPersonales{{ $socio->Id_Beneficiario }}">Datos Personales</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#ubicacion{{ $socio->Id_Beneficiario }}">Ubicación</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#informacionAdicional{{ $socio->Id_Beneficiario }}">Información Adicional</a></li>
+          </ul>
+          
+          <div class="tab-content pt-3">
+            <!-- Pestaña Datos Personales -->
+            <div class="tab-pane fade show active" id="datosPersonales{{ $socio->Id_Beneficiario }}">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Nombre completo</label>
+                  <input type="text" name="Nombre_Beneficiario" class="form-control" value="{{ $socio->Nombre_Beneficiario }}" required>
                 </div>
-                @endforeach
-              @endif
+                <div class="col-md-6 mb-3">
+                  <label>DNI</label>
+                  <input type="text" name="DNI" class="form-control" value="{{ $socio->DNI }}" required pattern="\d{13}" maxlength="13" title="Ingrese 13 dígitos sin guiones">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Teléfono</label>
+                  <input type="text" name="Telefono" class="form-control" value="{{ $socio->Telefono }}" required pattern="\d{4}-\d{4}" title="Formato: 1234-5678">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Género</label>
+                  <select name="genero" class="form-control" required>
+                    <option value="">Seleccione</option>
+                    <option value="M" {{ $socio->genero == 'M' ? 'selected' : '' }}>Masculino</option>
+                    <option value="F" {{ $socio->genero == 'F' ? 'selected' : '' }}>Femenino</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Fecha de nacimiento</label>
+                  <input type="date" name="fecha_nacimiento" class="form-control" value="{{ $socio->fecha_nacimiento }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Edad</label>
+                  <input type="number" name="edad" class="form-control" value="{{ $socio->edad }}" min="15" max="100">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Estado Civil</label>
+                  <select name="estado_civil" class="form-control">
+                    <option value="">Seleccione</option>
+                    <option value="Soltero(a)" {{ $socio->estado_civil == 'Soltero(a)' ? 'selected' : '' }}>Soltero(a)</option>
+                    <option value="Casado(a)" {{ $socio->estado_civil == 'Casado(a)' ? 'selected' : '' }}>Casado(a)</option>
+                    <option value="Unión Libre" {{ $socio->estado_civil == 'Unión Libre' ? 'selected' : '' }}>Unión Libre</option>
+                    <option value="Viudo(a)" {{ $socio->estado_civil == 'Viudo(a)' ? 'selected' : '' }}>Viudo(a)</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Etnia</label>
+                  <select name="etnia" class="form-control">
+                    <option value="">Seleccione</option>
+                    <option value="Lenca" {{ $socio->etnia == 'Lenca' ? 'selected' : '' }}>Lenca</option>
+                    <option value="Garífuna" {{ $socio->etnia == 'Garífuna' ? 'selected' : '' }}>Garífuna</option>
+                    <option value="Miskito" {{ $socio->etnia == 'Miskito' ? 'selected' : '' }}>Miskito</option>
+                    <option value="Tawahka" {{ $socio->etnia == 'Tawahka' ? 'selected' : '' }}>Tawahka</option>
+                    <option value="Tolupan" {{ $socio->etnia == 'Tolupan' ? 'selected' : '' }}>Tolupan</option>
+                    <option value="Pech" {{ $socio->etnia == 'Pech' ? 'selected' : '' }}>Pech</option>
+                    <option value="Maya Chortí" {{ $socio->etnia == 'Maya Chortí' ? 'selected' : '' }}>Maya Chortí</option>
+                    <option value="Negro de habla inglesa o Creole" {{ $socio->etnia == 'Negro de habla inglesa o Creole' ? 'selected' : '' }}>Negro de habla inglesa o Creole</option>
+                    <option value="Mestizo" {{ $socio->etnia == 'Mestizo' ? 'selected' : '' }}>Mestizo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="nivel_educativo">Nivel Educativo</label>
+                  <select name="nivel_educativo" class="form-control nivel-educativo-select" required>
+                    <option value="">Seleccione</option>
+                    <option value="Sin estudios" {{ $socio->nivel_educativo == 'Sin estudios' ? 'selected' : '' }}>Sin estudios</option>
+                    <option value="Educación básica" {{ $socio->nivel_educativo == 'Educación básica' ? 'selected' : '' }}>Educación básica</option>
+                    <option value="Educación media" {{ $socio->nivel_educativo == 'Educación media' ? 'selected' : '' }}>Educación media</option>
+                    <option value="Educación superior" {{ $socio->nivel_educativo == 'Educación superior' ? 'selected' : '' }}>Educación superior</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="anios_educacion">Años de Educación</label>
+                  <input type="text" class="form-control anios-educacion" name="anios_educacion" value="{{ $socio->anios_educacion ?? '' }}" placeholder="Años de educación">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Medio de Comunicación</label>
+                  <select name="medio_comunicacion" class="form-control">
+                    <option value="">Seleccione</option>
+                    <option value="Teléfono" {{ $socio->medio_comunicacion == 'Teléfono' ? 'selected' : '' }}>Teléfono</option>
+                    <option value="Tablet" {{ $socio->medio_comunicacion == 'Tablet' ? 'selected' : '' }}>Tablet</option>
+                    <option value="Computadora" {{ $socio->medio_comunicacion == 'Computadora' ? 'selected' : '' }}>Computadora</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="agregarActividad('actividadesContainer{{ $socio->Id_Beneficiario }}')">Agregar Actividad</button>
-          </div>
+            
+            <!-- Pestaña Ubicación -->
+            <div class="tab-pane fade" id="ubicacion{{ $socio->Id_Beneficiario }}">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Departamento</label>
+                  <input type="text" name="departamento" class="form-control" value="{{ $socio->departamento }}" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Municipio</label>
+                  <input type="text" name="municipio" class="form-control" value="{{ $socio->municipio }}" readonly>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Comunidad/Aldea</label>
+                  <input type="text" name="comunidad" class="form-control" value="{{ $socio->comunidad }}" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Dirección</label>
+                  <input type="text" name="direccion" class="form-control" value="{{ $socio->direccion }}">
+                </div>
+              </div>
+            </div>
+            
+  <!-- Pestaña Información Adicional -->
+                                     <div class="tab-pane fade" id="informacionAdicional{{ $socio->Id_Beneficiario }}">
+                                            <h5>Actividades Económicas</h5>
+                                            
+                                            <div id="actividadesContainer{{ $socio->Id_Beneficiario }}">
+                                                @if($socio->actividades && count($socio->actividades))
+                                                    @foreach($socio->actividades as $i => $actividad)
+                                                    <div class="row mb-2 actividad-item">
+                                                        <div class="col-md-2">
+                                                            <input type="text" name="actividades[{{ $i }}][rubro]" class="form-control" placeholder="Rubro" value="{{ $actividad->Rubro }}" required>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <select name="actividades[{{ $i }}][tipo]" class="form-control" required>
+                                                                <option value="Agrícola" {{ $actividad->Tipo == 'Agrícola' ? 'selected' : '' }}>Agrícola</option>
+                                                                <option value="No Agrícola" {{ $actividad->Tipo == 'No Agrícola' ? 'selected' : '' }}>No Agrícola</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <select name="actividades[{{ $i }}][unidad]" class="form-control" required>
+                                                                <option value="Manzanas" {{ $actividad->Unidad_Medida == 'Manzanas' ? 'selected' : '' }}>Manzanas</option>
+                                                                <option value="Lempiras" {{ $actividad->Unidad_Medida == 'Lempiras' ? 'selected' : '' }}>Lempiras</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <input type="number" step="0.01" name="actividades[{{ $i }}][cantidad]" class="form-control" placeholder="Cantidad" value="{{ $actividad->Cantidad }}" required>
+                                                        </div>
+                                                    
+                                                        <div class="col-md-2">
+                                                            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(this)"><i class="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                    @endforeach
+                                                @endif
+                                            </div>
+                                            
+                                            <button type="button" class="btn btn-success btn-sm mt-2" onclick="agregarActividad('actividadesContainer{{ $socio->Id_Beneficiario }}')">
+                                                <i class="fas fa-plus"></i> Agregar actividad
+                                            </button>
+                                            
 
+
+              // Información adicional del socio
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="Tipo_De_Socio">Tipo de Socio</label>
+                  <select name="Tipo_De_Socio" class="form-control tipo-socio-select" required>
+                    <option value="">Seleccione</option>
+                    <option value="Socio" {{ $socio->Tipo_De_Socio == 'Socio' ? 'selected' : '' }}>Socio</option>
+                    <option value="Cliente" {{ $socio->Tipo_De_Socio == 'Cliente' ? 'selected' : '' }}>Cliente</option>
+                  </select>
+                </div>
+                
+                <div class="col-md-6 mb-3 tipo-cargo-group" style="display: {{ $socio->Tipo_De_Socio == 'Socio' ? 'block' : 'none' }};">
+                  <label for="Tipo_Cargo">Tipo de Cargo</label>
+                  <select name="Tipo_Cargo" class="form-control">
+                    <option value="">Seleccione</option>
+                    <option value="Presidente(a)" {{ $socio->Tipo_Cargo == 'Presidente(a)' ? 'selected' : '' }}>Presidente(a)</option>
+                    <option value="Vicepresidente(a)" {{ $socio->Tipo_Cargo == 'Vicepresidente(a)' ? 'selected' : '' }}>Vicepresidente(a)</option>
+                    <option value="Tesorero(a)" {{ $socio->Tipo_Cargo == 'Tesorero(a)' ? 'selected' : '' }}>Tesorero(a)</option>
+                    <option value="Secretario(a)" {{ $socio->Tipo_Cargo == 'Secretario(a)' ? 'selected' : '' }}>Secretario(a)</option>
+                    <option value="Vocal I" {{ $socio->Tipo_Cargo == 'Vocal I' ? 'selected' : '' }}>Vocal I</option>
+                    <option value="Vocal II" {{ $socio->Tipo_Cargo == 'Vocal II' ? 'selected' : '' }}>Vocal II</option>
+                    <option value="Vocal III" {{ $socio->Tipo_Cargo == 'Vocal III' ? 'selected' : '' }}>Vocal III</option>
+                    <option value="Comité de Crédito y Cobros" {{ $socio->Tipo_Cargo == 'Comité de Crédito y Cobros' ? 'selected' : '' }}>Comité de Crédito y Cobros</option>
+                    <option value="Junta de Vigilancia Presidente(a)" {{ $socio->Tipo_Cargo == 'Junta de Vigilancia Presidente(a)' ? 'selected' : '' }}>Junta de Vigilancia Presidente(a)</option>
+                    <option value="Junta de Vigilancia Secretario(a)" {{ $socio->Tipo_Cargo == 'Junta de Vigilancia Secretario(a)' ? 'selected' : '' }}>Junta de Vigilancia Secretario(a)</option>
+                    <option value="Junta de Vigilancia Vocal" {{ $socio->Tipo_Cargo == 'Junta de Vigilancia Vocal' ? 'selected' : '' }}>Junta de Vigilancia Vocal</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="categoria">Categoría</label>
+                  <input type="text" name="categoria" class="form-control" value="{{ $socio->categoria }}">
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Actualizar</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
         </div>
       </form>
     </div>
   </div>
 </div>
-
-            @empty
+ @empty
                 <tr>
                     <td colspan="4" class="text-center">No hay socios registrados.</td>
                 </tr>
+
             @endforelse
         </tbody>
     </table>
@@ -318,78 +408,87 @@
 @stop
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
-    function agregarActividad(containerId) {
-      var container = document.getElementById(containerId);
-      var index = container.querySelectorAll('.actividad-item').length;
-      var row = document.createElement('div');
-      row.className = 'row mb-2 actividad-item';
-      row.innerHTML = `
-        <div class=\"col-md-2\"> ... 
-      `;
-      container.appendChild(row);
-    }
-    function eliminarActividad(btn) {
-      var row = btn.closest('.actividad-item');
-      row.remove();
-    }
-    function confirmarEliminacion(e) {
-        e.preventDefault();
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: '¡Esta acción inactivará al socio!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.value) {
-                e.target.form.submit();
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+function agregarActividad(containerId) {
+    const tbody = document.getElementById(containerId);
+    const index = tbody.querySelectorAll('tr').length;
+
+    const fila = document.createElement('tr');
+    fila.classList.add('actividad-item');
+
+    fila.innerHTML = `
+        <td>${index + 1}</td>
+        <td>
+            <select name="actividades[${index}][tipo]" class="form-control form-control-sm tipo-select" required onchange="actualizarRubro(this)">
+                <option value="">Seleccione</option>
+                <option value="Agrícola">Agrícola</option>
+                <option value="No Agrícola">No Agrícola</option>
+            </select>
+        </td>
+        <td>
+            <select name="actividades[${index}][rubro]" class="form-control form-control-sm rubro-select" required>
+                <option value="">Seleccione</option>
+            </select>
+        </td>
+        <td>
+            <select name="actividades[${index}][unidad]" class="form-control form-control-sm" required>
+                <option value="">Seleccione</option>
+                <option value="Manzanas">Manzanas</option>
+                <option value="Lempiras">Lempiras</option>
+            </select>
+        </td>
+        <td>
+            <input type="number" step="0.01" name="actividades[${index}][cantidad]" class="form-control form-control-sm" required>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(this)">
+                Eliminar
+            </button>
+        </td>
+    `;
+
+    tbody.appendChild(fila);
+}
+
+function eliminarActividad(btn) {
+    const row = btn.closest('tr');
+    row.remove();
+
+    // Reordenar índices y numeración
+    const rows = row.parentElement.querySelectorAll('tr');
+    rows.forEach((r, i) => {
+        r.querySelector('td:first-child').textContent = i + 1;
+        r.querySelectorAll('select, input').forEach(el => {
+            if (el.name) {
+                el.name = el.name.replace(/\[\d+\]/, `[${i}]`);
             }
         });
-        return false;
-    }
-    </script>
-<script>
-function agregarActividad(containerId) {
-  var container = document.getElementById(containerId);
-  var index = container.querySelectorAll('.actividad-item').length;
-  var row = document.createElement('div');
-  row.className = 'row mb-2 actividad-item';
-  row.innerHTML = `
-    <div class=\"col-md-2\">
-      <input type=\"text\" name=\"actividades[${index}][rubro]\" class=\"form-control\" placeholder=\"Rubro\" required>
-    </div>
-    <div class=\"col-md-2\">
-      <select name=\"actividades[${index}][tipo]\" class=\"form-control\" required>
-        <option value=\"Agrícola\">Agrícola</option>
-        <option value=\"No Agrícola\">No Agrícola</option>
-      </select>
-    </div>
-    <div class=\"col-md-2\">
-      <select name=\"actividades[${index}][unidad]\" class=\"form-control\" required>
-        <option value=\"Manzanas\">Manzanas</option>
-        <option value=\"Lempiras\">Lempiras</option>
-      </select>
-    </div>
-    <div class=\"col-md-2\">
-      <input type=\"number\" step=\"0.01\" name=\"actividades[${index}][cantidad]\" class=\"form-control\" placeholder=\"Cantidad\" required>
-    </div>
-    <div class=\"col-md-2\">
-      <input type=\"number\" name=\"actividades[${index}][numero]\" class=\"form-control\" placeholder=\"N°\" required>
-    </div>
-    <div class=\"col-md-2\">
-      <button type=\"button\" class=\"btn btn-danger btn-sm\" onclick=\"eliminarActividad(this)\"><i class=\"fas fa-trash\"></i></button>
-    </div>
-  `;
-  container.appendChild(row);
+    });
 }
-function eliminarActividad(btn) {
-  var row = btn.closest('.actividad-item');
-  row.remove();
+
+function actualizarRubro(select) {
+    const tipo = select.value;
+    const rubroSelect = select.closest('tr').querySelector('.rubro-select');
+    
+    rubroSelect.innerHTML = '<option value="">Seleccione</option>'; // limpiar
+
+    if (tipo === 'Agrícola') {
+        rubroSelect.innerHTML += `
+            <option value="Maíz">Maíz</option>
+            <option value="Frijol">Frijol</option>
+            <option value="Café">Café</option>
+        `;
+    } else if (tipo === 'No Agrícola') {
+        rubroSelect.innerHTML += `
+            <option value="Comercio">Comercio</option>
+            <option value="Servicios">Servicios</option>
+            <option value="Oficios varios">Oficios varios</option>
+        `;
+    }
 }
 </script>
+
+
 @endsection

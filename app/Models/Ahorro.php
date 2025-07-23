@@ -12,21 +12,18 @@ class Ahorro extends Model
     protected $table = 'ahorros';
 
     protected $fillable = [
-        'nombre_caja_rural',
-        'socios_no',
-        'socios_ahorros',
-        'socios_promedio',
-        'adultos_no',
-        'adultos_ahorros',
-        'adultos_promedio',
-        'ninos_no',
-        'ninos_ahorros',
-        'ninos_promedio',
-        'subtotal_no_socios_no',
-        'subtotal_no_socios_ahorros',
-        'subtotal_no_socios_promedio',
-        'total_no',
-        'total_ahorros',
-        'total_promedio'
+        'id_organizacion',
+        'id_beneficiario',
+        'monto_ahorrado',
     ];
+
+    public function organizacion()
+    {
+        return $this->belongsTo(Organizacion::class, 'id_organizacion', 'Id_Organizacion');
+    }
+
+    public function beneficiario()
+    {
+        return $this->belongsTo(Socio::class, 'id_beneficiario', 'Id_Beneficiario');
+    }
 }

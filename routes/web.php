@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
 
 // USUARIOS AUTENTICADOS Y VERIFICADOS
 Route::middleware(['auth', 'verified'])->group(function () {
+   
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -78,7 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cambiar-contraseña', [LoginController::class, 'changePassword'])->name('password.change');
 
     // Base de datos
-    Route::prefix('admin/database')->group(function () {
+    Route::prefix('admin/respaldo')->group(function () {
         Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
         Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
         Route::post('/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
@@ -111,7 +112,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Parámetros
-    Route::prefix('parametros')->group(function () {
+    Route::prefix('admin/parametros')->group(function () {
         Route::get('/', [ParametroController::class, 'index'])->name('parametros.index');
         Route::post('/', [ParametroController::class, 'store'])->name('parametros.store');
         Route::put('/{id}', [ParametroController::class, 'update'])->name('parametros.update');
@@ -140,10 +141,7 @@ Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf']
 
 
 
-    // Ahorros
-    Route::resource('ahorros', AhorroController::class);
-    Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
-    Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
+   
 
     // Indicadores de género
     Route::resource('genero', IndicadorGeneroController::class);
@@ -179,4 +177,8 @@ Route::get('/prueba', fn () => view('prueba'));
 // Coordenadas del mapa
 Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
 
-
+// RUTAS DE AHORROS DEBEN IR DENTRO DEL GRUPO DE MIDDLEWARE
+// ...existing code...
+    Route::resource('ahorros', AhorroController::class);
+    Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
+    Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
