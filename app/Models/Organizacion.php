@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Socio; 
 class Organizacion extends Model
  
 {
@@ -37,4 +37,9 @@ class Organizacion extends Model
     {
         return $this->municipio() ? $this->municipio()->departamento : null;
     }
+    public function socios()
+{
+    return $this->hasMany(Socio::class, 'Id_Organizacion', 'Id_Organizacion');
+}
+
 }

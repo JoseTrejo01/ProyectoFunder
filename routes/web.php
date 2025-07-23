@@ -170,6 +170,9 @@ Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf']
     // AJAX: Ubicación
     Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
     Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
+// AJAX: Coordenadas del mapa
+    Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
+//
 });
 
 // Vista de prueba

@@ -60,15 +60,14 @@
                 let marcador = L.marker([
                     {{ $org->aldea->municipio->coordenada->coordenada_y }},
                     {{ $org->aldea->municipio->coordenada->coordenada_x }}
-                ]).bindPopup(`
-                    <strong>{{ $org->Nombre_Organizacion }}</strong><br>
-                    <small>Aldea: {{ $org->aldea->Nombre_Aldea ?? '-' }}</small><br>
-                    <small>Municipio: {{ $org->aldea->municipio->Nombre_Municipio ?? '-' }}</small><br>
-                    <small>Departamento: {{ $org->aldea->municipio->departamento->Nombre_Departamento ?? '-' }}</small><br>
-                    <span class='badge bg-{{ $org->Estado_Organizacion == "ACTIVO" ? "success" : "danger" }}'>
-                        {{ $org->Estado_Organizacion }}
-                    </span>
-                `).addTo(mapa);
+                ]).bindPopup(`{!! 
+                    '<strong>' . e($org->Nombre_Organizacion) . '</strong><br>' .
+                    '<small>Aldea: ' . e($org->aldea->Nombre_Aldea ?? '-') . '</small><br>' .
+                    '<small>Municipio: ' . e($org->aldea->municipio->Nombre_Municipio ?? '-') . '</small><br>' .
+                    '<small>Departamento: ' . e($org->aldea->municipio->departamento->Nombre_Departamento ?? '-') . '</small><br>' .
+                    '<span class="badge bg-' . ($org->Estado_Organizacion == 'ACTIVO' ? 'success' : 'danger') . '">' . e($org->Estado_Organizacion) . '</span><br>' .
+                    (isset($org->socios_count) ? '<small><strong>Total de Socios:</strong> ' . $org->socios_count . '</small>' : '')
+                !!}`).addTo(mapa);
 
                 marcador.departamento = "{{ $org->aldea->municipio->departamento->Id_Departamento }}";
                 marcador.municipio = "{{ $org->aldea->municipio->Nombre_Municipio ?? '' }}";

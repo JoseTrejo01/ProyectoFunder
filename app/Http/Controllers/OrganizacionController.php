@@ -10,7 +10,6 @@ use App\Models\Municipio;
 use App\Models\Aldea;
 use App\Models\CoordenadaMunicipio;
 
-
 class OrganizacionController extends Controller
 {
     public function index()
@@ -37,13 +36,11 @@ class OrganizacionController extends Controller
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
 
-        // Agrupar municipios por departamento para JS
         $municipiosPorDepto = [];
         foreach ($municipios as $muni) {
             $municipiosPorDepto[$muni->Id_Departamento][] = $muni;
         }
 
-        // Coordenadas por municipio
         $coordenadas = DB::table('tbl_coordenadas_municipio')
             ->select('Id_Municipio', 'coordenada_x', 'coordenada_y')
             ->get()
@@ -78,17 +75,6 @@ class OrganizacionController extends Controller
             'Id_Usuario' => auth()->id() ?? 1,
         ]);
 
-        $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
-        if ($objeto && auth()->check()) {
-            EVENT_BITACORA(
-                auth()->user()->Id_Usuario,
-                $objeto->Id_Objeto,
-                'Nuevo',
-                'Creó una nueva organización: ' . $org->Nombre_Organizacion
-            );
-        }
-
-        // Registrar coordenadas si no existen
         DB::table('tbl_coordenadas_municipio')->updateOrInsert(
             [
                 'Id_Municipio' => $request->municipio,
@@ -174,6 +160,7 @@ class OrganizacionController extends Controller
 
         return redirect()->route('organizaciones.index')->with('success', 'Organización actualizada correctamente');
     }
+
     public function vistaMapa()
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Consultar')) {
