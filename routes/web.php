@@ -2,30 +2,34 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+
 use App\Http\Controllers\Admin\PermisoController;
 use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\GestionController;
 use App\Http\Controllers\Admin\UsuarioController;
+
 use App\Http\Controllers\AhorroController;
 use App\Http\Controllers\IndicadorGeneroController;
-<<<<<<< HEAD
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CoordenadasMapaController;
 use App\Http\Controllers\ExportSociosPdfController;
-=======
->>>>>>> bebcba8838fe033255161c5cd7ccb373649decc9
+use App\Http\Controllers\OrganizacionController;
+use App\Http\Controllers\SocioController;
+use App\Http\Controllers\EmprendimientoController;
+use App\Http\Controllers\PrestamoController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\DashboardController;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
+// Página principal
 Route::get('/', function () {
     if (auth()->check()) return redirect('/dashboard');
     return view('welcome');
@@ -54,144 +58,55 @@ Route::middleware('guest')->group(function () {
 
 // RUTAS PARA USUARIOS AUTENTICADOS Y VERIFICADOS
 Route::middleware(['auth', 'verified'])->group(function () {
-<<<<<<< HEAD
-    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-=======
-   
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
->>>>>>> 580ad3c1da54615285b0879c8d6f6ca4b0b072d6
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+    // Cambio de contraseña
     Route::get('/cambiar-contraseña', [LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
     Route::post('/cambiar-contraseña', [LoginController::class, 'changePassword'])->name('password.change');
 
-<<<<<<< HEAD
-=======
-    // Base de datos
-    Route::prefix('admin/respaldo')->group(function () {
-        Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
-        Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
-        Route::post('/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
-    });
-
-    // Roles
-    Route::prefix('admin/roles')->group(function () {
-        Route::get('/', [RolController::class, 'index'])->name('roles.index');
-        Route::post('/', [RolController::class, 'store'])->name('roles.store');
-        Route::put('/{id}', [RolController::class, 'update'])->name('roles.update');
-        Route::delete('/{id}', [RolController::class, 'destroy'])->name('roles.destroy');
-        Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
-    });
-
-    // Objetos
-    Route::prefix('admin/objetos')->group(function () {
-        Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
-        Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
-        Route::put('/{id}', [ObjetoController::class, 'update'])->name('objetos.update');
-        Route::delete('/{id}', [ObjetoController::class, 'destroy'])->name('objetos.destroy');
-        Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
-    });
-
-    // Usuarios
-    Route::prefix('admin/usuarios')->group(function () {
-        Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');
-        Route::post('/', [UsuarioController::class, 'store'])->name('usuarios.store');
-        Route::put('/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-        Route::delete('/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-    });
-
-    // Parámetros
-    Route::prefix('admin/parametros')->group(function () {
-        Route::get('/', [ParametroController::class, 'index'])->name('parametros.index');
-        Route::post('/', [ParametroController::class, 'store'])->name('parametros.store');
-        Route::put('/{id}', [ParametroController::class, 'update'])->name('parametros.update');
-        Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
-    });
-
     // Permisos y Bitácora
->>>>>>> 580ad3c1da54615285b0879c8d6f6ca4b0b072d6
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
     Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
 
-    Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');
-    Route::post('/objetos/store', [GestionController::class, 'storeObjeto'])->name('objetos.store');
+    // Usuarios
+    Route::resource('admin/usuarios', UsuarioController::class)->except(['show']);
 
-<<<<<<< HEAD
-    // Exportar socios
-   Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
-=======
-    Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
-    Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
-    Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-    Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+    // Socios
+    Route::resource('socios', SocioController::class)->except(['show']);
+    Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
+    Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
 
-    // SOCIOS
-    Route::resource('socios', App\Http\Controllers\SocioController::class)->except(['show']);
-    Route::get('/socios/{id}/ficha', [App\Http\Controllers\SocioController::class, 'ficha'])->name('socios.ficha');
-    Route::post('/socios/{id}/reactivar', [App\Http\Controllers\SocioController::class, 'reactivar'])->name('socios.reactivar');
-
-    // Exportaciones socios
+    // Exportar socios a Excel
     Route::get('/socios/export', function (Request $request) {
-        $filters = $request->only('search','genero','localidad','tipo');
+        $filters = $request->only('search', 'genero', 'localidad', 'tipo');
         return Excel::download(new SociosExport($filters), 'socios.xlsx');
     })->name('socios.export');
->>>>>>> bebcba8838fe033255161c5cd7ccb373649decc9
 
+    // Exportar PDF
+    Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
 
-<<<<<<< HEAD
-// Exportar PDF
-Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
-
-=======
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('Nombre_Beneficiario', 'like', "%$search%")
-                  ->orWhere('DNI', 'like', "%$search%")
-                  ->orWhere('Telefono', 'like', "%$search%");
-            });
-        }
-        if ($request->filled('genero')) {
-            $query->where('genero', $request->genero);
-        }
-        if ($request->filled('localidad')) {
-            $query->where('direccion', 'like', "%{$request->localidad}%");
-        }
-        if ($request->filled('tipo')) {
-            $query->where('Tipo_De_Socio', 'like', "%{$request->tipo}%");
-        }
->>>>>>> bebcba8838fe033255161c5cd7ccb373649decc9
-
-
-<<<<<<< HEAD
-    // AHORROS
+    // Ahorros
     Route::resource('ahorros', AhorroController::class);
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
     Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
-    Route::get('/ahorros', [AhorroController::class, 'index'])->name('ahorros.index');
-=======
-   
->>>>>>> 580ad3c1da54615285b0879c8d6f6ca4b0b072d6
 
-    // API para contar socios por organizacion
+    // API para contar socios
     Route::get('/organizacion/{id}/socios', function ($id) {
         $total = DB::table('tbl_beneficiario')
             ->where('Id_Organizacion', $id)
             ->where('Tipo_De_Socio', 'Socio')
             ->count();
-
         return response()->json(['total_socios' => $total]);
     });
 
-    // API: traer estadísticas de ahorros por organización
     Route::get('/organizacion/{id}/contar-socios', [AhorroController::class, 'contarSocios']);
     Route::get('/api/cajas/{id}/resumen', [AhorroController::class, 'resumen']);
-    // INDICADORES DE GÉNERO
+
+    // Indicadores de género
     Route::resource('genero', IndicadorGeneroController::class);
-<<<<<<< HEAD
 
     // Emprendimientos
     Route::resource('emprendimientos', EmprendimientoController::class);
@@ -214,28 +129,14 @@ Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf']
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
 
-    // AJAX: Ubicación
+    // AJAX ubicación
     Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
     Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
-// AJAX: Coordenadas del mapa
+
+    // API: coordenadas del mapa
     Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
-//
 });
 
-// Vista de prueba
+// Vistas auxiliares
 Route::get('/prueba', fn () => view('prueba'));
-// Coordenadas del mapa
 Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
-
-<<<<<<< HEAD
-
-=======
-});
->>>>>>> bebcba8838fe033255161c5cd7ccb373649decc9
-=======
-// RUTAS DE AHORROS DEBEN IR DENTRO DEL GRUPO DE MIDDLEWARE
-// ...existing code...
-    Route::resource('ahorros', AhorroController::class);
-    Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
-    Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
->>>>>>> 580ad3c1da54615285b0879c8d6f6ca4b0b072d6

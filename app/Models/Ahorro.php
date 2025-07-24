@@ -12,8 +12,10 @@ class Ahorro extends Model
     protected $table = 'tbl_ahorros';
 
     protected $fillable = [
-<<<<<<< HEAD
         'Id_Organizacion',
+        'beneficiario_id',
+        'monto',
+        'fecha',
         'nombre_caja_rural',
         'socios_no',
         'socios_ahorros',
@@ -30,32 +32,15 @@ class Ahorro extends Model
         'total_no',
         'total_ahorros',
         'total_promedio',
-        'beneficiario_id',
-        'monto',
-        'fecha',
-=======
-        'id_organizacion',
-        'id_beneficiario',
-        'monto_ahorrado',
->>>>>>> 580ad3c1da54615285b0879c8d6f6ca4b0b072d6
     ];
 
     public function organizacion()
     {
-<<<<<<< HEAD
-        return $this->belongsTo(Organizacion::class, 'Id_Organizacion');
-    }
-    public function beneficiario()
-{
-    return $this->belongsTo(Beneficiario::class, 'beneficiario_id', 'Id_Beneficiario');
-}
-=======
-        return $this->belongsTo(Organizacion::class, 'id_organizacion', 'Id_Organizacion');
+        return $this->belongsTo(Organizacion::class, 'Id_Organizacion', 'Id_Organizacion');
     }
 
     public function beneficiario()
     {
-        return $this->belongsTo(Socio::class, 'id_beneficiario', 'Id_Beneficiario');
+        return $this->belongsTo(Beneficiario::class, 'beneficiario_id', 'Id_Beneficiario');
     }
->>>>>>> 580ad3c1da54615285b0879c8d6f6ca4b0b072d6
 }
