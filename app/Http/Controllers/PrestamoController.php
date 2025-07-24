@@ -12,12 +12,27 @@ class PrestamoController extends Controller
 {
     public function create()
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear créditos.');
+        }
         $organizaciones = Organizacion::all();
         return view('prestamos.crear', compact('organizaciones'));
     }
 
     public function index()
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar créditos.');
+        }
+        $objeto = \App\Models\Objeto::where('Objeto', 'Créditos')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario ingresó a la gestión de créditos'
+            );
+        }
         $prestamos = Prestamo::with('organizacion')->get();
 
         $prestamosPorMes = Prestamo::select(
@@ -56,7 +71,9 @@ class PrestamoController extends Controller
 
     public function reportes()
     {
-        // Si usas esta función para otra vista independiente, puedes definirlo igual:
+        if (!auth()->user() || !auth()->user()->tienePermiso('Reportes', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar reportes.');
+        }
         $prestamosPorMes = Prestamo::select(
             DB::raw('YEAR(fecha_solicitud) as anio'),
             DB::raw('MONTH(fecha_solicitud) as mes'),
@@ -92,12 +109,18 @@ class PrestamoController extends Controller
 
     public function pendientes()
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar créditos.');
+        }
         $prestamos = Prestamo::where('estado', 'pendiente')->get();
         return view('prestamos.pending', compact('prestamos'));
     }
 
     public function aprobar($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para aprobar créditos.');
+        }
         $prestamo = Prestamo::findOrFail($id);
         $prestamo->estado = 'aprobado';
         $prestamo->save();
@@ -107,6 +130,9 @@ class PrestamoController extends Controller
 
     public function rechazar($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para rechazar créditos.');
+        }
         $prestamo = Prestamo::findOrFail($id);
         $prestamo->estado = 'rechazado';
         $prestamo->save();
@@ -116,6 +142,9 @@ class PrestamoController extends Controller
 
     public function desembolsar($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para desembolsar créditos.');
+        }
         $prestamo = Prestamo::findOrFail($id);
 
         if ($prestamo->estado !== 'aprobado') {
@@ -137,6 +166,9 @@ class PrestamoController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear créditos.');
+        }
         $validated = $request->validate([
             'socio_id' => 'required|exists:tbl_organizacion,Id_Organizacion',
             'nombre_caja_rural' => 'required|string|max:255',

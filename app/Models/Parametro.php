@@ -12,4 +12,9 @@ class Parametro extends Model
     protected $primaryKey = 'Id_Parametro';
 
     protected $fillable = ['Parametro', 'Valor'];
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'Id_Usuario', 'Id_Usuario');
+    }
 }
