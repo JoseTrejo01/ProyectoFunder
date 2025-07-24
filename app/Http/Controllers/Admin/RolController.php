@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
 use App\Models\Rol;
+use Illuminate\Support\Facades\Auth;
+
 
 class RolController extends Controller
 {
@@ -90,9 +93,16 @@ public function destroy($id)
         return view('errors.403', ['mensaje' => 'No tiene permiso para eliminar roles']);
     }
     $rol = Rol::findOrFail($id);
+<<<<<<< HEAD
     $rol->Estado = 'INACTIVO';
     $rol->save();
     // Registrar en bitácora la inactivación de rol
+=======
+    // Quitar el rol a los usuarios relacionados (poner en null)
+    \App\Models\User::where('Id_Rol', $rol->Id_Rol)->update(['Id_Rol' => null]);
+    $rol->delete();
+    // Registrar en bitácora la eliminación de rol
+>>>>>>> ed6dbce2cb744c0750bb03a701d7e8d1c813c357
     $objeto = \App\Models\Objeto::where('Objeto', 'Roles')->first();
     if ($objeto && \Auth::check()) {
         EVENT_BITACORA(

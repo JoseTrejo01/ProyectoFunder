@@ -328,15 +328,38 @@ class SocioController extends Controller
                     ->where('Tipo_Cargo', 'Secretario(a)')
                     ->where('genero', 'F')
                     ->exists();
-                $caja->vocal1 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                // Vocal I
+                $vocal1_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'M')
                     ->exists();
-                $caja->vocal2 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                $vocal1_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal1 = $vocal1_h && $vocal1_m ? 'H/M' : ($vocal1_h ? 'H' : ($vocal1_m ? 'M' : ''));
+
+                // Vocal II
+                $vocal2_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'M')
                     ->exists();
-                $caja->vocal3 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                $vocal2_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal2 = $vocal2_h && $vocal2_m ? 'H/M' : ($vocal2_h ? 'H' : ($vocal2_m ? 'M' : ''));
+
+                // Vocal III
+                $vocal3_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'M')
                     ->exists();
+                $vocal3_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal3 = $vocal3_h && $vocal3_m ? 'H/M' : ($vocal3_h ? 'H' : ($vocal3_m ? 'M' : ''));
                 return $caja;
             });
         return view('socios.cargos', compact('cajas'));

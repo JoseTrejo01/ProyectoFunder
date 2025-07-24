@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Objeto;
 use Illuminate\Support\Facades\Auth;
+<<<<<<< HEAD
 
+=======
+>>>>>>> ed6dbce2cb744c0750bb03a701d7e8d1c813c357
 
 class ObjetoController extends Controller
 {
