@@ -101,3 +101,4 @@ Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembol
 
 
 Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
+Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
