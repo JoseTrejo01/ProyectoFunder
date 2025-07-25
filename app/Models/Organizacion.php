@@ -37,9 +37,16 @@ class Organizacion extends Model
     {
         return $this->municipio() ? $this->municipio()->departamento : null;
     }
+<<<<<<< HEAD
     public function socios()
 {
     return $this->hasMany(Socio::class, 'Id_Organizacion', 'Id_Organizacion');
 }
 
+=======
+
+    public function beneficiarios() {
+    return $this->hasMany(Beneficiario::class, 'Id_Organizacion');
+}
+>>>>>>> bebcba8838fe033255161c5cd7ccb373649decc9
 }
