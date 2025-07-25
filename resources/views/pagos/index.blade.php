@@ -7,16 +7,16 @@
 @stop
 
 @section('content')
-    <a href="{{ route('pagos.create', $prestamo->id) }}" class="btn btn-primary mb-3">Registrar Pago</a>
-
     @if($prestamo->pagos->count())
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>ID Pago</th>
-                    <th>Fecha</th>
-                    <th>Monto Pagado</th>
+                    <th>Fecha Programada</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
                     <th>Observaciones</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,7 +25,28 @@
                         <td>{{ $pago->id }}</td>
                         <td>{{ \Carbon\Carbon::parse($pago->fecha_pago)->format('d/m/Y') }}</td>
                         <td>{{ number_format($pago->monto_pagado, 2) }}</td>
+                        <td>
+                            @if ($pago->estado === 'pagado')
+                                <span class="badge bg-success">Pagado</span>
+                            @elseif ($pago->estado === 'pendiente')
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            @elseif ($pago->estado === 'atrasado')
+                                <span class="badge bg-danger">Atrasado</span>
+                            @else
+                                <span class="badge bg-secondary">{{ ucfirst($pago->estado) }}</span>
+                            @endif
+                        </td>
                         <td>{{ $pago->observaciones }}</td>
+                        <td>
+                            @if ($pago->estado !== 'pagado')
+                                <form action="{{ route('pagos.marcarPagado', $pago->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-primary">Marcar como pagado</button>
+                                </form>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
