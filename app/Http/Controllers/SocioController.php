@@ -365,5 +365,20 @@ class SocioController extends Controller
         return view('socios.cargos', compact('cajas'));
     }
 
+    // Obtener socios de una organización por ID (para carga dinámica)
+public function getSociosPorCaja($id)
+{
+    try {
+        $socios = Socio::where('Id_Organizacion', $id)
+                       ->where('estado', 1)
+                       ->get(['Id_Beneficiario', 'Nombre_Beneficiario']);
+
+        return response()->json($socios);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al cargar socios'], 500);
+    }
+}
+
+
 }
 

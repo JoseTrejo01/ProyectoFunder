@@ -16,30 +16,22 @@
         <thead>
             <tr>
                 <th>Caja Rural</th>
-                <th>Socios<br><small>(Cantidad / Total / Promedio)</small></th>
-                <th>No Socios Adultos<br><small>(Cantidad / Total / Promedio)</small></th>
-                <th>No Socios Jóvenes<br><small>(Cantidad / Total / Promedio)</small></th>
+                <th>Socios (No / Ahorros / Promedio)</th>
+                <th>Adultos</th>
+                <th>Niños</th>
+                <th>Subtotal No Socios</th>
+                <th>Total</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($agrupados as $caja => $datos)
+            @foreach($ahorros as $a)
                 <tr>
-                    <td>{{ $caja }}</td>
-                    <td>
-                        {{ $datos['socios']['cantidad'] }}<br>
-                        L {{ number_format($datos['socios']['total'], 2) }}<br>
-                        L {{ number_format($datos['socios']['promedio'], 2) }}
-                    </td>
-                    <td>
-                        {{ $datos['no_socios_adultos']['cantidad'] }}<br>
-                        L {{ number_format($datos['no_socios_adultos']['total'], 2) }}<br>
-                        L {{ number_format($datos['no_socios_adultos']['promedio'], 2) }}
-                    </td>
-                    <td>
-                        {{ $datos['no_socios_jovenes']['cantidad'] }}<br>
-                        L {{ number_format($datos['no_socios_jovenes']['total'], 2) }}<br>
-                        L {{ number_format($datos['no_socios_jovenes']['promedio'], 2) }}
-                    </td>
+                    <td>{{ $a->nombre_caja_rural }}</td>
+                    <td>{{ $a->socios_no }} / L {{ number_format($a->socios_ahorros, 2) }} / L {{ number_format($a->socios_promedio, 2) }}</td>
+                    <td>{{ $a->adultos_no }} / L {{ number_format($a->adultos_ahorros, 2) }} / L {{ number_format($a->adultos_promedio, 2) }}</td>
+                    <td>{{ $a->ninos_no }} / L {{ number_format($a->ninos_ahorros, 2) }} / L {{ number_format($a->ninos_promedio, 2) }}</td>
+                    <td>{{ $a->subtotal_no_socios_no }} / L {{ number_format($a->subtotal_no_socios_ahorros, 2) }} / L {{ number_format($a->subtotal_no_socios_promedio, 2) }}</td>
+                    <td>{{ $a->total_no }} / L {{ number_format($a->total_ahorros, 2) }} / L {{ number_format($a->total_promedio, 2) }}</td>
                 </tr>
             @endforeach
         </tbody>

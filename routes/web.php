@@ -149,6 +149,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
     Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
     Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
+    Route::get('/organizacion/{id}/contar-socios', [AhorroController::class, 'contarSocios']);
+
 });
 
 // Utilidades
