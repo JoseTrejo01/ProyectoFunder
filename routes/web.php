@@ -120,14 +120,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/socios/export', [ExportSociosController::class, 'export'])->name('socios.export');
     Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
 
-    Route::resource('ahorros', AhorroController::class);
-    Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
-    Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
-    Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
-        'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
-    ]));
-    Route::get('/organizacion/{id}/contar-socios', [AhorroController::class, 'contarSocios']);
-    Route::get('/api/cajas/{id}/resumen', [AhorroController::class, 'resumen']);
 
     Route::resource('genero', IndicadorGeneroController::class);
     Route::resource('emprendimientos', EmprendimientoController::class);
