@@ -182,11 +182,29 @@
           <div class="row">
               <div class="col">
                   <label for="coordenada_y">Latitud</label>
-                  <input type="text" name="coordenada_y" id="coordenada_y" class="form-control" readonly required>
+                  <input
+                      type="number"
+                      step="0.00000001"
+                      min="-90"
+                      max="90"
+                      name="coordenada_y"
+                      id="coordenada_y"
+                      class="form-control"
+                      required
+                  >
               </div>
               <div class="col">
                   <label for="coordenada_x">Longitud</label>
-                  <input type="text" name="coordenada_x" id="coordenada_x" class="form-control" readonly required>
+                  <input
+                      type="number"
+                      step="0.00000001"
+                      min="-180"
+                      max="180"
+                      name="coordenada_x"
+                      id="coordenada_x"
+                      class="form-control"
+                      required
+                  >
               </div>
           </div>
         </div>
@@ -199,29 +217,53 @@
   </div>
 </div>
 
-
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@8"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
     const municipios = @json($municipiosPorDepto);
     const coordenadasPorMunicipio = @json($coordenadas);
-    document.getElementById('departamento').addEventListener('change', function() {
-    const deptoId = this.value;
-    const municipioSelect = document.getElementById('municipio');
-    municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
-    if (municipios[deptoId]) {
-        municipios[deptoId].forEach(muni => {
-            const option = document.createElement('option');
-            option.value = muni.Id_Municipio;
-            option.textContent = muni.Nombre_Municipio;
-            municipioSelect.appendChild(option);
+
+    // Manejador para cambio de departamento
+    document.getElementById('departamento').addEventListener('change', function () {
+        const deptoId = this.value;
+        const municipioSelect = document.getElementById('municipio');
+        municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
+        if (municipios[deptoId]) {
+            municipios[deptoId].forEach(muni => {
+                const option = document.createElement('option');
+                option.value = muni.Id_Municipio;
+                option.textContent = muni.Nombre_Municipio;
+                municipioSelect.appendChild(option);
+            });
+        }
+    });
+
+    // Inactivación
+    function confirmarInactivacion(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¡Esta acción inactivará la organización!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, inactivar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                e.target.closest('form').submit();
+            }
         });
+        return false;
     }
-});
-    $(document).ready(function() {
+
+    // DataTable
+    $(document).ready(function () {
         $('#tabla-organizaciones').DataTable({
             language: {
                 lengthMenu: 'Mostrar _MENU_ registros',
@@ -242,52 +284,64 @@
         });
     });
 
-    function confirmarInactivacion(e) {
-        e.preventDefault();
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: '¡Esta acción inactivará la organización!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, inactivar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.value) {
-                e.target.closest('form').submit();
-            }
-        });
-        return false;
-    }
-
-    // Mapa centrado en Honduras
-    const map = L.map('map', {
-        center: [14.634915, -87.849243],  // Coordenadas más representativas de Honduras
-        zoom: 8,
-        zoomControl: true,
-        scrollWheelZoom: true,
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-    }).addTo(map);
-
+    // --- Mapa dentro del modal ---
+    let map;
     let marker;
 
-    map.on('click', function (e) {
-        if (marker) map.removeLayer(marker);
-        marker = L.marker(e.latlng).addTo(map);
-        document.getElementById('coordenada_y').value = e.latlng.lat.toFixed(8);
-        document.getElementById('coordenada_x').value = e.latlng.lng.toFixed(8);
-    });
-    // Detectar apertura del modal y redibujar el mapa
-$('#modalRegistrarOrg').on('shown.bs.modal', function () {
-    setTimeout(() => {
-        map.invalidateSize();
-    }, 200); // pequeño retardo para asegurar que el modal esté visible
-});
+    $('#modalRegistrarOrg').on('shown.bs.modal', function () {
+        // Inicializar solo si no existe
+        if (!map) {
+            map = L.map('map', {
+                center: [14.634915, -87.849243],
+                zoom: 8,
+                zoomControl: true,
+                scrollWheelZoom: true,
+            });
 
+            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 19,
+            }).addTo(map);
+
+            map.on('click', function (e) {
+                const lat = e.latlng.lat.toFixed(8);
+                const lng = e.latlng.lng.toFixed(8);
+                document.getElementById('coordenada_y').value = lat;
+                document.getElementById('coordenada_x').value = lng;
+                actualizarMarcador(lat, lng);
+            });
+        }
+
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 200);
+    });
+
+    function actualizarMarcador(lat, lng) {
+        const nuevaPos = L.latLng(lat, lng);
+        if (marker) map.removeLayer(marker);
+        marker = L.marker(nuevaPos).addTo(map);
+        map.setView(nuevaPos, 14);
+    }
+
+    function esCoordenadaValida(lat, lng) {
+        return (
+            !isNaN(lat) && !isNaN(lng) &&
+            lat >= -90 && lat <= 90 &&
+            lng >= -180 && lng <= 180
+        );
+    }
+
+    document.getElementById('coordenada_y').addEventListener('input', function () {
+        const lat = parseFloat(this.value);
+        const lng = parseFloat(document.getElementById('coordenada_x').value);
+        if (esCoordenadaValida(lat, lng)) actualizarMarcador(lat, lng);
+    });
+
+    document.getElementById('coordenada_x').addEventListener('input', function () {
+        const lng = parseFloat(this.value);
+        const lat = parseFloat(document.getElementById('coordenada_y').value);
+        if (esCoordenadaValida(lat, lng)) actualizarMarcador(lat, lng);
+    });
 </script>
 @endsection
