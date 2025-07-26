@@ -57,7 +57,6 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('pagos.create', $prestamo->id) }}" class="btn btn-primary btn-sm mb-1">Registrar Pago</a><br>
                                 <a href="{{ route('pagos.index', $prestamo->id) }}" class="btn btn-secondary btn-sm">Ver Pagos</a>
                             </td>
                         </tr>

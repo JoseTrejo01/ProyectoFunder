@@ -146,3 +146,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Utilidades
 Route::get('/prueba', fn () => view('prueba'));
 Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
+Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
+Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
+Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
+Route::get('/organizacion/{id}/nombre', function ($id) {
+    $organizacion = DB::table('tbl_organizaciones')
+        ->where('Id_Organizacion', $id)
+        ->first();
+
+    return response()->json([
+        'nombre' => $organizacion->Nombre_Organizacion ?? ''
+    ]);
+});

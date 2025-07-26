@@ -74,4 +74,13 @@ class PagoController extends Controller
 
         return redirect()->route('pagos.index', $prestamoId)->with('success', 'Pago registrado correctamente.');
     }
+    public function marcarPagado($id)
+{
+    $pago = Pago::findOrFail($id);
+    $pago->estado = 'pagado';
+    $pago->fecha_pago_real = now(); // Si quieres registrar la fecha real del pago
+    $pago->save();
+
+    return back()->with('success', 'Pago marcado como pagado.');
+}
 }
