@@ -102,3 +102,13 @@ Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembol
 
 Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
 Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
+Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
+Route::get('/organizacion/{id}/nombre', function ($id) {
+    $organizacion = DB::table('tbl_organizaciones')
+        ->where('Id_Organizacion', $id)
+        ->first();
+
+    return response()->json([
+        'nombre' => $organizacion->Nombre_Organizacion ?? ''
+    ]);
+});

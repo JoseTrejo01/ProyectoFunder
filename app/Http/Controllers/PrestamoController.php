@@ -15,7 +15,11 @@ class PrestamoController extends Controller
  public function create()
 {
     $organizaciones = Organizacion::all();
-     $beneficiarios = Beneficiario::select('id_Beneficiario', 'Nombre_Beneficiario', 'actividad_economica')->get();
+   $beneficiarios = DB::table('tbl_beneficiario as b')
+    ->join('tbl_actividad_economica as a', 'b.Id_Beneficiario', '=', 'a.Id_Beneficiario')
+    ->select('b.Id_Beneficiario', 'b.Nombre_Beneficiario', 'a.Rubro as actividad_economica')
+    ->get();
+
 
     // Define las opciones para el porcentaje de mora (puedes modificar valores)
     $porcentajesMora = [
@@ -112,6 +116,15 @@ class PrestamoController extends Controller
         ));
     }
 
+    public function obtenerActividades($id)
+{
+    $actividades = DB::table('tbl_actividad_economica')
+        ->where('Id_Beneficiario', $id)
+        ->pluck('Rubro', 'Id_Actividad'); // Retorna ['id' => 'rubro']
+
+    return response()->json($actividades);
+}
+
     public function pendientes()
     {
         $prestamos = Prestamo::where('estado', 'pendiente')->get();
@@ -174,6 +187,7 @@ public function store(Request $request)
         'reservas' => 'nullable|numeric',
         'estado' => 'nullable|string',
         'observaciones' => 'nullable|string',
+        'nombre_caja_rural' => 'required|string|max:255',
     ]);
 
     // Cálculo de puntaje automático
