@@ -409,8 +409,19 @@ return [
     ],
     [
         'text' => 'Reportes',
-        'url'  => 'reportes',
         'icon' => 'fas fa-chart-bar',
+        'submenu' => [
+            [
+                'text' => 'Cajas rurales y distribución de socios',
+                'url'  => 'admin/reportes/cajas',
+                'icon' => 'fas fa-boxes',
+            ],
+            [
+                'text' => 'Cargos según género',
+                'url'  => 'admin/reportes/cargos',
+                'icon' => 'fas fa-venus-mars',
+            ],
+        ],
     ],
     [
         'text' => 'Auditoría',

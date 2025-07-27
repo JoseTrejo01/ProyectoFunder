@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ParametroController;
 use App\Http\Controllers\Admin\DatabaseController;
 use App\Http\Controllers\Admin\RolController;
 use App\Http\Controllers\Admin\ObjetoController;
+use App\Http\Controllers\ReporteController;
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SocioController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\ExportSociosPdfController;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
@@ -99,7 +101,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/{id}', [ObjetoController::class, 'destroy'])->name('objetos.destroy');
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
         });
+
+
+    Route::prefix('reportes')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ReporteController::class, 'index'])->name('admin.reportes.index');
+        // Nuevos reportes individuales
+        Route::get('/cajas', [\App\Http\Controllers\ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
+        Route::get('/cajas/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCajas'])->name('admin.reportes.cajas.export');
+        Route::get('/cargos', [\App\Http\Controllers\ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
+        Route::get('/cargos/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
     });
+});
+
 
     Route::prefix('parametros')->group(function () {
         Route::get('/', [ParametroController::class, 'index'])->name('parametros.index');
