@@ -37,29 +37,77 @@ class ExportReportesController extends Controller
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        // Encabezados
+        // Encabezados agrupados (dos filas)
+        // Primera fila
         $sheet->setCellValue('A1', 'Departamento');
+        $sheet->mergeCells('A1:A2');
         $sheet->setCellValue('B1', 'No. de Cajas Rurales');
+        $sheet->mergeCells('B1:B2');
         $sheet->setCellValue('C1', 'Municipios');
+        $sheet->mergeCells('C1:C2');
         $sheet->setCellValue('D1', 'Comunidades');
-        $sheet->setCellValue('E1', 'Socios H');
-        $sheet->setCellValue('F1', 'Socios M');
-        $sheet->setCellValue('G1', 'Socios Adultos');
-        $sheet->setCellValue('H1', 'Socios Niños');
-        $sheet->setCellValue('I1', 'Socios');
-        $sheet->setCellValue('J1', 'No Socios');
-        $fila = 2;
+        $sheet->mergeCells('D1:D2');
+        $sheet->setCellValue('E1', 'Socios');
+        $sheet->mergeCells('E1:F1');
+        $sheet->setCellValue('G1', 'Particulares');
+        $sheet->mergeCells('G1:H1');
+        $sheet->setCellValue('I1', 'Beneficiarios');
+        $sheet->mergeCells('I1:K1');
+        // Segunda fila
+        $sheet->setCellValue('E2', 'H');
+        $sheet->setCellValue('F2', 'M');
+        $sheet->setCellValue('G2', 'Adultos');
+        $sheet->setCellValue('H2', 'Niños');
+        $sheet->setCellValue('I2', 'Socios');
+        $sheet->setCellValue('J2', 'No Socios');
+        $sheet->setCellValue('K2', 'Total');
+        // Estilo encabezados agrupados
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4F81BD']
+            ],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000']
+                ]
+            ]
+        ];
+        $sheet->getStyle('A1:K2')->applyFromArray($headerStyle);
+        // Datos
+        $fila = 3;
         foreach ($resumen as $row) {
             $sheet->setCellValue("A{$fila}", $row->departamento);
-            $sheet->setCellValue("B{$fila}", $row->cajas);
-            $sheet->setCellValue("C{$fila}", $row->municipios);
-            $sheet->setCellValue("D{$fila}", $row->comunidades);
-            $sheet->setCellValue("E{$fila}", $row->socios_h);
-            $sheet->setCellValue("F{$fila}", $row->socios_m);
-            $sheet->setCellValue("G{$fila}", $row->socios_adultos);
-            $sheet->setCellValue("H{$fila}", $row->socios_ninos);
-            $sheet->setCellValue("I{$fila}", $row->socios);
-            $sheet->setCellValue("J{$fila}", $row->no_socios);
+            $sheet->setCellValue("B{$fila}", $row->cajas ?? '-');
+            $sheet->setCellValue("C{$fila}", $row->municipios ?? '-');
+            $sheet->setCellValue("D{$fila}", $row->comunidades ?? '-');
+            $sheet->setCellValue("E{$fila}", $row->socios_h ?? '-');
+            $sheet->setCellValue("F{$fila}", $row->socios_m ?? '-');
+            $sheet->setCellValue("G{$fila}", $row->socios_adultos ?? '-');
+            $sheet->setCellValue("H{$fila}", $row->socios_ninos ?? '-');
+            $sheet->setCellValue("I{$fila}", $row->socios ?? '-');
+            $sheet->setCellValue("J{$fila}", $row->no_socios ?? '-');
+            $sheet->setCellValue("K{$fila}", ($row->socios + $row->no_socios) ?? '-');
             $fila++;
+        }
+        // Bordes y centrado para datos
+        $lastRow = $fila - 1;
+        $sheet->getStyle("A3:K$lastRow")->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000']
+                ]
+            ],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        ]);
+        // Ajustar ancho de columnas
+        foreach (range('A', 'K') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
         }
         $writer = new Xlsx($spreadsheet);
         $filename = "reporte_cajas.xlsx";
@@ -113,25 +161,112 @@ class ExportReportesController extends Controller
         }
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        // Encabezados agrupados (dos filas)
+        $cargosList = [
+            'Presidente Consejo Admon',
+            'Secretario Consejo Admon',
+            'Tesorero Consejo Admon',
+            'Presidente Comité de Crédito',
+            'Presidente Consejo Vigilancia',
+        ];
+        // Primera fila de encabezados
         $sheet->setCellValue('A1', 'Departamento');
         $col = 'B';
-        foreach ($cargos as $cargo) {
-            $sheet->setCellValue($col.'1', $cargo.' H');
-            $col++;
-            $sheet->setCellValue($col.'1', $cargo.' M');
-            $col++;
+        foreach ($cargosList as $cargo) {
+            $sheet->setCellValue($col.'1', $cargo);
+            $sheet->mergeCells($col.'1:'.chr(ord($col)+1).'1');
+            $col = chr(ord($col)+2);
         }
-        $fila = 2;
+        // Segunda fila de encabezados
+        $sheet->setCellValue('A2', '');
+        $col = 'B';
+        foreach ($cargosList as $cargo) {
+            $sheet->setCellValue($col.'2', 'H');
+            $col = chr(ord($col)+1);
+            $sheet->setCellValue($col.'2', 'M');
+            $col = chr(ord($col)+1);
+        }
+        // Estilo encabezados
+        $lastCol = chr(ord('A') + count($cargosList)*2);
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4F81BD']
+            ],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000']
+                ]
+            ]
+        ];
+        $sheet->getStyle("A1:{$lastCol}2")->applyFromArray($headerStyle);
+        // Datos
+        $fila = 3;
         foreach ($cargosGeneroResumen as $dep => $cargosDep) {
             $sheet->setCellValue('A'.$fila, $dep);
             $col = 'B';
-            foreach ($cargos as $cargo) {
-                $sheet->setCellValue($col.$fila, $cargosDep[$cargo]['M']);
-                $col++;
-                $sheet->setCellValue($col.$fila, $cargosDep[$cargo]['F']);
-                $col++;
+            foreach ($cargosList as $cargo) {
+                $sheet->setCellValue($col.$fila, $cargosDep[$cargo]['M'] ?? 0);
+                $col = chr(ord($col)+1);
+                $sheet->setCellValue($col.$fila, $cargosDep[$cargo]['F'] ?? 0);
+                $col = chr(ord($col)+1);
             }
             $fila++;
+        }
+        // Fila de totales
+        $totales = [];
+        $porcentajes = [];
+        $totalGeneral = 0;
+        foreach ($cargosList as $cargo) {
+            $totales[$cargo]['M'] = 0;
+            $totales[$cargo]['F'] = 0;
+            foreach ($cargosGeneroResumen as $dep => $cargosDep) {
+                $totales[$cargo]['M'] += $cargosDep[$cargo]['M'] ?? 0;
+                $totales[$cargo]['F'] += $cargosDep[$cargo]['F'] ?? 0;
+            }
+            $totalGeneral += $totales[$cargo]['M'] + $totales[$cargo]['F'];
+        }
+        foreach ($cargosList as $cargo) {
+            $totalCargo = $totales[$cargo]['M'] + $totales[$cargo]['F'];
+            $porcentajes[$cargo]['M'] = $totalCargo > 0 ? round(($totales[$cargo]['M'] / $totalCargo) * 100, 1) : 0;
+            $porcentajes[$cargo]['F'] = $totalCargo > 0 ? round(($totales[$cargo]['F'] / $totalCargo) * 100, 1) : 0;
+        }
+        // Totales
+        $sheet->setCellValue('A'.$fila, 'Total');
+        $col = 'B';
+        foreach ($cargosList as $cargo) {
+            $sheet->setCellValue($col.$fila, $totales[$cargo]['M']);
+            $col = chr(ord($col)+1);
+            $sheet->setCellValue($col.$fila, $totales[$cargo]['F']);
+            $col = chr(ord($col)+1);
+        }
+        $fila++;
+        // Porcentajes
+        $sheet->setCellValue('A'.$fila, '% Participación');
+        $col = 'B';
+        foreach ($cargosList as $cargo) {
+            $sheet->setCellValue($col.$fila, $porcentajes[$cargo]['M'].'%');
+            $col = chr(ord($col)+1);
+            $sheet->setCellValue($col.$fila, $porcentajes[$cargo]['F'].'%');
+            $col = chr(ord($col)+1);
+        }
+        // Bordes y centrado para datos
+        $lastRow = $fila;
+        $sheet->getStyle("A3:{$lastCol}{$lastRow}")->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000']
+                ]
+            ],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        ]);
+        // Ajustar ancho de columnas
+        foreach (range('A', $lastCol) as $colLet) {
+            $sheet->getColumnDimension($colLet)->setAutoSize(true);
         }
         $writer = new Xlsx($spreadsheet);
         $filename = "reporte_cargos.xlsx";
