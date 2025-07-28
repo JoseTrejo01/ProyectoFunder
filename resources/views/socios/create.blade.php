@@ -270,18 +270,10 @@
                 <label>Tipo de Cargo</label>
                      <select name="Tipo_Cargo" class="form-control">
                     <option value="">Seleccione</option>
-        <option value="Presidente(a)">Presidente(a)</option>
-        <option value="Vicepresidente(a)">Vicepresidente(a)</option>
-        <option value="Tesorero(a)">Tesorero(a)</option>
-        <option value="Secretario(a)">Secretario(a)</option>
-        <option value="Vocal I">Vocal I</option>
-        <option value="Vocal II">Vocal II</option>
-        <option value="Vocal III">Vocal III</option>
-        <option value="Comité de Crédito y Cobros">Comité de Crédito y Cobros</option>
-        <option value="Junta de Vigilancia Presidente(a)">Junta de Vigilancia Presidente(a)</option>
-        <option value="Junta de Vigilancia Secretario(a)">Junta de Vigilancia Secretario(a)</option>
-        <option value="Junta de Vigilancia Vocal">Junta de Vigilancia Vocal</option>
-    </select>
+                    @foreach($cargosDirectivos as $cargo)
+                      <option value="{{ $cargo }}">{{ $cargo }}</option>
+                    @endforeach
+                     </select>
 </div>
 
 <div class="form-group" id="categoria_group" style="display: none;">

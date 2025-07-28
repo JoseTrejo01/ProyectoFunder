@@ -70,7 +70,22 @@ class SocioController extends Controller
             );
         }
 
-        return view('socios.index', compact('socios'));
+        // Lista de cargos directivos válidos para selects
+        $cargosDirectivos = [
+            'Presidente(a)',
+            'vicepresidente (a)',
+            'Tesorero (a)',
+            'Secretario (a)',
+            'Vocal I',
+            'Vocal II',
+            'Vocal III',
+            'Presidente Consejo Admon',
+            'Secretario Consejo Admon',
+            'Tesorero Consejo Admon',
+            'Presidente Comité de Crédito',
+            'Presidente Consejo Vigilancia',
+        ];
+        return view('socios.index', compact('socios', 'cargosDirectivos'));
     }
 
     // mostrar formulario de creación
@@ -80,7 +95,22 @@ class SocioController extends Controller
             abort(403, 'No tienes permiso para crear socios/clientes.');
         }
         $organizaciones = \App\Models\Organizacion::with(['aldea.municipio.departamento'])->get();
-        return view('socios.create', compact('organizaciones'));
+        // Lista de cargos directivos válidos para selects
+        $cargosDirectivos = [
+            'Presidente(a)',
+            'vicepresidente (a)',
+            'Tesorero (a)',
+            'Secretario (a)',
+            'Vocal I',
+            'Vocal II',
+            'Vocal III',
+            'Presidente Consejo Admon',
+            'Secretario Consejo Admon',
+            'Tesorero Consejo Admon',
+            'Presidente Comité de Crédito',
+            'Presidente Consejo Vigilancia',
+        ];
+        return view('socios.create', compact('organizaciones', 'cargosDirectivos'));
     }
 
     // guardar nuevo socio
@@ -328,18 +358,64 @@ class SocioController extends Controller
                     ->where('Tipo_Cargo', 'Secretario(a)')
                     ->where('genero', 'F')
                     ->exists();
-                $caja->vocal1 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                // Vocal I
+                $vocal1_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'M')
                     ->exists();
-                $caja->vocal2 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                $vocal1_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal1 = $vocal1_h && $vocal1_m ? 'H/M' : ($vocal1_h ? 'H' : ($vocal1_m ? 'M' : ''));
+
+                // Vocal II
+                $vocal2_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'M')
                     ->exists();
-                $caja->vocal3 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                $vocal2_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal2 = $vocal2_h && $vocal2_m ? 'H/M' : ($vocal2_h ? 'H' : ($vocal2_m ? 'M' : ''));
+
+                // Vocal III
+                $vocal3_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'M')
                     ->exists();
+                $vocal3_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal3 = $vocal3_h && $vocal3_m ? 'H/M' : ($vocal3_h ? 'H' : ($vocal3_m ? 'M' : ''));
                 return $caja;
             });
-        return view('socios.cargos', compact('cajas'));
+        // Cálculo de participación por cargo y género
+        $participacion = [
+            'presidente' => [
+                'H' => Socio::where('Tipo_Cargo', 'Presidente(a)')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Presidente(a)')->where('genero', 'F')->count(),
+            ],
+            'secretario' => [
+                'H' => Socio::where('Tipo_Cargo', 'Secretario(a)')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Secretario(a)')->where('genero', 'F')->count(),
+            ],
+            'tesorero' => [
+                'H' => Socio::where('Tipo_Cargo', 'Tesorero(a)')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Tesorero(a)')->where('genero', 'F')->count(),
+            ],
+            'presidente_credito' => [
+                'H' => Socio::where('Tipo_Cargo', 'Presidente Comité de Crédito')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Presidente Comité de Crédito')->where('genero', 'F')->count(),
+            ],
+            'presidente_vigilancia' => [
+                'H' => Socio::where('Tipo_Cargo', 'Presidente Consejo de Vigilancia')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Presidente Consejo de Vigilancia')->where('genero', 'F')->count(),
+            ],
+        ];
+        return view('socios.cargos', compact('cajas', 'participacion'));
     }
 
 }

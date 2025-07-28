@@ -60,9 +60,9 @@
                                 M
                             @endif
                         </td>
-                        <td>{{ $caja->vocal1 ? 'Sí' : '' }}</td>
-                        <td>{{ $caja->vocal2 ? 'Sí' : '' }}</td>
-                        <td>{{ $caja->vocal3 ? 'Sí' : '' }}</td>
+                        <td>{{ $caja->vocal1 }}</td>
+                        <td>{{ $caja->vocal2 }}</td>
+                        <td>{{ $caja->vocal3 }}</td>
                     </tr>
                 @endforeach
             </tbody>

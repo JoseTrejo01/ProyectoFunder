@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 
 namespace App\Http\Controllers;
@@ -168,3 +169,5 @@ class AhorroController extends Controller
         return $pdf->download('reporte_ahorros.pdf');
     }
 }
+=======
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e

@@ -362,17 +362,9 @@
                   <label for="Tipo_Cargo">Tipo de Cargo</label>
                   <select name="Tipo_Cargo" class="form-control">
                     <option value="">Seleccione</option>
-                    <option value="Presidente(a)" {{ $socio->Tipo_Cargo == 'Presidente(a)' ? 'selected' : '' }}>Presidente(a)</option>
-                    <option value="Vicepresidente(a)" {{ $socio->Tipo_Cargo == 'Vicepresidente(a)' ? 'selected' : '' }}>Vicepresidente(a)</option>
-                    <option value="Tesorero(a)" {{ $socio->Tipo_Cargo == 'Tesorero(a)' ? 'selected' : '' }}>Tesorero(a)</option>
-                    <option value="Secretario(a)" {{ $socio->Tipo_Cargo == 'Secretario(a)' ? 'selected' : '' }}>Secretario(a)</option>
-                    <option value="Vocal I" {{ $socio->Tipo_Cargo == 'Vocal I' ? 'selected' : '' }}>Vocal I</option>
-                    <option value="Vocal II" {{ $socio->Tipo_Cargo == 'Vocal II' ? 'selected' : '' }}>Vocal II</option>
-                    <option value="Vocal III" {{ $socio->Tipo_Cargo == 'Vocal III' ? 'selected' : '' }}>Vocal III</option>
-                    <option value="Comité de Crédito y Cobros" {{ $socio->Tipo_Cargo == 'Comité de Crédito y Cobros' ? 'selected' : '' }}>Comité de Crédito y Cobros</option>
-                    <option value="Junta de Vigilancia Presidente(a)" {{ $socio->Tipo_Cargo == 'Junta de Vigilancia Presidente(a)' ? 'selected' : '' }}>Junta de Vigilancia Presidente(a)</option>
-                    <option value="Junta de Vigilancia Secretario(a)" {{ $socio->Tipo_Cargo == 'Junta de Vigilancia Secretario(a)' ? 'selected' : '' }}>Junta de Vigilancia Secretario(a)</option>
-                    <option value="Junta de Vigilancia Vocal" {{ $socio->Tipo_Cargo == 'Junta de Vigilancia Vocal' ? 'selected' : '' }}>Junta de Vigilancia Vocal</option>
+                    @foreach($cargosDirectivos as $cargo)
+                      <option value="{{ $cargo }}" {{ $socio->Tipo_Cargo == $cargo ? 'selected' : '' }}>{{ $cargo }}</option>
+                    @endforeach
                   </select>
                 </div>
               </div>
@@ -411,6 +403,9 @@
 
 @section('js')
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -454,6 +449,7 @@ function agregarActividad(containerId) {
 function eliminarActividad(btn) {
   var row = btn.closest('.actividad-item');
   row.remove();
+<<<<<<< HEAD
 =======
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -535,6 +531,8 @@ function actualizarRubro(select) {
         `;
     }
 >>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
+=======
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
 }
 
 function confirmarEliminacion(e) {
@@ -556,6 +554,4 @@ function confirmarEliminacion(e) {
   return false;
 }
 </script>
-
-
 @endsection

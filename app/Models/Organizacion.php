@@ -4,10 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Socio;
+<<<<<<< HEAD
 use App\Models\Aldea;
 use App\Models\Beneficiario;
 use App\Models\Prestamo;
 use App\Models\Evaluacion;
+=======
+use App\Models\Prestamo;
+use App\Models\Aldea;
+use App\Models\Beneficiario;
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
 
 class Organizacion extends Model
 {
@@ -22,7 +28,17 @@ class Organizacion extends Model
         'Estado_Organizacion',
     ];
 
+<<<<<<< HEAD
     // Relación con Aldea
+=======
+    // Relaciones
+
+    public function prestamos()
+    {
+        return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
+    }
+
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
     public function aldea()
     {
         return $this->belongsTo(Aldea::class, 'Id_Aldea', 'Id_Aldea');
@@ -40,17 +56,24 @@ class Organizacion extends Model
         return $this->municipio() ? $this->municipio()->departamento : null;
     }
 
+<<<<<<< HEAD
     // Relación con Socios
+=======
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
     public function socios()
     {
         return $this->hasMany(Socio::class, 'Id_Organizacion', 'Id_Organizacion');
     }
 
+<<<<<<< HEAD
     // Relación con Beneficiarios
+=======
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
     public function beneficiarios()
     {
         return $this->hasMany(Beneficiario::class, 'Id_Organizacion', 'Id_Organizacion');
     }
+<<<<<<< HEAD
 
     // Relación con Préstamos
     public function prestamos()
@@ -64,3 +87,6 @@ class Organizacion extends Model
         return $this->hasMany(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
     }
 }
+=======
+}
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
