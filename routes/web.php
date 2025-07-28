@@ -147,5 +147,53 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
 });
 
+<<<<<<< HEAD
 // Vista de prueba
 Route::get('/prueba', fn () => view('prueba'));
+=======
+Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
+Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
+Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
+Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
+Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');
+Route::post('/objetos/store', [GestionController::class, 'storeObjeto'])->name('objetos.store');
+Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+
+//rutas de socios 
+Route::resource('socios', App\Http\Controllers\SocioController::class);
+
+// Rutas de préstamos
+Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
+Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
+Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
+Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
+Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
+Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
+Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
+
+//pagos 
+Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
+Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
+Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
+Route::get('/prestamos/{prestamo}/pagos', [PagoController::class, 'index'])->name('pagos.index');
+// Desembolso debe ser POST porque en el formulario usamos method="POST"
+Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
+
+
+
+Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
+Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
+Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
+Route::get('/organizacion/{id}/nombre', function ($id) {
+    $organizacion = DB::table('tbl_organizaciones')
+        ->where('Id_Organizacion', $id)
+        ->first();
+
+    return response()->json([
+        'nombre' => $organizacion->Nombre_Organizacion ?? ''
+    ]);
+});
+>>>>>>> 8b2f113011e4d2c894222a958bc6d03b9fe38cbc

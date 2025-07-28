@@ -13,7 +13,8 @@ class Prestamo extends Model
 
     protected $fillable = [
         'socio_id',
-        'beneficiario_id',  
+        'beneficiario_id',
+        'nombre_caja_rural',  
         'monto_solicitado',
         'plazo_meses',
         'destino',
