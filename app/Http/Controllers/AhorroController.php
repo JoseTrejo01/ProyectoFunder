@@ -4,130 +4,108 @@ namespace App\Http\Controllers;
 
 use App\Models\Ahorro;
 use App\Models\Organizacion;
-use App\Models\Socio;
+use App\Models\Beneficiario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class AhorroController extends Controller
 {
-    // Página principal del módulo de ahorros
-    public function index()
+    // Mostrar vista principal con cajas rurales y ahorros si hay caja seleccionada
+    public function index(Request $request)
     {
-        $organizaciones = Organizacion::all();
-        return view('ahorros.index', compact('organizaciones'));
+        $cajas = Organizacion::all();
+        $selectedCaja = $request->query('caja');
+        $ahorros = [];
+
+        if ($selectedCaja) {
+            $ahorros = Ahorro::with('beneficiario')
+                ->where('Id_Organizacion', $selectedCaja)
+                ->get();
+        }
+
+        return view('ahorros.index', compact('cajas', 'selectedCaja', 'ahorros'));
     }
 
-    // Endpoint para obtener el resumen por caja rural
-    public function resumen($id)
-    {
-        $num_socios = DB::table('tbl_beneficiario')
-            ->where('Id_Organizacion', $id)
-            ->where('Tipo_De_Socio', 'Socio')
-            ->count();
-
-        $total_ahorros = DB::table('tbl_ahorros')
-            ->where('Id_Organizacion', $id)
-            ->sum('monto');
-
-        $promedio_ahorros = $num_socios > 0 ? $total_ahorros / $num_socios : 0;
-
-        return response()->json([
-            'num_socios' => $num_socios,
-            'total_ahorros' => $total_ahorros,
-            'promedio_ahorros' => $promedio_ahorros,
-        ]);
-    }
-
-    // Mostrar formulario para crear nuevo ahorro
+    // Mostrar formulario para crear un nuevo ahorro
     public function create()
     {
-        $organizaciones = Organizacion::all();
-        return view('ahorros.create', compact('organizaciones'));
+        $cajas = Organizacion::all();
+        return view('ahorros.create', compact('cajas'));
     }
 
-    // Guardar nuevo ahorro
+    // Guardar nuevo ahorro en la base de datos
     public function store(Request $request)
     {
         $request->validate([
             'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
-            'beneficiario_id' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
-            'monto' => 'required|numeric|min:0',
-            'fecha' => 'required|date',
+            'Id_Beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
+            'Monto' => 'required|numeric|min:0.01',
+            'Fecha' => 'required|date',
         ]);
 
         Ahorro::create([
             'Id_Organizacion' => $request->Id_Organizacion,
-            'beneficiario_id' => $request->beneficiario_id,
-            'monto' => $request->monto,
-            'fecha' => $request->fecha,
+            'Id_Beneficiario' => $request->Id_Beneficiario,
+            'Monto' => $request->Monto,
+            'Fecha' => $request->Fecha,
         ]);
 
-        return redirect()->route('ahorros.create')->with('success', 'Ahorro registrado correctamente.');
+        return redirect()->route('ahorros.index', ['caja' => $request->Id_Organizacion])
+                         ->with('success', 'Ahorro registrado correctamente.');
     }
 
-    // Obtener socios (beneficiarios) por caja rural
-    public function sociosPorCaja($id)
+    // API: Obtener socios y no socios con sus totales de ahorro para una caja rural
+    public function obtenerSocios($id)
     {
-        $socios = DB::table('tbl_beneficiario')
-            ->where('Id_Organizacion', $id)
+        $socios = DB::table('tbl_beneficiario as b')
+            ->leftJoin('tbl_ahorros as a', 'b.Id_Beneficiario', '=', 'a.Id_Beneficiario')
+            ->select('b.Id_Beneficiario', 'b.Nombre_Beneficiario', DB::raw('COALESCE(SUM(a.Monto), 0) as Monto'))
+            ->where('b.Id_Organizacion', $id)
+            ->where('b.Tipo_De_Socio', 'Socio')
+            ->groupBy('b.Id_Beneficiario', 'b.Nombre_Beneficiario')
+            ->orderBy('b.Nombre_Beneficiario')
+            ->get();
+
+        $noSocios = DB::table('tbl_beneficiario as b')
+            ->leftJoin('tbl_ahorros as a', 'b.Id_Beneficiario', '=', 'a.Id_Beneficiario')
+            ->select('b.Id_Beneficiario', 'b.Nombre_Beneficiario', DB::raw('COALESCE(SUM(a.Monto), 0) as Monto'))
+            ->where('b.Id_Organizacion', $id)
+            ->where('b.Tipo_De_Socio', 'No Socio')
+            ->groupBy('b.Id_Beneficiario', 'b.Nombre_Beneficiario')
+            ->orderBy('b.Nombre_Beneficiario')
+            ->get();
+
+        return response()->json([
+            'socios' => $socios,
+            'no_socios' => $noSocios,
+        ]);
+    }
+
+    // API: Retornar resumen de ahorros por caja rural (totales)
+    public function resumenCaja($id)
+    {
+        $sociosIds = Beneficiario::where('Id_Organizacion', $id)
             ->where('Tipo_De_Socio', 'Socio')
-            ->get(['Id_Beneficiario', 'Nombre']);
+            ->pluck('Id_Beneficiario');
 
-        return response()->json($socios);
-    }
+        $total = Ahorro::whereIn('Id_Beneficiario', $sociosIds)->sum('Monto');
+        $cantidad = $sociosIds->count();
+        $promedio = $cantidad > 0 ? $total / $cantidad : 0;
 
-    // Mostrar formulario para editar ahorro
-    public function edit($id)
-    {
-        $ahorro = Ahorro::findOrFail($id);
-        $organizaciones = Organizacion::all();
-        return view('ahorros.edit', compact('ahorro', 'organizaciones'));
-    }
-
-    // Actualizar un ahorro existente
-    public function update(Request $request, $id)
-    {
-        $ahorro = Ahorro::findOrFail($id);
-
-        $request->validate([
-            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
-            'beneficiario_id' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
-            'monto' => 'required|numeric|min:0',
-            'fecha' => 'required|date',
+        return response()->json([
+            'cantidad_socios' => $cantidad,
+            'total_ahorrado' => $total,
+            'promedio' => $promedio,
         ]);
-
-        $ahorro->update([
-            'Id_Organizacion' => $request->Id_Organizacion,
-            'beneficiario_id' => $request->beneficiario_id,
-            'monto' => $request->monto,
-            'fecha' => $request->fecha,
-        ]);
-
-        return redirect()->route('ahorros.index')->with('success', 'Ahorro actualizado correctamente.');
     }
+public function listado($id)
+{
+    $ahorros = Ahorro::with('beneficiario')
+        ->where('Id_Organizacion', $id)
+        ->orderBy('Fecha', 'desc')
+        ->get();
 
-    // Eliminar un ahorro
-    public function destroy($id)
-    {
-        $ahorro = Ahorro::findOrFail($id);
-        $ahorro->delete();
+    return response()->json($ahorros);
+}
 
-        return redirect()->route('ahorros.index')->with('success', 'Ahorro eliminado correctamente.');
-    }
-
-    // Mostrar ficha individual del ahorro
-    public function ficha($id)
-    {
-        $ahorro = Ahorro::findOrFail($id);
-        return view('ahorros.ficha', compact('ahorro'));
-    }
-
-    // Exportar todos los ahorros a PDF
-    public function exportPdf()
-    {
-        $ahorros = Ahorro::all();
-        $pdf = Pdf::loadView('ahorros.pdf', compact('ahorros'))->setPaper('landscape', 'letter');
-        return $pdf->download('reporte_ahorros.pdf');
-    }
 }
