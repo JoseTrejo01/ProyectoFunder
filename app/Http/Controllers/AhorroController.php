@@ -5,66 +5,101 @@ namespace App\Http\Controllers;
 use App\Models\Ahorro;
 use App\Models\Organizacion;
 use App\Models\Beneficiario;
+use App\Models\Socio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AhorroController extends Controller
 {
-    // Mostrar vista principal con cajas rurales y ahorros si hay caja seleccionada
     public function index(Request $request)
     {
-        $cajas = Organizacion::all();
-        $selectedCaja = $request->query('caja');
-        $ahorros = [];
-
-        if ($selectedCaja) {
-            $ahorros = Ahorro::with('beneficiario')
-                ->where('Id_Organizacion', $selectedCaja)
-                ->get();
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar ahorros.');
         }
 
-        return view('ahorros.index', compact('cajas', 'selectedCaja', 'ahorros'));
+        $objeto = \App\Models\Objeto::where('Objeto', 'Ahorros')->first();
+        if ($objeto) {
+            EVENT_BITACORA(auth()->user()->Id_Usuario, $objeto->Id_Objeto, 'Ingreso', 'El usuario ingresó a la gestión de ahorros');
+        }
+
+        $ahorros = Ahorro::with(['organizacion', 'beneficiario'])->get();
+        $agrupados = [];
+
+        foreach ($ahorros as $ahorro) {
+            $org = $ahorro->organizacion->Nombre_Organizacion ?? 'Sin organización';
+            $tipo = strtolower($ahorro->beneficiario->Tipo_De_Socio ?? 'no socio');
+            $edad = $ahorro->beneficiario->edad ?? 0;
+
+            if (!isset($agrupados[$org])) {
+                $agrupados[$org] = [
+                    'socios' => ['cantidad' => 0, 'total' => 0],
+                    'no_socios_adultos' => ['cantidad' => 0, 'total' => 0],
+                    'no_socios_jovenes' => ['cantidad' => 0, 'total' => 0],
+                ];
+            }
+
+            if ($tipo === 'socio') {
+                $agrupados[$org]['socios']['cantidad']++;
+                $agrupados[$org]['socios']['total'] += $ahorro->monto_ahorrado;
+            } else {
+                if ($edad >= 30) {
+                    $agrupados[$org]['no_socios_adultos']['cantidad']++;
+                    $agrupados[$org]['no_socios_adultos']['total'] += $ahorro->monto_ahorrado;
+                } else {
+                    $agrupados[$org]['no_socios_jovenes']['cantidad']++;
+                    $agrupados[$org]['no_socios_jovenes']['total'] += $ahorro->monto_ahorrado;
+                }
+            }
+        }
+
+        foreach ($agrupados as &$datos) {
+            foreach ($datos as &$grupo) {
+                $grupo['promedio'] = $grupo['cantidad'] > 0 ? $grupo['total'] / $grupo['cantidad'] : 0;
+            }
+        }
+
+        return view('ahorros.index', compact('agrupados'));
     }
 
-    // Mostrar formulario para crear un nuevo ahorro
     public function create()
     {
-        $cajas = Organizacion::all();
-        return view('ahorros.create', compact('cajas'));
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear ahorros.');
+        }
+
+        $organizaciones = Organizacion::all();
+        $socios = Socio::all();
+        return view('ahorros.create', compact('organizaciones', 'socios'));
     }
 
-    // Guardar nuevo ahorro en la base de datos
     public function store(Request $request)
     {
-        $request->validate([
-            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
-            'Id_Beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
-            'Monto' => 'required|numeric|min:0.01',
-            'Fecha' => 'required|date',
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear ahorros.');
+        }
+
+        $data = $request->validate([
+            'id_organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
+            'id_beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
+            'monto_ahorrado' => 'required|numeric|min:0',
         ]);
 
-        Ahorro::create([
-            'Id_Organizacion' => $request->Id_Organizacion,
-            'Id_Beneficiario' => $request->Id_Beneficiario,
-            'Monto' => $request->Monto,
-            'Fecha' => $request->Fecha,
-        ]);
+        Ahorro::create($data);
 
-        return redirect()->route('ahorros.index', ['caja' => $request->Id_Organizacion])
-                         ->with('success', 'Ahorro registrado correctamente.');
+        EVENT_BITACORA(auth()->user()->Id_Usuario, \App\Models\Objeto::where('Objeto', 'Ahorros')->value('Id_Objeto'), 'Nuevo', 'Creó un nuevo ahorro');
+
+        return redirect()->route('ahorros.index')->with('success', 'Ahorro registrado correctamente.');
     }
-// Mostrar ficha de un ahorro específico
+
     public function listarPorCaja($id)
-{
-    $ahorros = Ahorro::with(['organizacion', 'beneficiario'])
-        ->where('Id_Organizacion', $id)
-        ->get();
+    {
+        $ahorros = Ahorro::with(['organizacion', 'beneficiario'])
+            ->where('Id_Organizacion', $id)
+            ->get();
 
-    return response()->json($ahorros);
-}
+        return response()->json($ahorros);
+    }
 
-
-    // API: Obtener socios y no socios con sus totales de ahorro para una caja rural
     public function obtenerSocios($id)
     {
         $socios = DB::table('tbl_beneficiario as b')
@@ -91,7 +126,6 @@ class AhorroController extends Controller
         ]);
     }
 
-    // API: Retornar resumen de ahorros por caja rural (totales)
     public function resumenCaja($id)
     {
         $sociosIds = Beneficiario::where('Id_Organizacion', $id)
@@ -108,14 +142,29 @@ class AhorroController extends Controller
             'promedio' => $promedio,
         ]);
     }
-public function listado($id)
-{
-    $ahorros = Ahorro::with('beneficiario')
-        ->where('Id_Organizacion', $id)
-        ->orderBy('Fecha', 'desc')
-        ->get();
 
-    return response()->json($ahorros);
-}
+    public function ficha($id)
+    {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar ahorros.');
+        }
 
+        $ahorro = Ahorro::with(['organizacion', 'beneficiario'])->findOrFail($id);
+        return view('ahorros.ficha', compact('ahorro'));
+    }
+
+    public function exportPdf()
+    {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar ahorros.');
+        }
+
+        $ahorros = Ahorro::with(['organizacion', 'beneficiario'])->get();
+        // El mismo agrupamiento y cálculo del método index()
+        // ...
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('ahorros.pdf', ['agrupados' => $agrupados]);
+        return $pdf->download('reporte_ahorros.pdf');
+    }
 }

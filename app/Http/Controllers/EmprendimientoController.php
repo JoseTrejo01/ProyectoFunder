@@ -15,7 +15,7 @@ class EmprendimientoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']);
+
 
         if ($request->filled('municipio')) {
             $query->where('Id_Municipio', $request->municipio);
@@ -46,7 +46,7 @@ class EmprendimientoController extends Controller
 
     public function create()
     {
-        $departamentos = Departamento::all();
+
         $tecnicos = User::all();
         $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get();
 
@@ -54,7 +54,11 @@ class EmprendimientoController extends Controller
     }
 
     public function store(Request $request)
+
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para actualizar emprendimientos.');
+        }
         $validated = $request->validate([
             'Caja_Rural' => 'required|string|max:100',
             'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
@@ -112,11 +116,24 @@ class EmprendimientoController extends Controller
 
         $emprendimiento->update($validated);
 
+        $objeto = \App\Models\Objeto::where('Objeto', 'Emprendimientos')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Update',
+                'Actualizó el emprendimiento: ' . $emprendimiento->Caja_Rural
+            );
+        }
+
         return redirect()->route('emprendimientos.index')->with('success', 'Registro actualizado');
     }
 
     public function destroy(Emprendimiento $emprendimiento)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Eliminacion')) {
+            abort(403, 'No tienes permiso para eliminar emprendimientos.');
+        }
         $emprendimiento->delete();
         return redirect()->route('emprendimientos.index')->with('success', 'Registro eliminado');
     }
