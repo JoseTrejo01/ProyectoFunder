@@ -9,11 +9,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Departamento;
+<<<<<<< HEAD
+=======
+use App\Models\Aldea;
+use App\Models\Organizacion; // <--- NUEVO
+
+>>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
 class EmprendimientoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Emprendimiento::with(['municipio', 'tecnico']);
+        $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']); // <--- incluimos organizacion
 
         if ($request->filled('municipio')) {
             $query->where('Id_Municipio', $request->municipio);
@@ -33,7 +39,10 @@ class EmprendimientoController extends Controller
             $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
         }
 
-        $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')->paginate(10)->appends($request->query());
+        $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')
+                                 ->paginate(10)
+                                 ->appends($request->query());
+
         $municipios = Municipio::all();
 
         return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
@@ -41,56 +50,19 @@ class EmprendimientoController extends Controller
 
     public function create()
     {
-        $departamentos = Departamento::all(); // nuevo
+        $departamentos = Departamento::all();
         $tecnicos = User::all();
-        return view('emprendimientos.create', compact('departamentos', 'tecnicos'));
+        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get(); // <--- solo activas
+
+        return view('emprendimientos.create', compact('departamentos', 'tecnicos', 'organizaciones'));
     }
 
-  public function store(Request $request)
-{
-    $validated = $request->validate([
-        'Caja_Rural' => 'required|string|max:100',
-        'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
-        'aldea_id' => 'nullable|integer|exists:tbl_aldea,Id_Aldea', // <--- NUEVO
-        'Comunidad' => 'nullable|string|max:100',
-        'Socios_Hombres' => 'nullable|integer|min:0',
-        'Socios_Mujeres' => 'nullable|integer|min:0',
-        'Tipo_Negocio' => 'required|string|max:255',
-        'Ventas_Trimestrales' => 'nullable|numeric|min:0',
-        'Empleos_Hombres' => 'nullable|integer|min:0',
-        'Empleos_Mujeres' => 'nullable|integer|min:0',
-        'Fecha_Levantamiento' => 'required|date',
-    ]);
-
-    $validated['Fecha_Inicio_Operaciones'] = now();
-    $validated['Id_Tecnico'] = Auth::user()->Id_Usuario;
-
-    // Guardar con Id_Aldea si está presente
-    $validated['Id_Aldea'] = $validated['aldea_id'] ?? null;
-    unset($validated['aldea_id']); // Ya lo guardamos en el campo correcto
-
-    Emprendimiento::create($validated);
-
-    return redirect()->route('emprendimientos.index')->with('success', 'Registro creado exitosamente');
-}
-
-    public function show(Emprendimiento $emprendimiento)
-    {
-        return view('emprendimientos.show', compact('emprendimiento'));
-    }
-
-    public function edit(Emprendimiento $emprendimiento)
-    {
-        $municipios = Municipio::all();
-        $tecnicos = User::all();
-        return view('emprendimientos.edit', compact('emprendimiento', 'municipios', 'tecnicos'));
-    }
-
-    public function update(Request $request, Emprendimiento $emprendimiento)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'Caja_Rural' => 'required|string|max:100',
             'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
+            'aldea_id' => 'nullable|integer|exists:tbl_aldea,Id_Aldea',
             'Comunidad' => 'nullable|string|max:100',
             'Socios_Hombres' => 'nullable|integer|min:0',
             'Socios_Mujeres' => 'nullable|integer|min:0',
@@ -99,8 +71,67 @@ class EmprendimientoController extends Controller
             'Empleos_Hombres' => 'nullable|integer|min:0',
             'Empleos_Mujeres' => 'nullable|integer|min:0',
             'Fecha_Levantamiento' => 'required|date',
+            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion', // <--- nuevo
         ]);
 
+        $validated['Fecha_Inicio_Operaciones'] = now();
+        $validated['Id_Tecnico'] = Auth::user()->Id_Usuario;
+        $validated['Id_Aldea'] = $validated['aldea_id'] ?? null;
+        unset($validated['aldea_id']);
+
+        Emprendimiento::create($validated);
+
+        return redirect()->route('emprendimientos.index')->with('success', 'Registro creado exitosamente');
+    }
+
+    public function edit(Emprendimiento $emprendimiento)
+    {
+        $departamentos = Departamento::all();
+        $municipios = Municipio::all();
+        $tecnicos = User::all();
+        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get(); // <--- NUEVO
+
+        return view('emprendimientos.edit', compact('emprendimiento', 'departamentos', 'municipios', 'tecnicos', 'organizaciones'));
+    }
+
+<<<<<<< HEAD
+    public function edit(Emprendimiento $emprendimiento)
+    {
+        $municipios = Municipio::all();
+        $tecnicos = User::all();
+        return view('emprendimientos.edit', compact('emprendimiento', 'municipios', 'tecnicos'));
+    }
+
+=======
+>>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
+    public function update(Request $request, Emprendimiento $emprendimiento)
+    {
+        $validated = $request->validate([
+            'Caja_Rural' => 'required|string|max:100',
+            'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
+<<<<<<< HEAD
+=======
+            'aldea_id' => 'nullable|integer|exists:tbl_aldea,Id_Aldea',
+>>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
+            'Comunidad' => 'nullable|string|max:100',
+            'Socios_Hombres' => 'nullable|integer|min:0',
+            'Socios_Mujeres' => 'nullable|integer|min:0',
+            'Tipo_Negocio' => 'required|string|max:255',
+            'Ventas_Trimestrales' => 'nullable|numeric|min:0',
+            'Empleos_Hombres' => 'nullable|integer|min:0',
+            'Empleos_Mujeres' => 'nullable|integer|min:0',
+            'Fecha_Levantamiento' => 'required|date',
+<<<<<<< HEAD
+        ]);
+
+=======
+            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion', // <--- nuevo
+        ]);
+
+        $validated['Id_Aldea'] = $validated['aldea_id'] ?? null;
+        unset($validated['aldea_id']);
+
+>>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
         $emprendimiento->update($validated);
 
         return redirect()->route('emprendimientos.index')->with('success', 'Registro actualizado');
@@ -109,7 +140,6 @@ class EmprendimientoController extends Controller
     public function destroy(Emprendimiento $emprendimiento)
     {
         $emprendimiento->delete();
-
         return redirect()->route('emprendimientos.index')->with('success', 'Registro eliminado');
     }
 }
