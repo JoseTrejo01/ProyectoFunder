@@ -7,6 +7,7 @@ use App\Models\Socio;
 use App\Models\Aldea;
 use App\Models\Beneficiario;
 use App\Models\Prestamo;
+use App\Models\Evaluacion;
 
 class Organizacion extends Model
 {
@@ -20,13 +21,6 @@ class Organizacion extends Model
         'Nombre_Organizacion',
         'Estado_Organizacion',
     ];
-
-    // Relación con préstamos (si aplica)
-    public function prestamos()
-    {
-<<<<<<< HEAD
-        return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
-    }
 
     // Relación con Aldea
     public function aldea()
@@ -57,13 +51,16 @@ class Organizacion extends Model
     {
         return $this->hasMany(Beneficiario::class, 'Id_Organizacion', 'Id_Organizacion');
     }
-=======
-    return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
+
+    // Relación con Préstamos
+    public function prestamos()
+    {
+        return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
     }
+
+    // Relación con Evaluaciones
     public function evaluaciones()
     {
         return $this->hasMany(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
     }
-
->>>>>>> 6e28d2beff68619f1d1a15f650ba1d599c03c7cd
 }
