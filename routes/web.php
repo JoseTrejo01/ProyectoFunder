@@ -31,11 +31,21 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
+<<<<<<< HEAD
 // RUTA DE INICIO
 Route::get('/', function () {
     if (auth()->check()) return redirect('/dashboard');
     return view('welcome');
 })->name('home');
+=======
+use App\Http\Controllers\EmprendimientoController;
+use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\ExportEvaluacionesController;
+use App\Http\Controllers\CriterioController;
+// Página de bienvenida
+Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
+>>>>>>> 6e28d2beff68619f1d1a15f650ba1d599c03c7cd
 
 // RUTAS PARA INVITADOS
 Route::middleware('guest')->group(function () {
@@ -80,6 +90,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
     Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
 
+<<<<<<< HEAD
+=======
+    // Criterio
+    Route::resource('criterio', CriterioController::class);
+
+    // Evaluación (CRUD)
+    Route::resource('evaluacion', EvaluacionController::class);
+
+    // Exportación a Excel 
+    Route::get('/evaluacion/exportar-excel', [ExportEvaluacionesController::class, 'export'])->name('evaluacion.export');
+
+
+    // Socios
+>>>>>>> 6e28d2beff68619f1d1a15f650ba1d599c03c7cd
     Route::resource('socios', SocioController::class)->except(['show']);
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');

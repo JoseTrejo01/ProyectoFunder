@@ -413,6 +413,7 @@ return [
         'icon' => 'fas fa-chart-bar',
     ],
     [
+<<<<<<< HEAD
         'text' => 'Capacitacion',
         'url'  => 'capacitacion',
         'icon' => 'fas fa-chalkboard-teacher'
@@ -420,8 +421,13 @@ return [
     [
         'text' => 'Auditoría',
         'url'  => 'auditoria',
+=======
+        'text' => 'Evaluacion',
+        'url'  => 'evaluacion',
+>>>>>>> 6e28d2beff68619f1d1a15f650ba1d599c03c7cd
         'icon' => 'fas fa-clipboard-list',
     ],
+ 
 ],
 
 

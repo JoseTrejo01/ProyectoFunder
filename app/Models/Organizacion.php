@@ -24,6 +24,7 @@ class Organizacion extends Model
     // Relación con préstamos (si aplica)
     public function prestamos()
     {
+<<<<<<< HEAD
         return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
     }
 
@@ -56,4 +57,13 @@ class Organizacion extends Model
     {
         return $this->hasMany(Beneficiario::class, 'Id_Organizacion', 'Id_Organizacion');
     }
+=======
+    return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
+    }
+    public function evaluaciones()
+    {
+        return $this->hasMany(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
+    }
+
+>>>>>>> 6e28d2beff68619f1d1a15f650ba1d599c03c7cd
 }
