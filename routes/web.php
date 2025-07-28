@@ -94,8 +94,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('ahorros', AhorroController::class);
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
     Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
+    Route::get('/ahorros/caja/{id}/listado', [AhorroController::class, 'listarPorCaja']);
+    Route::get('/api/organizacion/{id}/beneficiarios', [App\Http\Controllers\AhorroController::class, 'sociosPorCaja']);
+
+
     Route::get('/organizacion/{id}/contar-socios', [AhorroController::class, 'contarSocios']);
+
     Route::get('/api/cajas/{id}/resumen', [AhorroController::class, 'resumen']);
+Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
 
     Route::resource('genero', IndicadorGeneroController::class);
     Route::resource('emprendimientos', EmprendimientoController::class);

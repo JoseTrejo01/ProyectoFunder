@@ -53,6 +53,16 @@ class AhorroController extends Controller
         return redirect()->route('ahorros.index', ['caja' => $request->Id_Organizacion])
                          ->with('success', 'Ahorro registrado correctamente.');
     }
+// Mostrar ficha de un ahorro específico
+    public function listarPorCaja($id)
+{
+    $ahorros = Ahorro::with(['organizacion', 'beneficiario'])
+        ->where('Id_Organizacion', $id)
+        ->get();
+
+    return response()->json($ahorros);
+}
+
 
     // API: Obtener socios y no socios con sus totales de ahorro para una caja rural
     public function obtenerSocios($id)
@@ -70,7 +80,7 @@ class AhorroController extends Controller
             ->leftJoin('tbl_ahorros as a', 'b.Id_Beneficiario', '=', 'a.Id_Beneficiario')
             ->select('b.Id_Beneficiario', 'b.Nombre_Beneficiario', DB::raw('COALESCE(SUM(a.Monto), 0) as Monto'))
             ->where('b.Id_Organizacion', $id)
-            ->where('b.Tipo_De_Socio', 'No Socio')
+            ->where('b.Tipo_De_Socio', 'Cliente')
             ->groupBy('b.Id_Beneficiario', 'b.Nombre_Beneficiario')
             ->orderBy('b.Nombre_Beneficiario')
             ->get();
