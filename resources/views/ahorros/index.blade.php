@@ -31,7 +31,6 @@
                 </select>
             </div>
 
-<<<<<<< HEAD
             <ul class="nav nav-tabs mt-4" id="ahorroTabs" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" id="socios-tab" data-toggle="tab" href="#socios" role="tab"><strong>Socios</strong></a>
@@ -62,45 +61,6 @@
             <div id="listado-ahorros"></div>
         </div>
     </div>
-=======
-    {{-- TABLA RESUMEN AGRUPADO --}}
-    <table class="table table-bordered table-hover table-striped">
-        <thead class="table-primary">
-            <tr>
-                <th>Caja Rural</th>
-                <th>Socios<br><small>(Cantidad / Total / Promedio)</small></th>
-                <th>No Socios Adultos<br><small>(Cantidad / Total / Promedio)</small></th>
-                <th>No Socios Jóvenes<br><small>(Cantidad / Total / Promedio)</small></th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($agrupados as $caja => $datos)
-                <tr>
-                    <td>{{ $caja }}</td>
-                    <td>
-                        {{ $datos['socios']['cantidad'] }}<br>
-                        L {{ number_format($datos['socios']['total'], 2) }}<br>
-                        L {{ number_format($datos['socios']['promedio'], 2) }}
-                    </td>
-                    <td>
-                        {{ $datos['no_socios_adultos']['cantidad'] }}<br>
-                        L {{ number_format($datos['no_socios_adultos']['total'], 2) }}<br>
-                        L {{ number_format($datos['no_socios_adultos']['promedio'], 2) }}
-                    </td>
-                    <td>
-                        {{ $datos['no_socios_jovenes']['cantidad'] }}<br>
-                        L {{ number_format($datos['no_socios_jovenes']['total'], 2) }}<br>
-                        L {{ number_format($datos['no_socios_jovenes']['promedio'], 2) }}
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="4" class="text-center">No hay registros de ahorros.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
->>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
 @stop
 
 @section('js')
