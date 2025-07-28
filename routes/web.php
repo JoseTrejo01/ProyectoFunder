@@ -143,6 +143,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Vista de prueba
 Route::get('/prueba', fn () => view('prueba'));
 
+<<<<<<< HEAD
 // Vista de Mapa
 Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
  // API para obtener organizaciones con socios
@@ -155,3 +156,29 @@ Route::get('/api/cajas/{id}/socios', function ($id) {
 // Rutas para Capacitaciones
 Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
 Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
+=======
+//rutas de socios 
+Route::resource('socios', App\Http\Controllers\SocioController::class);
+
+// Rutas de préstamos
+Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
+Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
+Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
+Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
+Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
+Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
+Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
+
+//pagos 
+Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
+Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
+Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
+Route::get('/prestamos/{prestamo}/pagos', [PagoController::class, 'index'])->name('pagos.index');
+// Desembolso debe ser POST porque en el formulario usamos method="POST"
+Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
+
+
+
+Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
+Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
+>>>>>>> e2282faaa17de404af8697d94c6578d7726b085e
