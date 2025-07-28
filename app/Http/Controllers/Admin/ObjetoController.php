@@ -16,7 +16,7 @@ class ObjetoController extends Controller
     if (!auth()->user()->tienePermiso('Objetos', 'Consultar')) {
         return view('errors.403', ['mensaje' => 'No tiene permiso para consultar objetos']);
     }
-    $objetos = Objeto::all();
+    $objetos = Objeto::where('Estado', 'ACTIVO')->get();
     // Registrar en bitácora el ingreso a la gestión de objetos
     $objeto = Objeto::where('Objeto', 'Objetos')->first();
     if ($objeto && Auth::check()) {
@@ -96,17 +96,18 @@ public function destroy($id)
         return view('errors.403', ['mensaje' => 'No tiene permiso para eliminar objetos']);
     }
     $objetoEdit = Objeto::findOrFail($id);
-    $objetoEdit->delete();
-    // Registrar en bitácora la eliminación de objeto
+    $objetoEdit->Estado = 'INACTIVO';
+    $objetoEdit->save();
+    // Registrar en bitácora la inactivación de objeto
     $objeto = Objeto::where('Objeto', 'Objetos')->first();
     if ($objeto && Auth::check()) {
         EVENT_BITACORA(
             Auth::user()->Id_Usuario,
             $objeto->Id_Objeto,
             'Delete',
-            'Eliminó el objeto: ' . $objetoEdit->Objeto
+            'Inactivó el objeto: ' . $objetoEdit->Objeto
         );
     }
-    return back()->with('success', 'Objeto eliminado correctamente');
+    return back()->with('success', 'Objeto inactivado correctamente');
 }
 }

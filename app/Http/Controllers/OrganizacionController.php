@@ -14,7 +14,25 @@ class OrganizacionController extends Controller
 {
     public function index()
     {
-        $organizaciones = Organizacion::with(['aldea.municipio.departamento'])->get();
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar organizaciones.');
+        }
+        $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario ingresó a la gestión de organizaciones'
+            );
+        }
+        $user = auth()->user();
+        $rol = $user->rol->Rol ?? null;
+        if ($rol === 'TECNICO DE CAMPO') {
+            $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->with(['aldea.municipio.departamento'])->get();
+        } else {
+            $organizaciones = Organizacion::with(['aldea.municipio.departamento'])->get();
+        }
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
 
@@ -33,6 +51,9 @@ class OrganizacionController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear organizaciones.');
+        }
         $request->validate([
             'Nombre_Organizacion' => 'required|string|max:100',
             'departamento' => 'required|exists:tbl_departamento,Id_Departamento',
@@ -47,13 +68,27 @@ class OrganizacionController extends Controller
             'Id_Municipio' => $request->municipio,
         ]);
 
-        Organizacion::create([
+        $org = Organizacion::create([
             'Id_Aldea' => $aldea->Id_Aldea,
             'Nombre_Organizacion' => $request->Nombre_Organizacion,
             'Estado_Organizacion' => 'ACTIVO',
             'Id_Usuario' => auth()->id() ?? 1,
         ]);
 
+<<<<<<< HEAD
+=======
+        $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Nuevo',
+                'Creó una nueva organización: ' . $org->Nombre_Organizacion
+            );
+        }
+
+        // Registrar coordenadas si no existen
+>>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
         DB::table('tbl_coordenadas_municipio')->updateOrInsert(
             [
                 'Id_Municipio' => $request->municipio,
@@ -70,6 +105,9 @@ class OrganizacionController extends Controller
 
     public function edit($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para editar organizaciones.');
+        }
         $organizacion = Organizacion::findOrFail($id);
         $departamentos = Departamento::all();
         $municipiosPorDepto = Municipio::all()->groupBy('Id_Departamento');
@@ -78,14 +116,32 @@ class OrganizacionController extends Controller
 
     public function destroy($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Eliminacion')) {
+            abort(403, 'No tienes permiso para eliminar organizaciones.');
+        }
         $org = Organizacion::findOrFail($id);
         $org->Estado_Organizacion = 'INACTIVO';
         $org->save();
+
+        $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Delete',
+                'Inactivó la organización: ' . $org->Nombre_Organizacion
+            );
+        }
         return redirect()->route('organizaciones.index')->with('success', 'Organización inactivada correctamente');
     }
 
+
+        // ...existing code...
     public function update(Request $request, $id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para actualizar organizaciones.');
+        }
         $request->validate([
             'Nombre_Organizacion' => 'required|string|max:100',
             'departamento' => 'required|exists:tbl_departamento,Id_Departamento',
@@ -106,21 +162,42 @@ class OrganizacionController extends Controller
         $org->Estado_Organizacion = $request->Estado_Organizacion;
         $org->save();
 
+        $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Update',
+                'Actualizó la organización: ' . $org->Nombre_Organizacion
+            );
+        }
+
         return redirect()->route('organizaciones.index')->with('success', 'Organización actualizada correctamente');
     }
 
     public function vistaMapa()
     {
+<<<<<<< HEAD
         $organizaciones = Organizacion::with([
             'aldea.municipio.coordenada',
             'aldea.municipio.departamento'
         ])
         ->withCount('socios') // 👈 total de socios disponibles en Blade
         ->get();
+=======
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar organizaciones.');
+        }
+        $organizaciones = Organizacion::with([
+            'aldea.municipio.coordenada',
+            'aldea.municipio.departamento'
+        ])->get();
+>>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
 
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
 
+<<<<<<< HEAD
         $municipiosPorDepto = $municipios->groupBy('Id_Departamento')->map(function ($group) {
             return $group->map(function ($muni) {
                 return [
@@ -153,4 +230,21 @@ class OrganizacionController extends Controller
 
         return response()->json($cajas);
     }
+=======
+
+        // Agrupar municipios por departamento
+        $municipiosPorDepto = $municipios->groupBy('Id_Departamento')->map(function ($group) {
+            return $group->map(function ($muni) {
+                return [
+                    'Id_Municipio' => $muni->Id_Municipio,
+                    'Nombre_Municipio' => $muni->Nombre_Municipio
+                ];
+            })->values();
+        });
+
+        return view('organizaciones.mapa', compact('organizaciones', 'departamentos', 'municipios', 'municipiosPorDepto'));
+    }
+
+        // Eliminado código fuera de métodos
+>>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
 }

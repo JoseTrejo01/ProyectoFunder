@@ -14,7 +14,7 @@ class RolController extends Controller
     if (!auth()->user()->tienePermiso('Roles', 'Consultar')) {
         return view('errors.403', ['mensaje' => 'No tiene permiso para consultar roles']);
     }
-    $roles = Rol::all();
+    $roles = Rol::where('Estado', 'ACTIVO')->get();
     // Registrar en bitácora el ingreso a la gestión de roles
     $objeto = \App\Models\Objeto::where('Objeto', 'Roles')->first();
     if ($objeto && \Auth::check()) {
@@ -90,18 +90,19 @@ public function destroy($id)
         return view('errors.403', ['mensaje' => 'No tiene permiso para eliminar roles']);
     }
     $rol = Rol::findOrFail($id);
-    $rol->delete();
-    // Registrar en bitácora la eliminación de rol
+    $rol->Estado = 'INACTIVO';
+    $rol->save();
+    // Registrar en bitácora la inactivación de rol
     $objeto = \App\Models\Objeto::where('Objeto', 'Roles')->first();
     if ($objeto && \Auth::check()) {
         EVENT_BITACORA(
             \Auth::user()->Id_Usuario,
             $objeto->Id_Objeto,
             'Delete',
-            'Eliminó el rol: ' . $rol->Rol
+            'Inactivó el rol: ' . $rol->Rol
         );
     }
-    return back()->with('success', 'Rol eliminado correctamente');
+    return back()->with('success', 'Rol inactivado correctamente');
 }
 
 }
