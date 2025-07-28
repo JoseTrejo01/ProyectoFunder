@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 
 namespace App\Http\Controllers;
@@ -161,13 +160,43 @@ class AhorroController extends Controller
         }
 
         $ahorros = Ahorro::with(['organizacion', 'beneficiario'])->get();
-        // El mismo agrupamiento y cálculo del método index()
-        // ...
+        $agrupados = [];
+
+        foreach ($ahorros as $ahorro) {
+            $org = $ahorro->organizacion->Nombre_Organizacion ?? 'Sin organización';
+            $tipo = strtolower($ahorro->beneficiario->Tipo_De_Socio ?? 'no socio');
+            $edad = $ahorro->beneficiario->edad ?? 0;
+
+            if (!isset($agrupados[$org])) {
+                $agrupados[$org] = [
+                    'socios' => ['cantidad' => 0, 'total' => 0],
+                    'no_socios_adultos' => ['cantidad' => 0, 'total' => 0],
+                    'no_socios_jovenes' => ['cantidad' => 0, 'total' => 0],
+                ];
+            }
+
+            if ($tipo === 'socio') {
+                $agrupados[$org]['socios']['cantidad']++;
+                $agrupados[$org]['socios']['total'] += $ahorro->monto_ahorrado;
+            } else {
+                if ($edad >= 30) {
+                    $agrupados[$org]['no_socios_adultos']['cantidad']++;
+                    $agrupados[$org]['no_socios_adultos']['total'] += $ahorro->monto_ahorrado;
+                } else {
+                    $agrupados[$org]['no_socios_jovenes']['cantidad']++;
+                    $agrupados[$org]['no_socios_jovenes']['total'] += $ahorro->monto_ahorrado;
+                }
+            }
+        }
+
+        foreach ($agrupados as &$datos) {
+            foreach ($datos as &$grupo) {
+                $grupo['promedio'] = $grupo['cantidad'] > 0 ? $grupo['total'] / $grupo['cantidad'] : 0;
+            }
+        }
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('ahorros.pdf', ['agrupados' => $agrupados]);
         return $pdf->download('reporte_ahorros.pdf');
     }
 }
-=======
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e

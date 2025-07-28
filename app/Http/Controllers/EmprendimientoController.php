@@ -14,35 +14,41 @@ use App\Models\Organizacion;
 class EmprendimientoController extends Controller
 {
     public function index(Request $request)
-    {
+{
+    // 1. Inicializa la consulta base
+    $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']);
 
-
-        if ($request->filled('municipio')) {
-            $query->where('Id_Municipio', $request->municipio);
-        }
-
-        if ($request->filled('fecha')) {
-            $query->whereDate('Fecha_Levantamiento', $request->fecha);
-        }
-
-        if ($request->filled('tecnico')) {
-            $query->whereHas('tecnico', function ($q) use ($request) {
-                $q->where('Nombre_Usuario', 'like', '%' . $request->tecnico . '%');
-            });
-        }
-
-        if ($request->filled('nombre')) {
-            $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
-        }
-
-        $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')
-                                 ->paginate(10)
-                                 ->appends($request->query());
-
-        $municipios = Municipio::all();
-
-        return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
+    // 2. Aplica filtros si vienen en la solicitud
+    if ($request->filled('municipio')) {
+        $query->where('Id_Municipio', $request->municipio);
     }
+
+    if ($request->filled('fecha')) {
+        $query->whereDate('Fecha_Levantamiento', $request->fecha);
+    }
+
+    if ($request->filled('tecnico')) {
+        $query->whereHas('tecnico', function ($q) use ($request) {
+            $q->where('Nombre_Usuario', 'like', '%' . $request->tecnico . '%');
+        });
+    }
+
+    if ($request->filled('nombre')) {
+        $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
+    }
+
+    // 3. Ejecuta la consulta y pagina los resultados
+    $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')
+                             ->paginate(10)
+                             ->appends($request->query());
+
+    // 4. Carga lista de municipios
+    $municipios = Municipio::all();
+
+    // 5. Retorna la vista
+    return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
+}
+
 
     public function create()
     {
