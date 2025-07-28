@@ -7,19 +7,15 @@ use App\Models\Municipio;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use App\Models\Departamento;
-<<<<<<< HEAD
-=======
 use App\Models\Aldea;
-use App\Models\Organizacion; // <--- NUEVO
+use App\Models\Organizacion;
 
->>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
 class EmprendimientoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']); // <--- incluimos organizacion
+        $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']);
 
         if ($request->filled('municipio')) {
             $query->where('Id_Municipio', $request->municipio);
@@ -52,7 +48,7 @@ class EmprendimientoController extends Controller
     {
         $departamentos = Departamento::all();
         $tecnicos = User::all();
-        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get(); // <--- solo activas
+        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get();
 
         return view('emprendimientos.create', compact('departamentos', 'tecnicos', 'organizaciones'));
     }
@@ -71,7 +67,7 @@ class EmprendimientoController extends Controller
             'Empleos_Hombres' => 'nullable|integer|min:0',
             'Empleos_Mujeres' => 'nullable|integer|min:0',
             'Fecha_Levantamiento' => 'required|date',
-            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion', // <--- nuevo
+            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
         ]);
 
         $validated['Fecha_Inicio_Operaciones'] = now();
@@ -89,30 +85,17 @@ class EmprendimientoController extends Controller
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
         $tecnicos = User::all();
-        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get(); // <--- NUEVO
+        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get();
 
         return view('emprendimientos.edit', compact('emprendimiento', 'departamentos', 'municipios', 'tecnicos', 'organizaciones'));
     }
 
-<<<<<<< HEAD
-    public function edit(Emprendimiento $emprendimiento)
-    {
-        $municipios = Municipio::all();
-        $tecnicos = User::all();
-        return view('emprendimientos.edit', compact('emprendimiento', 'municipios', 'tecnicos'));
-    }
-
-=======
->>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
     public function update(Request $request, Emprendimiento $emprendimiento)
     {
         $validated = $request->validate([
             'Caja_Rural' => 'required|string|max:100',
             'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
-<<<<<<< HEAD
-=======
             'aldea_id' => 'nullable|integer|exists:tbl_aldea,Id_Aldea',
->>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
             'Comunidad' => 'nullable|string|max:100',
             'Socios_Hombres' => 'nullable|integer|min:0',
             'Socios_Mujeres' => 'nullable|integer|min:0',
@@ -121,17 +104,12 @@ class EmprendimientoController extends Controller
             'Empleos_Hombres' => 'nullable|integer|min:0',
             'Empleos_Mujeres' => 'nullable|integer|min:0',
             'Fecha_Levantamiento' => 'required|date',
-<<<<<<< HEAD
-        ]);
-
-=======
-            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion', // <--- nuevo
+            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
         ]);
 
         $validated['Id_Aldea'] = $validated['aldea_id'] ?? null;
         unset($validated['aldea_id']);
 
->>>>>>> 4bb05d3e4b66420b24cd5ce12efc4038357c8092
         $emprendimiento->update($validated);
 
         return redirect()->route('emprendimientos.index')->with('success', 'Registro actualizado');
