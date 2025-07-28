@@ -86,7 +86,7 @@ class EmprendimientoController extends Controller
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
         $tecnicos = User::all();
-        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get(); // <--- NUEVO
+      $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
 
         return view('emprendimientos.edit', compact('emprendimiento', 'departamentos', 'municipios', 'tecnicos', 'organizaciones'));
     }
