@@ -33,6 +33,7 @@ use App\Http\Controllers\IndicadorGeneroController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CoordenadasMapaController;
 use App\Http\Controllers\ExportSociosPdfController;
+use App\Http\Controllers\InformeFinancieroController;
 
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -155,6 +156,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
     Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
 });
+Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme']);
+Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportarInforme'])->name('informe-financiero.export');
+
 
 // Utilidades
 Route::get('/prueba', fn () => view('prueba'));

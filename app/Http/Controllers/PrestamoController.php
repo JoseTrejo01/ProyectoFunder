@@ -38,8 +38,9 @@ class PrestamoController extends Controller
         '20' => '20%',
         '25' => '25%',
     ];
+     $departamentos = DB::table('tbl_departamento')->get();
 
-    return view('prestamos.crear', compact('organizaciones', 'beneficiarios', 'porcentajesMora'));
+    return view('prestamos.crear', compact('organizaciones', 'beneficiarios', 'porcentajesMora', 'departamentos'));
 }
 
     public function index()
@@ -201,6 +202,7 @@ public function store(Request $request)
     $validated = $request->validate([
         'socio_id' => 'required|exists:tbl_organizacion,Id_Organizacion',
        'beneficiario_id' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
+        'departamento_id' => 'required|exists:tbl_departamento,Id_Departamento',
         'monto_solicitado' => 'required|numeric',
         'plazo_meses' => 'required|integer',
         'destino' => 'required|string|max:255',
@@ -229,6 +231,7 @@ public function store(Request $request)
         'socio_id' => $request->socio_id,
         'beneficiario_id' => $request->beneficiario_id, // ✅ Aquí se guarda el campo que faltaba
         'nombre_caja_rural' => $request->nombre_caja_rural,
+        'departamento_id' => $request->input('departamento_id'),
         'monto_solicitado' => $request->monto_solicitado,
         'plazo_meses' => $request->plazo_meses,
         'destino' => $request->destino,

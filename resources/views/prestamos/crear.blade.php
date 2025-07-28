@@ -77,6 +77,17 @@
                             @endforeach
                         </select>
                     </div>
+                                    <div class="mb-3">
+                    <label for="departamento_id" class="form-label">Departamento</label>
+                    <select name="departamento_id" id="departamento_id" class="form-control" required>
+                        <option value="">Seleccione un departamento</option>
+                        @foreach($departamentos as $dep)
+                            <option value="{{ $dep->Id_Departamento }}" {{ old('departamento_id') == $dep->Id_Departamento ? 'selected' : '' }}>
+                                {{ $dep->Nombre_Departamento }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                     <div class="mb-3">
                         <label for="monto_solicitado">Monto Solicitado</label>
