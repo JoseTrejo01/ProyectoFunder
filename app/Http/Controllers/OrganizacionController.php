@@ -68,9 +68,6 @@ class OrganizacionController extends Controller
             'Id_Usuario' => auth()->id() ?? 1,
         ]);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
         $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
         if ($objeto && auth()->check()) {
             EVENT_BITACORA(
@@ -81,10 +78,6 @@ class OrganizacionController extends Controller
             );
         }
 
-        // Registrar coordenadas si no existen
->>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
-=======
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
         DB::table('tbl_coordenadas_municipio')->updateOrInsert(
             [
                 'Id_Municipio' => $request->municipio,
@@ -166,17 +159,6 @@ class OrganizacionController extends Controller
 
     public function vistaMapa()
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        $organizaciones = Organizacion::with([
-            'aldea.municipio.coordenada',
-            'aldea.municipio.departamento'
-        ])
-        ->withCount('socios') // 👈 total de socios disponibles en Blade
-        ->get();
-=======
-=======
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
         if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Consultar')) {
             abort(403, 'No tienes permiso para consultar organizaciones.');
         }
@@ -184,20 +166,11 @@ class OrganizacionController extends Controller
         $organizaciones = Organizacion::with([
             'aldea.municipio.coordenada',
             'aldea.municipio.departamento'
-<<<<<<< HEAD
-        ])->get();
->>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
-=======
         ])->withCount('socios')->get();
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
 
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
         $municipiosPorDepto = $municipios->groupBy('Id_Departamento')->map(function ($group) {
             return $group->map(function ($muni) {
                 return [
@@ -230,24 +203,4 @@ class OrganizacionController extends Controller
 
         return response()->json($cajas);
     }
-<<<<<<< HEAD
-=======
-
-        // Agrupar municipios por departamento
-        $municipiosPorDepto = $municipios->groupBy('Id_Departamento')->map(function ($group) {
-            return $group->map(function ($muni) {
-                return [
-                    'Id_Municipio' => $muni->Id_Municipio,
-                    'Nombre_Municipio' => $muni->Nombre_Municipio
-                ];
-            })->values();
-        });
-
-        return view('organizaciones.mapa', compact('organizaciones', 'departamentos', 'municipios', 'municipiosPorDepto'));
-    }
-
-        // Eliminado código fuera de métodos
->>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
-=======
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
 }
