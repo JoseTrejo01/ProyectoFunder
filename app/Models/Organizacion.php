@@ -19,6 +19,11 @@ class Organizacion extends Model
         'Id_Usuario',
         'Nombre_Organizacion',
         'Estado_Organizacion',
+        'tiene_personeria_juridica',
+        'fecha_personeria_juridica',
+        'tiene_rtn',
+        'rtn',
+        'tiene_cuenta_bancaria',
     ];
 
     // Relaciones

@@ -43,7 +43,7 @@ class OrganizacionController extends Controller
 
     public function store(Request $request)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Insercion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Insercion')) {
             abort(403, 'No tienes permiso para crear organizaciones.');
         }
 
@@ -54,6 +54,11 @@ class OrganizacionController extends Controller
             'Nombre_Aldea' => 'required|string|max:60',
             'coordenada_x' => 'required|numeric',
             'coordenada_y' => 'required|numeric',
+            'tiene_personeria_juridica' => 'required|boolean',
+            'fecha_personeria_juridica' => 'nullable|date|required_if:tiene_personeria_juridica,1',
+            'tiene_rtn' => 'required|boolean',
+            'rtn' => 'nullable|string|max:20|required_if:tiene_rtn,1',
+            'tiene_cuenta_bancaria' => 'required|boolean',
         ]);
 
         $aldea = Aldea::firstOrCreate([
@@ -66,6 +71,11 @@ class OrganizacionController extends Controller
             'Nombre_Organizacion' => $request->Nombre_Organizacion,
             'Estado_Organizacion' => 'ACTIVO',
             'Id_Usuario' => auth()->id() ?? 1,
+            'tiene_personeria_juridica' => $request->tiene_personeria_juridica,
+            'fecha_personeria_juridica' => $request->tiene_personeria_juridica ? $request->fecha_personeria_juridica : null,
+            'tiene_rtn' => $request->tiene_rtn,
+            'rtn' => $request->tiene_rtn ? $request->rtn : null,
+            'tiene_cuenta_bancaria' => $request->tiene_cuenta_bancaria,
         ]);
 
         DB::table('tbl_coordenadas_municipio')->updateOrInsert(
@@ -84,7 +94,7 @@ class OrganizacionController extends Controller
 
     public function edit($id)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Actualizacion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Actualizacion')) {
             abort(403, 'No tienes permiso para editar organizaciones.');
         }
 
@@ -97,7 +107,7 @@ class OrganizacionController extends Controller
 
     public function destroy($id)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Eliminacion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Eliminacion')) {
             abort(403, 'No tienes permiso para eliminar organizaciones.');
         }
 
@@ -115,7 +125,7 @@ class OrganizacionController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Actualizacion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Actualizacion')) {
             abort(403, 'No tienes permiso para actualizar organizaciones.');
         }
 
@@ -125,6 +135,11 @@ class OrganizacionController extends Controller
             'municipio' => 'required|exists:tbl_municipio,Id_Municipio',
             'Nombre_Aldea' => 'required|string|max:60',
             'Estado_Organizacion' => 'required|in:ACTIVO,INACTIVO',
+            'tiene_personeria_juridica' => 'required|boolean',
+            'fecha_personeria_juridica' => 'nullable|date|required_if:tiene_personeria_juridica,1',
+            'tiene_rtn' => 'required|boolean',
+            'rtn' => 'nullable|string|max:20|required_if:tiene_rtn,1',
+            'tiene_cuenta_bancaria' => 'required|boolean',
         ]);
 
         $org = Organizacion::findOrFail($id);
@@ -137,6 +152,11 @@ class OrganizacionController extends Controller
         $org->Id_Aldea = $aldea->Id_Aldea;
         $org->Nombre_Organizacion = $request->Nombre_Organizacion;
         $org->Estado_Organizacion = $request->Estado_Organizacion;
+        $org->tiene_personeria_juridica = $request->tiene_personeria_juridica;
+        $org->fecha_personeria_juridica = $request->tiene_personeria_juridica ? $request->fecha_personeria_juridica : null;
+        $org->tiene_rtn = $request->tiene_rtn;
+        $org->rtn = $request->tiene_rtn ? $request->rtn : null;
+        $org->tiene_cuenta_bancaria = $request->tiene_cuenta_bancaria;
         $org->save();
 
         $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();

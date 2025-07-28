@@ -44,6 +44,16 @@ public function restore(Request $request)
     $request->validate([
         'backup_file' => 'required|file|mimes:sql',
     ]);
+
+    // Activar modo de mantenimiento
+    \Illuminate\Support\Facades\Cache::put('maintenance_mode', true);
+
+    // Enviar notificación a todos los usuarios
+    $users = \App\Models\User::all();
+    foreach ($users as $user) {
+        $user->notify(new \App\Notifications\MaintenanceNotification());
+    }
+
     $file = $request->file('backup_file');
     $path = $file->getRealPath();
     $db = env('DB_DATABASE');
@@ -56,6 +66,10 @@ public function restore(Request $request)
     $result = null;
     $output = null;
     exec($command, $output, $result);
+
+    // Desactivar modo de mantenimiento
+    \Illuminate\Support\Facades\Cache::forget('maintenance_mode');
+
     if ($result === 0) {
         return back()->with('success', 'Base de datos restaurada correctamente.');
     } else {

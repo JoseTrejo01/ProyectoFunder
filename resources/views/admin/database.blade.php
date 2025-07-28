@@ -14,7 +14,7 @@
                 <i class="fas fa-download"></i> Generar Backup
             </div>
             <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height: 320px;">
-                <img src="{{ asset('images/backup-icon.png') }}" alt="Backup" style="width:90px;">
+                <img src="{{ asset('images/database-management.png') }}" alt="Backup"  style="width:120px;">
                 <form method="POST" action="{{ route('admin.database.backup') }}" class="mt-3 w-100 d-flex flex-column align-items-center">
                     @csrf
                     <button type="submit" class="btn btn-info btn-lg w-75">
@@ -30,7 +30,7 @@
                 <i class="fas fa-upload"></i> Restaurar Backup
             </div>
             <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height: 320px;">
-                <img src="{{ asset('images/restore-icon.png') }}" alt="Restore" style="width:90px;">
+                <img src="{{ asset('images/database (1).png') }}" alt="Restore" style="width:120px;">
                 <form method="POST" action="{{ route('admin.database.restore') }}" enctype="multipart/form-data" class="mt-3 w-100 d-flex flex-column align-items-center">
                     @csrf
                     <div class="form-group w-75">

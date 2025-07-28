@@ -58,15 +58,6 @@ Route::middleware('guest')->group(function () {
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
 });
 
-// Verificación de correo
-Route::middleware('auth')->group(function () {
-    Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-        Auth::logout();
-        return redirect()->route('login')->with('success', 'Correo verificado correctamente. Ya puedes iniciar sesión.');
-    })->middleware(['signed'])->name('verification.verify');
-});
 
 // Autenticados y verificados
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -78,7 +69,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Módulos administrativos
     Route::prefix('admin')->group(function () {
-        Route::prefix('database')->group(function () {
+        Route::prefix('respaldo')->group(function () {
             Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
             Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
             Route::post('/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
@@ -111,8 +102,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/cargos', [\App\Http\Controllers\ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
         Route::get('/cargos/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
     });
-});
-
 
     Route::prefix('parametros')->group(function () {
         Route::get('/', [ParametroController::class, 'index'])->name('parametros.index');
@@ -121,6 +110,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
     });
 
+});
+
+
+    
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
