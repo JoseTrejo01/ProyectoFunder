@@ -3,62 +3,125 @@
 @section('title', 'Indicadores de Género')
 
 @section('content_header')
-    <h1>Listado de Indicadores de Género</h1>
+    <h1>Indicadores de Género y Edad</h1>
 @stop
 
 @section('content')
-    <a href="{{ route('genero.create') }}" class="btn btn-success mb-3">➕ Nuevo Registro</a>
-
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-                <tr>
-                    <th>No.</th>
-                    <th>Nombre de Caja Rural</th>
-                    <th>Departamento</th>
-                    <th>Municipio</th>
-                    <th>Comunidad</th>
-                    <th>Nombre del Socio(a)</th>
-                    <th>Identidad</th>
-                    <th>Sexo</th>
-                    <th>Edad</th>
-                    <th>Cargo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-           <tbody>
-    @forelse($indicadores as $i => $item)
-        <tr>
-            <td>{{ $i + 1 }}</td>
-            <td>{{ $item->nombre_caja_rural }}</td>
-            <td>{{ $item->departamento }}</td>
-            <td>{{ $item->municipio }}</td>
-            <td>{{ $item->comunidad }}</td>
-            <td>{{ $item->nombre_apellidos }}</td>
-            <td>{{ $item->identidad }}</td>
-            <td>{{ $item->sexo }}</td>
-            <td>{{ $item->edad }}</td>
-            <td>{{ $item->cargo }}</td>
-            <td>
-                <a href="{{ route('genero.edit', $item->id) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
-                <form action="{{ route('genero.destroy', $item->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-danger btn-sm">🗑️ Eliminar</button>
-                </form>
-            </td>
-        </tr>
-    @empty
-        <tr>
-            <td colspan="10">Sin datos</td>
-        </tr>
-    @endforelse
-</tbody>
-
-        </table>
+    <div class="card">
+        <div class="card-body">
+            <canvas id="chartGenero" style="max-width: 600px; margin-bottom: 40px;"></canvas>
+            <canvas id="chartEdades" style="max-width: 600px;"></canvas>
+        </div>
     </div>
 @stop
+
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const generos = @json($generos);
+const edades = @json($edades);
+
+// Función para calcular porcentaje y mostrar en etiquetas
+function calculatePercentages(data) {
+  const total = Object.values(data).reduce((a, b) => a + b, 0);
+  return Object.values(data).map(value => ((value / total) * 100).toFixed(1) + '%');
+}
+
+// Colores pastel para los gráficos
+const coloresGeneros = ['#6c757d', '#f67280']; // gris y rosa suave
+const coloresEdades = ['#4caf50', '#81c784', '#a5d6a7', '#c8e6c9']; // varios verdes pastel
+
+// Gráfico Géneros
+const ctxGenero = document.getElementById('chartGenero').getContext('2d');
+const chartGenero = new Chart(ctxGenero, {
+    type: 'bar',
+    data: {
+        labels: Object.keys(generos),
+        datasets: [{
+            label: 'Cantidad',
+            data: Object.values(generos),
+            backgroundColor: coloresGeneros,
+            borderRadius: 10,
+            borderSkipped: false,
+            borderWidth: 1,
+            borderColor: '#ddd',
+            hoverBackgroundColor: '#495057',
+            hoverBorderColor: '#343a40',
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => {
+                        const count = ctx.parsed.y;
+                        const percent = calculatePercentages(generos)[ctx.dataIndex];
+                        return ` ${count} (${percent})`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: '#f0f0f0' },
+                ticks: { color: '#495057', font: { size: 14 } }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { color: '#495057', font: { size: 14 } }
+            }
+        }
+    }
+});
+
+// Gráfico Edades
+const ctxEdades = document.getElementById('chartEdades').getContext('2d');
+const chartEdades = new Chart(ctxEdades, {
+    type: 'bar',
+    data: {
+        labels: Object.keys(edades),
+        datasets: [{
+            label: 'Cantidad',
+            data: Object.values(edades),
+            backgroundColor: coloresEdades,
+            borderRadius: 10,
+            borderSkipped: false,
+            borderWidth: 1,
+            borderColor: '#ddd',
+            hoverBackgroundColor: '#388e3c',
+            hoverBorderColor: '#2e7d32',
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => {
+                        const count = ctx.parsed.y;
+                        const percent = calculatePercentages(edades)[ctx.dataIndex];
+                        return ` ${count} (${percent})`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: '#f0f0f0' },
+                ticks: { color: '#495057', font: { size: 14 } }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { color: '#495057', font: { size: 14 } }
+            }
+        }
+    }
+});
+</script>
+@stop
+
