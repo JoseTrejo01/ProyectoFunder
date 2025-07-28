@@ -96,15 +96,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('ahorros', AhorroController::class);
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
     Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
-
-    // Estadísticas de ahorros por organización
-    Route::get('/organizacion/{id}/socios', function ($id) {
-        $total = DB::table('tbl_beneficiario')
-            ->where('Id_Organizacion', $id)
-            ->where('Tipo_De_Socio', 'Socio')
-            ->count();
-        return response()->json(['total_socios' => $total]);
-    });
     Route::get('/organizacion/{id}/contar-socios', [AhorroController::class, 'contarSocios']);
     Route::get('/api/cajas/{id}/resumen', [AhorroController::class, 'resumen']);
 
@@ -116,6 +107,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Organizaciones
     Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
+
+    // Vista de Mapa
+    Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
+
+    // API para obtener organizaciones con socios
+    Route::get('/api/cajas/{id}/socios', function ($id) {
+        return App\Models\Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
+            ->where('Id_Organizacion', $id)
+            ->where('estado', 1)
+            ->get();
+    });
 
     // Préstamos
     Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
@@ -131,6 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
+    Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
 
     // AJAX: Ubicación
     Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
@@ -138,47 +141,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // API: Coordenadas del mapa
     Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
+
+    // Capacitaciones
+    Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
+    Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
 });
 
 // Vista de prueba
 Route::get('/prueba', fn () => view('prueba'));
-
-<<<<<<< HEAD
-// Vista de Mapa
-Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
- // API para obtener organizaciones con socios
-Route::get('/api/cajas/{id}/socios', function ($id) {
-    return Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
-        ->where('Id_Organizacion', $id)
-        ->where('estado', 1)
-        ->get();
-});
-// Rutas para Capacitaciones
-Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
-Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
-=======
-//rutas de socios 
-Route::resource('socios', App\Http\Controllers\SocioController::class);
-
-// Rutas de préstamos
-Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
-Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
-Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
-Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
-Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
-Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
-Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
-
-//pagos 
-Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
-Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
-Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
-Route::get('/prestamos/{prestamo}/pagos', [PagoController::class, 'index'])->name('pagos.index');
-// Desembolso debe ser POST porque en el formulario usamos method="POST"
-Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
-
-
-
-Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
-Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
->>>>>>> e2282faaa17de404af8697d94c6578d7726b085e
