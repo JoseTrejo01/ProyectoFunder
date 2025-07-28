@@ -29,6 +29,9 @@ use Maatwebsite\Excel\Facades\Excel;
 
 use App\Http\Controllers\EmprendimientoController;
 use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\ExportEvaluacionesController;
+use App\Http\Controllers\CriterioController;
 // Página de bienvenida
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
@@ -113,6 +116,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{id}', [ParametroController::class, 'update'])->name('parametros.update');
         Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
     });
+
+    // Criterio
+    Route::resource('criterio', CriterioController::class);
+
+    // Evaluación (CRUD)
+    Route::resource('evaluacion', EvaluacionController::class);
+
+    // Exportación a Excel 
+    Route::get('/evaluacion/exportar-excel', [ExportEvaluacionesController::class, 'export'])->name('evaluacion.export');
+
 
     // Socios
     Route::resource('socios', SocioController::class)->except(['show']);

@@ -406,10 +406,11 @@ return [
         'icon' => 'fas fa-chart-bar',
     ],
     [
-        'text' => 'Auditoría',
-        'url'  => 'auditoria',
+        'text' => 'Evaluacion',
+        'url'  => 'evaluacion',
         'icon' => 'fas fa-clipboard-list',
     ],
+ 
 ],
 
 
