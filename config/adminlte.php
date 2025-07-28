@@ -413,6 +413,11 @@ return [
         'icon' => 'fas fa-chart-bar',
     ],
     [
+        'text' => 'Capacitacion',
+        'url'  => 'capacitacion',
+        'icon' => 'fas fa-chalkboard-teacher'
+    ],
+    [
         'text' => 'Auditoría',
         'url'  => 'auditoria',
         'icon' => 'fas fa-clipboard-list',

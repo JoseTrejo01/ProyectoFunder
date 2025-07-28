@@ -22,6 +22,7 @@ use App\Http\Controllers\OrganizacionController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\EmprendimientoController;
+use App\Http\Controllers\CapacitacionController;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\SociosExport;
@@ -151,3 +152,6 @@ Route::get('/api/cajas/{id}/socios', function ($id) {
         ->where('estado', 1)
         ->get();
 });
+// Rutas para Capacitaciones
+Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
+Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
