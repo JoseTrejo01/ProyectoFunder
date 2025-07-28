@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Departamento;
-use App\Models\Aldea;
 class EmprendimientoController extends Controller
 {
     public function index(Request $request)
@@ -80,33 +79,29 @@ class EmprendimientoController extends Controller
         return view('emprendimientos.show', compact('emprendimiento'));
     }
 
- public function edit(Emprendimiento $emprendimiento)
-{
-    $departamentos = Departamento::all();
-    $municipios = Municipio::all();
-    $tecnicos = User::all();
-    return view('emprendimientos.edit', compact('emprendimiento', 'departamentos', 'municipios', 'tecnicos'));
-}
+    public function edit(Emprendimiento $emprendimiento)
+    {
+        $municipios = Municipio::all();
+        $tecnicos = User::all();
+        return view('emprendimientos.edit', compact('emprendimiento', 'municipios', 'tecnicos'));
+    }
+
     public function update(Request $request, Emprendimiento $emprendimiento)
     {
         $validated = $request->validate([
-    'Caja_Rural' => 'required|string|max:100',
-    'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
-    'aldea_id' => 'nullable|integer|exists:tbl_aldea,Id_Aldea',
-    'Comunidad' => 'nullable|string|max:100',
-    'Socios_Hombres' => 'nullable|integer|min:0',
-    'Socios_Mujeres' => 'nullable|integer|min:0',
-    'Tipo_Negocio' => 'required|string|max:255',
-    'Ventas_Trimestrales' => 'nullable|numeric|min:0',
-    'Empleos_Hombres' => 'nullable|integer|min:0',
-    'Empleos_Mujeres' => 'nullable|integer|min:0',
-    'Fecha_Levantamiento' => 'required|date',
-]);
+            'Caja_Rural' => 'required|string|max:100',
+            'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
+            'Comunidad' => 'nullable|string|max:100',
+            'Socios_Hombres' => 'nullable|integer|min:0',
+            'Socios_Mujeres' => 'nullable|integer|min:0',
+            'Tipo_Negocio' => 'required|string|max:255',
+            'Ventas_Trimestrales' => 'nullable|numeric|min:0',
+            'Empleos_Hombres' => 'nullable|integer|min:0',
+            'Empleos_Mujeres' => 'nullable|integer|min:0',
+            'Fecha_Levantamiento' => 'required|date',
+        ]);
 
-$validated['Id_Aldea'] = $validated['aldea_id'] ?? null;
-unset($validated['aldea_id']);
-
-$emprendimiento->update($validated);
+        $emprendimiento->update($validated);
 
         return redirect()->route('emprendimientos.index')->with('success', 'Registro actualizado');
     }
