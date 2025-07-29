@@ -402,6 +402,10 @@
 @stop
 
 @section('js')
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -445,6 +449,90 @@ function agregarActividad(containerId) {
 function eliminarActividad(btn) {
   var row = btn.closest('.actividad-item');
   row.remove();
+<<<<<<< HEAD
+=======
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+function agregarActividad(containerId) {
+    const tbody = document.getElementById(containerId);
+    const index = tbody.querySelectorAll('tr').length;
+
+    const fila = document.createElement('tr');
+    fila.classList.add('actividad-item');
+
+    fila.innerHTML = `
+        <td>${index + 1}</td>
+        <td>
+            <select name="actividades[${index}][tipo]" class="form-control form-control-sm tipo-select" required onchange="actualizarRubro(this)">
+                <option value="">Seleccione</option>
+                <option value="Agrícola">Agrícola</option>
+                <option value="No Agrícola">No Agrícola</option>
+            </select>
+        </td>
+        <td>
+            <select name="actividades[${index}][rubro]" class="form-control form-control-sm rubro-select" required>
+                <option value="">Seleccione</option>
+            </select>
+        </td>
+        <td>
+            <select name="actividades[${index}][unidad]" class="form-control form-control-sm" required>
+                <option value="">Seleccione</option>
+                <option value="Manzanas">Manzanas</option>
+                <option value="Lempiras">Lempiras</option>
+            </select>
+        </td>
+        <td>
+            <input type="number" step="0.01" name="actividades[${index}][cantidad]" class="form-control form-control-sm" required>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(this)">
+                Eliminar
+            </button>
+        </td>
+    `;
+
+    tbody.appendChild(fila);
+}
+
+function eliminarActividad(btn) {
+    const row = btn.closest('tr');
+    row.remove();
+
+    // Reordenar índices y numeración
+    const rows = row.parentElement.querySelectorAll('tr');
+    rows.forEach((r, i) => {
+        r.querySelector('td:first-child').textContent = i + 1;
+        r.querySelectorAll('select, input').forEach(el => {
+            if (el.name) {
+                el.name = el.name.replace(/\[\d+\]/, `[${i}]`);
+            }
+        });
+    });
+}
+
+function actualizarRubro(select) {
+    const tipo = select.value;
+    const rubroSelect = select.closest('tr').querySelector('.rubro-select');
+    
+    rubroSelect.innerHTML = '<option value="">Seleccione</option>'; // limpiar
+
+    if (tipo === 'Agrícola') {
+        rubroSelect.innerHTML += `
+            <option value="Maíz">Maíz</option>
+            <option value="Frijol">Frijol</option>
+            <option value="Café">Café</option>
+        `;
+    } else if (tipo === 'No Agrícola') {
+        rubroSelect.innerHTML += `
+            <option value="Comercio">Comercio</option>
+            <option value="Servicios">Servicios</option>
+            <option value="Oficios varios">Oficios varios</option>
+        `;
+    }
+>>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
+=======
+>>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
 }
 
 function confirmarEliminacion(e) {

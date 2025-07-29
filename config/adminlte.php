@@ -424,10 +424,19 @@ return [
         ],
     ],
     [
+        'text' => 'Capacitacion',
+        'url'  => 'capacitacion',
+        'icon' => 'fas fa-chalkboard-teacher'
+    ],
+    [
         'text' => 'Auditoría',
         'url'  => 'auditoria',
+        'text' => 'Evaluacion',
+        'url'  => 'evaluacion',
+
         'icon' => 'fas fa-clipboard-list',
     ],
+ 
 ],
 
 

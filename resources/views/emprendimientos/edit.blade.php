@@ -11,8 +11,23 @@
         @csrf
         @method('PUT')
 
+        {{-- Select de Organización --}}
+<div class="form-group">
+    <label for="Id_Organizacion">Caja Rural</label>
+    <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
+        <option value="">Seleccione una organización</option>
+        @foreach($organizaciones as $org)
+            <option value="{{ $org->Id_Organizacion }}" 
+                {{ (old('Id_Organizacion', $emprendimiento->Id_Organizacion) == $org->Id_Organizacion) ? 'selected' : '' }}>
+                {{ $org->Nombre_Organizacion }}
+            </option>
+        @endforeach
+    </select>
+    @error('Id_Organizacion') <small class="text-danger">{{ $message }}</small> @enderror
+</div>
+
         <div class="form-group">
-            <label for="Caja_Rural">Nombre del Emprendimiento (Caja Rural)</label>
+            <label for="Caja_Rural">Nombre del Emprendimiento </label>
             <input type="text" name="Caja_Rural" class="form-control" value="{{ old('Caja_Rural', $emprendimiento->Caja_Rural) }}" required>
         </div>
 

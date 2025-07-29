@@ -78,6 +78,16 @@ class OrganizacionController extends Controller
             'tiene_cuenta_bancaria' => $request->tiene_cuenta_bancaria,
         ]);
 
+        $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Nuevo',
+                'Creó una nueva organización: ' . $org->Nombre_Organizacion
+            );
+        }
+
         DB::table('tbl_coordenadas_municipio')->updateOrInsert(
             [
                 'Id_Municipio' => $request->municipio,
