@@ -43,7 +43,7 @@ class OrganizacionController extends Controller
 
     public function store(Request $request)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Insercion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Insercion')) {
             abort(403, 'No tienes permiso para crear organizaciones.');
         }
 
@@ -94,7 +94,7 @@ class OrganizacionController extends Controller
 
     public function edit($id)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Actualizacion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Actualizacion')) {
             abort(403, 'No tienes permiso para editar organizaciones.');
         }
 
@@ -107,7 +107,7 @@ class OrganizacionController extends Controller
 
     public function destroy($id)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Eliminacion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Eliminacion')) {
             abort(403, 'No tienes permiso para eliminar organizaciones.');
         }
 
@@ -125,7 +125,7 @@ class OrganizacionController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Organización', 'Actualizacion')) {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Actualizacion')) {
             abort(403, 'No tienes permiso para actualizar organizaciones.');
         }
 

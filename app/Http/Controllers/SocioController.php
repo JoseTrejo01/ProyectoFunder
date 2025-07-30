@@ -58,7 +58,7 @@ class SocioController extends Controller
 }
 
 
-        $socios = $query->with('actividades')->paginate(10);
+        $socios = $query->with(['actividades', 'organizacion'])->paginate(10);
 
         $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
         if ($objeto && auth()->check()) {

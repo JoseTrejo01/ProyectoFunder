@@ -128,17 +128,21 @@
         <thead class="table-primary">
             <tr>
                 <th>Nombre</th>
+                <th> Caja Rural</th>
                 <th>DNI</th>
                 <th>Teléfono</th>
-                <th>Acciones</th>
+            <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             @forelse($socios as $socio)
                 <tr>
                     <td>{{ $socio->Nombre_Beneficiario }}</td>
+                    <td>{{ $socio->organizacion->Nombre_Organizacion ?? 'N/D' }}</td>
                     <td>{{ $socio->DNI }}</td>
                     <td>{{ $socio->Telefono }}</td>
+                    
+
                     
                   <td class="text-center py-3">
     <div class="d-flex justify-content-center flex-wrap">
@@ -402,55 +406,6 @@
 @stop
 
 @section('js')
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-function agregarActividad(containerId) {
-  var container = document.getElementById(containerId);
-  var index = container.querySelectorAll('.actividad-item').length;
-  var row = document.createElement('div');
-  row.className = 'row mb-2 actividad-item';
-  row.innerHTML = `
-    <div class="col-md-2">
-      <input type="text" name="actividades[${index}][rubro]" class="form-control" placeholder="Rubro" required>
-    </div>
-    <div class="col-md-2">
-      <select name="actividades[${index}][tipo]" class="form-control" required>
-        <option value="Agrícola">Agrícola</option>
-        <option value="No Agrícola">No Agrícola</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <select name="actividades[${index}][unidad]" class="form-control" required>
-        <option value="Manzanas">Manzanas</option>
-        <option value="Lempiras">Lempiras</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <input type="number" step="0.01" name="actividades[${index}][cantidad]" class="form-control" placeholder="Cantidad" required>
-    </div>
-    <div class="col-md-2">
-      <input type="number" name="actividades[${index}][numero]" class="form-control" placeholder="N°" required>
-    </div>
-    <div class="col-md-2">
-      <button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(this)">
-        <i class="fas fa-trash"></i>
-      </button>
-    </div>
-  `;
-  container.appendChild(row);
-}
-
-function eliminarActividad(btn) {
-  var row = btn.closest('.actividad-item');
-  row.remove();
-<<<<<<< HEAD
-=======
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -530,9 +485,7 @@ function actualizarRubro(select) {
             <option value="Oficios varios">Oficios varios</option>
         `;
     }
->>>>>>> 3ee94b0a8dc5e34c4eb7247b1e2a8c0652b035d0
-=======
->>>>>>> e5d6109a3882fb515218b98c5255c80695c7859e
+
 }
 
 function confirmarEliminacion(e) {
