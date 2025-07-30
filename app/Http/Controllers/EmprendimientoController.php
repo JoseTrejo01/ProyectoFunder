@@ -104,7 +104,11 @@ class EmprendimientoController extends Controller
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
         $tecnicos = User::all();
+<<<<<<< HEAD
         $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
+=======
+      $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
+>>>>>>> 6342b796d1940c478a00e3916f1d81744495aed5
 
         return view('emprendimientos.edit', compact('emprendimiento', 'departamentos', 'municipios', 'tecnicos', 'organizaciones'));
     }

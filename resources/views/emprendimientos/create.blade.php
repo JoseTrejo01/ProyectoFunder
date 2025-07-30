@@ -15,10 +15,11 @@
             <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
                 <option value="">Seleccione una organización</option>
                 @foreach($organizaciones as $org)
-                  <option value="{{ $org->Id_Organizacion }}"
+              <option value="{{ $org->Id_Organizacion }}"
     {{ old('Id_Organizacion') == $org->Id_Organizacion ? 'selected' : '' }}>
-    {{ $org->Nombre_Organizacion }} - {{ $org->Estado }}
+    {{ $org->Nombre_Organizacion }} - {{ $org->Estado_Organizacion }}
 </option>
+
                 @endforeach
             </select>
             @error('Id_Organizacion') <small class="text-danger">{{ $message }}</small> @enderror
