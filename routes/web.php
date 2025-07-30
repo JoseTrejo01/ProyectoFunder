@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\DatabaseController;
 use App\Http\Controllers\Admin\RolController;
 use App\Http\Controllers\Admin\ObjetoController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ExportReportesController;
 
 // Controllers - Módulos
 use App\Http\Controllers\DashboardController;
@@ -36,27 +37,18 @@ use App\Http\Controllers\AhorroController;
 use App\Http\Controllers\IndicadorGeneroController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CoordenadasMapaController;
-<<<<<<< HEAD
 use App\Http\Controllers\CapacitacionController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ExportEvaluacionesController;
 use App\Http\Controllers\CriterioController;
-=======
-use App\Http\Controllers\ExportSociosPdfController;
 use App\Http\Controllers\InformeFinancieroController;
->>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf
 
 // Librerías
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-<<<<<<< HEAD
 // Página de inicio
-=======
-
->>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
-
 
 // ===================== RUTAS PARA INVITADOS =====================
 Route::middleware('guest')->group(function () {
@@ -76,7 +68,6 @@ Route::middleware('guest')->group(function () {
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
 });
 
-
 // ===================== VERIFICACIÓN DE CORREO =====================
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
@@ -87,10 +78,8 @@ Route::middleware('auth')->group(function () {
     })->middleware(['signed'])->name('verification.verify');
 });
 
-
 // ===================== RUTAS AUTENTICADOS =====================
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -108,17 +97,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin
     Route::prefix('admin')->group(function () {
-        // Usuarios
         Route::resource('usuarios', UsuarioController::class)->except(['show']);
 
-        // Base de datos
         Route::prefix('database')->group(function () {
             Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
             Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
             Route::post('/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
         });
 
-        // Roles
         Route::prefix('roles')->group(function () {
             Route::get('/', [RolController::class, 'index'])->name('roles.index');
             Route::post('/', [RolController::class, 'store'])->name('roles.store');
@@ -127,7 +113,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
         });
 
-        // Objetos
         Route::prefix('objetos')->group(function () {
             Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
             Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
@@ -136,17 +121,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
         });
 
-
-    Route::prefix('reportes')->group(function () {
-        Route::get('/', [\App\Http\Controllers\ReporteController::class, 'index'])->name('admin.reportes.index');
-        // Nuevos reportes individuales
-        Route::get('/cajas', [\App\Http\Controllers\ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
-        Route::get('/cajas/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCajas'])->name('admin.reportes.cajas.export');
-        Route::get('/cargos', [\App\Http\Controllers\ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
-        Route::get('/cargos/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
+        Route::prefix('reportes')->group(function () {
+            Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
+            Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
+            Route::get('/cajas/export', [ExportReportesController::class, 'exportCajas'])->name('admin.reportes.cajas.export');
+            Route::get('/cargos', [ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
+            Route::get('/cargos/export', [ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
+        });
     });
-});
-
 
     // Permisos y Bitácora
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
@@ -192,10 +174,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
 
-<<<<<<< HEAD
     // Créditos
-=======
->>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf
     Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
     Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
     Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
@@ -214,7 +193,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Ubicación y capacitaciones
     Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
     Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
-
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
 
@@ -223,32 +201,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $organizacion = DB::table('tbl_organizaciones')->where('Id_Organizacion', $id)->first();
         return response()->json(['nombre' => $organizacion->Nombre_Organizacion ?? '']);
     });
-
     Route::get('/actividades/{id}', function ($id) {
         return DB::table('tbl_actividad_economica')
             ->where('Id_Beneficiario', $id)
             ->pluck('Rubro', 'Id_Actividad');
     });
 });
+
+// Informe financiero
 Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme']);
 Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportarInforme'])->name('informe-financiero.export');
 
-
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));
-<<<<<<< HEAD
-=======
-Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
-Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
-Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
-Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
-Route::get('/organizacion/{id}/nombre', function ($id) {
-    $organizacion = DB::table('tbl_organizaciones')
-        ->where('Id_Organizacion', $id)
-        ->first();
-
-    return response()->json([
-        'nombre' => $organizacion->Nombre_Organizacion ?? ''
-    ]);
-});
->>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf
