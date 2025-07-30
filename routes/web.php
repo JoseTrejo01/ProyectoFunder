@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\ParametroController;
 use App\Http\Controllers\Admin\DatabaseController;
 use App\Http\Controllers\Admin\RolController;
 use App\Http\Controllers\Admin\ObjetoController;
+use App\Http\Controllers\ReporteController;
 
 // Controllers - Módulos
 use App\Http\Controllers\DashboardController;
@@ -35,16 +36,25 @@ use App\Http\Controllers\AhorroController;
 use App\Http\Controllers\IndicadorGeneroController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CoordenadasMapaController;
+<<<<<<< HEAD
 use App\Http\Controllers\CapacitacionController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ExportEvaluacionesController;
 use App\Http\Controllers\CriterioController;
+=======
+use App\Http\Controllers\ExportSociosPdfController;
+use App\Http\Controllers\InformeFinancieroController;
+>>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf
 
 // Librerías
 use App\Exports\SociosExport;
 use Maatwebsite\Excel\Facades\Excel;
 
+<<<<<<< HEAD
 // Página de inicio
+=======
+
+>>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf
 Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
 
@@ -125,7 +135,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/{id}', [ObjetoController::class, 'destroy'])->name('objetos.destroy');
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
         });
+
+
+    Route::prefix('reportes')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ReporteController::class, 'index'])->name('admin.reportes.index');
+        // Nuevos reportes individuales
+        Route::get('/cajas', [\App\Http\Controllers\ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
+        Route::get('/cajas/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCajas'])->name('admin.reportes.cajas.export');
+        Route::get('/cargos', [\App\Http\Controllers\ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
+        Route::get('/cargos/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
     });
+});
+
 
     // Permisos y Bitácora
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
@@ -171,7 +192,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
 
+<<<<<<< HEAD
     // Créditos
+=======
+>>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf
     Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
     Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
     Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
@@ -206,6 +230,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->pluck('Rubro', 'Id_Actividad');
     });
 });
+Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme']);
+Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportarInforme'])->name('informe-financiero.export');
+
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));
+<<<<<<< HEAD
+=======
+Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
+Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
+Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
+Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
+Route::get('/organizacion/{id}/nombre', function ($id) {
+    $organizacion = DB::table('tbl_organizaciones')
+        ->where('Id_Organizacion', $id)
+        ->first();
+
+    return response()->json([
+        'nombre' => $organizacion->Nombre_Organizacion ?? ''
+    ]);
+});
+>>>>>>> b70269415c0001df4bb12604fa62b07b5ad75dcf

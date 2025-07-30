@@ -15,6 +15,7 @@ class Prestamo extends Model
         'socio_id',
         'beneficiario_id',
         'nombre_caja_rural',  
+        'departamento_id',
         'monto_solicitado',
         'plazo_meses',
         'destino',
