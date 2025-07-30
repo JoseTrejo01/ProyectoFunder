@@ -14,61 +14,56 @@ use App\Models\Organizacion;
 class EmprendimientoController extends Controller
 {
     public function index(Request $request)
-{
-    // 1. Inicializa la consulta base
-    $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']);
+    {
+        // 1. Inicializa la consulta base
+        $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']);
 
-    // 2. Aplica filtros si vienen en la solicitud
-    if ($request->filled('municipio')) {
-        $query->where('Id_Municipio', $request->municipio);
+        // 2. Aplica filtros si vienen en la solicitud
+        if ($request->filled('municipio')) {
+            $query->where('Id_Municipio', $request->municipio);
+        }
+
+        if ($request->filled('fecha')) {
+            $query->whereDate('Fecha_Levantamiento', $request->fecha);
+        }
+
+        if ($request->filled('tecnico')) {
+            $query->whereHas('tecnico', function ($q) use ($request) {
+                $q->where('Nombre_Usuario', 'like', '%' . $request->tecnico . '%');
+            });
+        }
+
+        if ($request->filled('nombre')) {
+            $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
+        }
+
+        // 3. Ejecuta la consulta y pagina los resultados
+        $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')
+                                 ->paginate(10)
+                                 ->appends($request->query());
+
+        // 4. Carga lista de municipios
+        $municipios = Municipio::all();
+
+        // 5. Retorna la vista
+        return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
     }
-
-    if ($request->filled('fecha')) {
-        $query->whereDate('Fecha_Levantamiento', $request->fecha);
-    }
-
-    if ($request->filled('tecnico')) {
-        $query->whereHas('tecnico', function ($q) use ($request) {
-            $q->where('Nombre_Usuario', 'like', '%' . $request->tecnico . '%');
-        });
-    }
-
-    if ($request->filled('nombre')) {
-        $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
-    }
-
-    // 3. Ejecuta la consulta y pagina los resultados
-    $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')
-                             ->paginate(10)
-                             ->appends($request->query());
-
-    // 4. Carga lista de municipios
-    $municipios = Municipio::all();
-
-    // 5. Retorna la vista
-    return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
-}
-
 
     public function create()
     {
-
+        $departamentos = Departamento::all();
         $tecnicos = User::all();
-<<<<<<< HEAD
-        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get();
-=======
-      $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
->>>>>>> 09b840543044837f0c81c0fc4aab0677f30be17f
+        $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
 
         return view('emprendimientos.create', compact('departamentos', 'tecnicos', 'organizaciones'));
     }
 
     public function store(Request $request)
-
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Actualizacion')) {
             abort(403, 'No tienes permiso para actualizar emprendimientos.');
         }
+
         $validated = $request->validate([
             'Caja_Rural' => 'required|string|max:100',
             'Id_Municipio' => 'required|integer|exists:tbl_municipio,Id_Municipio',
@@ -89,7 +84,17 @@ class EmprendimientoController extends Controller
         $validated['Id_Aldea'] = $validated['aldea_id'] ?? null;
         unset($validated['aldea_id']);
 
-        Emprendimiento::create($validated);
+        $nuevo = Emprendimiento::create($validated);
+
+        $objeto = \App\Models\Objeto::where('Objeto', 'Emprendimientos')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Creación',
+                'Registró el emprendimiento: ' . $validated['Caja_Rural']
+            );
+        }
 
         return redirect()->route('emprendimientos.index')->with('success', 'Registro creado exitosamente');
     }
@@ -99,7 +104,7 @@ class EmprendimientoController extends Controller
         $departamentos = Departamento::all();
         $municipios = Municipio::all();
         $tecnicos = User::all();
-        $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get();
+        $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
 
         return view('emprendimientos.edit', compact('emprendimiento', 'departamentos', 'municipios', 'tecnicos', 'organizaciones'));
     }
@@ -144,7 +149,19 @@ class EmprendimientoController extends Controller
         if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Eliminacion')) {
             abort(403, 'No tienes permiso para eliminar emprendimientos.');
         }
+
         $emprendimiento->delete();
+
+        $objeto = \App\Models\Objeto::where('Objeto', 'Emprendimientos')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Eliminación',
+                'Eliminó el emprendimiento: ' . $emprendimiento->Caja_Rural
+            );
+        }
+
         return redirect()->route('emprendimientos.index')->with('success', 'Registro eliminado');
     }
 }
