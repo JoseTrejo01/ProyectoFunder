@@ -54,7 +54,11 @@ class EmprendimientoController extends Controller
     {
 
         $tecnicos = User::all();
+<<<<<<< HEAD
         $organizaciones = Organizacion::where('Estado_Organizacion', 1)->get();
+=======
+      $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
+>>>>>>> 09b840543044837f0c81c0fc4aab0677f30be17f
 
         return view('emprendimientos.create', compact('departamentos', 'tecnicos', 'organizaciones'));
     }
