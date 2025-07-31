@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -89,6 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin
     Route::prefix('admin')->group(function () {
+        Route::resource('usuarios', UsuarioController::class);
         Route::prefix('respaldo')->group(function () {
             Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
             Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
@@ -115,10 +117,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::prefix('reportes')->group(function () {
-        Route::get('/', [\App\Http\Controllers\ReporteController::class, 'index'])->name('admin.reportes.index');
-        // Nuevos reportes individuales
+        // Solo rutas válidas para reportes
         Route::get('/cajas', [\App\Http\Controllers\ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
         Route::get('/cajas/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCajas'])->name('admin.reportes.cajas.export');
+        // Rutas para cargos según género
         Route::get('/cargos', [\App\Http\Controllers\ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
         Route::get('/cargos/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
     });
@@ -146,6 +148,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Socios
     Route::resource('socios', SocioController::class)->except(['show']);
+    Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
     Route::get('/socios/export', function (Request $request) {
@@ -199,6 +202,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
+    Route::post('/capacitaciones/guardar', [App\Http\Controllers\CapacitacionController::class, 'store'])->name('capacitacion.store');
 
     // Auxiliares
     Route::get('/organizacion/{id}/nombre', function ($id) {
@@ -215,3 +219,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));
+
+Route::get('reporte/export-capacitaciones', [App\Http\Controllers\ReporteController::class, 'exportCapacitacionesExcel'])->name('reporte.exportCapacitacionesExcel');

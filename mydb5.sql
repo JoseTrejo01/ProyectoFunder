@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-07-2025 a las 06:33:50
+-- Tiempo de generación: 28-07-2025 a las 20:56:30
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -18,36 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `mydb1`
+-- Base de datos: `mydb5`
 --
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `ahorros`
---
-
-CREATE TABLE `ahorros` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `nombre_caja_rural` varchar(255) NOT NULL,
-  `socios_no` int(11) NOT NULL,
-  `socios_ahorros` decimal(12,2) NOT NULL,
-  `socios_promedio` decimal(12,2) NOT NULL,
-  `adultos_no` int(11) NOT NULL,
-  `adultos_ahorros` decimal(12,2) NOT NULL,
-  `adultos_promedio` decimal(12,2) NOT NULL,
-  `ninos_no` int(11) NOT NULL,
-  `ninos_ahorros` decimal(12,2) NOT NULL,
-  `ninos_promedio` decimal(12,2) NOT NULL,
-  `subtotal_no_socios_no` int(11) NOT NULL,
-  `subtotal_no_socios_ahorros` decimal(12,2) NOT NULL,
-  `subtotal_no_socios_promedio` decimal(12,2) NOT NULL,
-  `total_no` int(11) NOT NULL,
-  `total_ahorros` decimal(12,2) NOT NULL,
-  `total_promedio` decimal(12,2) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -183,6 +155,33 @@ CREATE TABLE `password_reset_tokens` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `prestamos`
+--
+
+CREATE TABLE `prestamos` (
+  `id` int(11) NOT NULL,
+  `socio_id` int(11) NOT NULL,
+  `nombre_caja_rural` varchar(255) NOT NULL,
+  `monto_solicitado` decimal(10,2) NOT NULL,
+  `plazo_meses` int(11) NOT NULL,
+  `destino` varchar(255) NOT NULL,
+  `tipo_credito` varchar(255) NOT NULL,
+  `fecha_solicitud` date NOT NULL,
+  `porcentaje_mora_caja` decimal(5,2) DEFAULT NULL,
+  `intereses_cobrados` decimal(12,2) DEFAULT NULL,
+  `capital_social` decimal(12,2) DEFAULT NULL,
+  `capital_trabajo` decimal(12,2) DEFAULT NULL,
+  `reservas` decimal(12,2) DEFAULT NULL,
+  `estado` enum('pendiente','aprobado','desembolsado','rechazado') NOT NULL DEFAULT 'pendiente',
+  `puntaje` int(11) NOT NULL,
+  `observaciones` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `sessions`
 --
 
@@ -200,7 +199,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('atSFV69BbCFjhJdMX2Si5RB6k0yMyrsZPOZ15rYB', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0', 'ZXlKcGRpSTZJazF5YjBWclEzZEVUbWhzV2pScVIwWjFWall6U0VFOVBTSXNJblpoYkhWbElqb2llV1pxZUhOSE1rSndNR1Z0WldSak1qY3pSSEp0T0dKVk5TdFVaVEZKTXpkUVdFc3diWFZZTmt0cGRHUTFiMjlGWlhoVlNGTk5TMVZ4VUhvclkyNVBUbFo0ZGtGeFRXZDVkVll6U0VGVWRHOURXbTR4YTFWd1lVRk1WVmczTDBWek1HdERPVmhDTlRWNWEwbFVjMlpzTWxCb2QwdFhVbkJNZDBGWFpuTXpibkV5Wkc1d2VFdEVTVVF3Y0dKUlMxVTFlVk42YjNweEx6bHFZa1JwTVVFeWNXbHNVRGhYVTIxUWQwbERaVEp0UkZrelZERkJOREJRY0RWblpEVjBTR0pZTjFwclNtaG5XbVZGTUdWS2JWVTRjaTl1VXk5dk4zUlVOa3RrUVRKVFl6VklMMjV2WlhoMVpWaEZabmR5UjNoRU5WTlJURmhVT1VWMGMya3ZhWGRyTlhwS1VEVnhiMEUyYXpKYU1UZG1VWEppYlV4YVpqbEhhRzB3ZUhWNGQzcHRhM2hpWlhsYVEzTnlWMkZTUnpGWVJVdFVPWFJUU2t4SE1UWk9iVkFyWlVwclRXcE9UVTFXU1ZSUWNHOWhkR05ITjAxR1ExbFdkVFJ3TW0xcVdYcGlXazlETVRKV2JWWXJRVVZCUFNJc0ltMWhZeUk2SWpBMlpUSm1aR1l6TmpOaFlqSTNOR0l6T1RNMU9ETTNPREZtTXpNNE1qVXlZalk1WWpReFkyUTVOR0kzTURnNVkyRTNZVFptWXpjeFptUmlaV1UzTkRnaUxDSjBZV2NpT2lJaWZRPT0=', 1752985624);
+('lsMsYh1QpFLdM7adNXmlcJuifDtTtksOaSiGB17g', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'ZXlKcGRpSTZJbVV2WTFKV1dUTm1abk5MWmpCVlExTklObTV1TjBFOVBTSXNJblpoYkhWbElqb2laM055U25wUFlXNW1UVlZDYW1aT1NFTnJWbUV4YkZOUlNFbzVSa3R6UmtKdWRsTkZaa2RaUlcxR0wwOVhhSHA2Ylcxd01tRmtVbWQ1UTFCU2VsVmxWSGhGWkdwa1pTdEtTWFJpUXl0RVQwZExPR0ZQVjFNek4ydFlOR0kyZVRKVGNtcFJNblphT0dKSFN6aG5LM2c1TkZCelJYRlJVVnBpZVRWT1dHTmtVbnBqWWtOSWJESm5WVE4wWkZKU2RWUXlXRGxyWkZVNWJrTlNLMk5sVW0xaldtcEhWbGxGYUVzeFZtd3hVRGhLVEVOcVlVOTVZbmMyVVV4SmVVVXpSRVpzTTB4MVVVMTBlVXR5TUZadU9HeExRWGhJUm1Wd1YzZDVlSEpNT0VKMlRrRlBhWFo2VEcxNVZYVm5hbUp0Y0dOdE1XZFNTakpLZGtsaGVuUjVRWHA1VURkU1pVVjRPVVJYU1hsNVdtWkNObFpGT1hwU2JrNUZaMFYyUjNCdU0zbE1LekE0TUc1blJFSXJLMHRGWm5kQlFYUm1TVTVOUW5CT04yVXdiMFVyVEU4MUwzZzJWMWx0UzAxdGR6QllZbmRTTldkSWMwSlViVXRQTldGM2RtSklhemsyYmtWUU1sUmxORmxPYnk5VE9EaHJZVWRYUmtSWk9FVkdOSEY2ZVdkdEwyRTJjbm94TURaWGJITm9XWFJyYTI1aVpVOVRPV2syZW1SRVJtSnpkSFpGU0dwaWQxTm9UQzlXVUhvMVFuZzRjV3BQY25sd09FbHplbmwxYW1oc2RIRlBabGhOUjFFelEzUk9lakpwUWtwT1pGTkdPVGMzZEZFeWJHTm5WRTU1YnpoelpIaHZWV1E1YVZrOUlpd2liV0ZqSWpvaU9ERTJaVE13WVdGalpEaGhNall3WVdZMU9XUmhZVFkwWTJFMVlUZzVaakF5WmpnNVpUUTBORGN5WVRjNE1UTTVZV05sTW1KaE5qWXdOekpsTmpsbVpDSXNJblJoWnlJNklpSjk=', 1753671510);
 
 -- --------------------------------------------------------
 
@@ -218,14 +217,21 @@ CREATE TABLE `tbl_actividad_economica` (
   `Cantidad` decimal(12,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Volcado de datos para la tabla `tbl_actividad_economica`
+-- Estructura de tabla para la tabla `tbl_ahorros`
 --
 
-INSERT INTO `tbl_actividad_economica` (`Id_Actividad`, `Id_Beneficiario`, `Tipo`, `Numero`, `Rubro`, `Unidad_Medida`, `Cantidad`) VALUES
-(7, 8, 'Agrícola', 1, 'Maiz', 'Manzanas', 8.00),
-(8, 9, 'No Agrícola', 1, 'Tomates', 'Manzanas', 58.00),
-(10, 10, 'Agrícola', 1, 'Piña', 'Manzanas', 23.00);
+CREATE TABLE `tbl_ahorros` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `Id_Beneficiario` int(11) NOT NULL,
+  `Id_Organizacion` int(11) NOT NULL,
+  `Monto` decimal(12,2) NOT NULL,
+  `Fecha` date NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -251,7 +257,9 @@ INSERT INTO `tbl_aldea` (`Id_Aldea`, `Id_Municipio`, `Nombre_Aldea`) VALUES
 (5, 110, 'Valle de Angeles'),
 (6, 115, 'la pequeña'),
 (7, 31, 'san jeronimo'),
-(8, 132, 'santa lucia');
+(8, 132, 'santa lucia'),
+(9, 134, 'Aldea nueva'),
+(10, 76, 'nose');
 
 -- --------------------------------------------------------
 
@@ -312,18 +320,16 @@ CREATE TABLE `tbl_beneficiario` (
 --
 
 INSERT INTO `tbl_beneficiario` (`Id_Beneficiario`, `Id_Organizacion`, `Nombre_Beneficiario`, `DNI`, `Tipo_Cargo`, `Tipo_De_Socio`, `categoria`, `Telefono`, `genero`, `fecha_nacimiento`, `edad`, `estado_civil`, `etnia`, `nivel_educativo`, `medio_comunicacion`, `departamento`, `municipio`, `comunidad`, `direccion`, `estado`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Edgard Samir Lanza Izaguirress', '0801-2000-17207', 'Presidente(a)', 'ninguno', 'todaaaaaas', '9716-6764', 'M', '2000-08-25', 24, 'Viudo(a)', 'Garífuna', 'Educación superior', 'Teléfono', 'Francisco Morazán', 'Tegucigalpa', 'Comayagüela', 'Col.carrizal #1', 0, '2025-07-06 04:43:56', '2025-07-14 02:37:40'),
-(2, 2, 'samir samuel', '0801-2001-18207', 'Junta de Vigilancia Vocal', 'edede', 'ededed', '9828-8979', 'F', '2000-02-23', 24, 'Soltero(a)', 'Negro de habla inglesa o Creole', 'Sin estudios', 'Teléfono', 'Olancho', 'Juticalpa', 'Catacamas', 'eeded', 0, '2025-07-09 02:59:44', '2025-07-14 02:43:18'),
-(3, 3, 'Jose Armando Trejo Valladares', '0801-2003-01901', NULL, NULL, NULL, '9394-7057', 'M', '2004-01-07', 21, 'Casado(a)', 'Mestizo', 'Educación superior', 'Teléfono', 'Francisco Morazán', 'Tegucigalpa', 'La cañada', NULL, 1, '2025-07-14 00:18:03', '2025-07-14 02:44:43'),
-(4, 3, 'Jose Armando Trejo Garcia', '0801-2033-01901', 'Vicepresidente(a)', 'Cliente', 'sdsdf', '9394-7057', 'M', '2008-12-10', 26, 'Viudo(a)', 'Mestizo', 'Educación superior', 'Teléfono', 'Francisco Morazán', 'Tegucigalpa', 'La cañada', 'Reparto Por Arriba', 1, '2025-07-14 01:21:51', '2025-07-14 01:21:51'),
-(5, 3, 'Trejo V', '0801-2033-02011', NULL, NULL, NULL, '9397-4857', 'M', '2016-01-07', 23, 'Soltero(a)', 'Mestizo', 'Educación superior', 'Computadora', NULL, NULL, NULL, NULL, 1, '2025-07-14 01:29:08', '2025-07-14 01:29:08'),
-(6, 3, 'ANAEL', '0108-2033-20125', NULL, NULL, NULL, '9371-2584', 'F', '2009-12-29', 25, 'Casado(a)', 'Mestizo', 'Educación media', 'Teléfono', NULL, NULL, NULL, NULL, 1, '2025-07-14 01:31:10', '2025-07-14 01:31:10'),
-(7, 3, 'Hamlet Valldaressds', '0801-2003-20214', 'Vicepresidente(a)', 'ssdds', 'sdsd', '9349-2147', 'M', '2025-07-01', 15, 'Soltero(a)', 'Mestizo', 'Educación media', 'Teléfono', 'Francisco Morazán', 'Tegucigalpa', 'La cañada', 'Reparto Por Bajo', 0, '2025-07-14 01:34:53', '2025-07-14 02:26:47'),
-(8, 1, 'Ahser Santiago Trejo', '0201-2025-20154', 'Presidente(a)', 'efesdf', 'sdfdf', '6454-5256', 'M', '2012-01-31', 25, 'Casado(a)', NULL, 'Educación superior', 'Teléfono', 'Francisco Morazán', 'Tegucigalpa', 'Aldea El Chimbo', 'La caseta', 1, '2025-07-14 02:46:36', '2025-07-14 02:46:52'),
-(9, 4, 'Jose Luis Perales', '0801-2032-20150', 'Secretario(a)', 'sdff', 'sdffsd', '9555-3026', 'M', '2004-01-06', 21, 'Casado(a)', 'Lenca', 'Educación superior', 'Teléfono', 'SANTA BARBARA', 'NUEVA FRONTERA', 'Aldea el triunfo', 'Reparto Por Bajo', 1, '2025-07-14 04:11:08', '2025-07-14 04:11:08'),
-(10, 5, 'Osiris Valladaress', '0201-2015-10244', 'Secretario(a)', 'sdsdf', 'sdfsdf', '6354-9854', 'F', '1996-12-31', 28, 'Unión Libre', 'Tolupan', 'Educación superior', 'Teléfono', 'FRANCISCO MORAZAN', 'DISTRITO CENTRAL', 'Valle de Angeles', 'Calle santa elena', 1, '2025-07-14 04:17:43', '2025-07-14 04:18:15'),
-(11, 1, 'Angie Zambrano', '0201-5258-52454', 'Vicepresidente(a)', 'sdasd', 'asdas', '9394-7057', 'F', '1999-01-05', 26, 'Soltero(a)', 'Mestizo', 'Educación básica', 'Teléfono', 'ATLANTIDA', 'LA CEIBA', 'Aldea El Chimbo', 'dfsdfsdf', 1, '2025-07-14 04:32:49', '2025-07-14 04:36:32'),
-(12, 6, 'samuel sm', '0801-2000-17208', 'Tesorero(a)', 'principal', '1', '9829-6768', 'M', '1999-02-18', 26, 'Casado(a)', 'Miskito', 'Educación básica', 'Tablet', 'FRANCISCO MORAZAN', 'GUAIMACA', 'la pequeña', 'colonia #1', 1, '2025-07-18 05:46:33', '2025-07-18 05:46:33');
+(1, 1, 'Carlos Mejía', '0801199012345', 'Presidente Consejo Admon', 'Socio', 'General', '9876-5432', 'M', '1990-05-12', 35, 'Casado(a)', 'Mestizo', 'Educación superior', 'Teléfono', 'ATLANTIDA', 'LA CEIBA', 'Barrio El Centro', 'Col. Kennedy', 1, '2025-07-27 16:00:00', '2025-07-28 08:52:20'),
+(2, 2, 'Ana López', '0801198854321', 'Secretario(a)', 'Cliente', 'Especial', '8765-4321', 'F', '1988-03-15', 37, 'Soltero(a)', 'Garífuna', 'Educación media', 'Tablet', 'COLON', 'TRUJILLO', 'Aldea Nueva', 'Barrio Inglés', 1, '2025-07-27 16:00:00', '2025-07-27 16:00:00'),
+(3, 3, 'José Pérez', '0801199067890', 'Secretario Consejo Admon', 'Socio', 'General', '7654-3210', 'M', '1990-07-20', 35, 'Viudo(a)', 'Negro de habla inglesa o Creole', 'Educación básica', 'Teléfono', 'COMAYAGUA', 'COMAYAGUA', 'Col. San José', 'Col. San Francisco', 1, '2025-07-27 16:00:00', '2025-07-28 08:52:42'),
+(4, 4, 'María Castillo', '0801199298765', 'Vicepresidente(a)', 'Cliente', 'Especial', '6543-2109', 'F', '1992-11-25', 33, 'Casado(a)', 'Mestizo', 'Educación superior', 'Computadora', 'COPAN', 'SANTA ROSA DE COPAN', 'Aldea El Triunfo', 'Barrio El Carmen', 1, '2025-07-27 16:00:00', '2025-07-27 16:00:00'),
+(5, 5, 'Luis Martínez', '0801198545678', 'Presidente Consejo Vigilancia', 'Socio', 'General', '5432-1098', 'M', '1985-02-10', 40, 'Unión Libre', 'Tolupan', 'Educación media', 'Teléfono', 'CORTES', 'SAN PEDRO SULA', 'Col. Las Palmas', 'Col. Santa Elena', 1, '2025-07-27 16:00:00', '2025-07-28 08:56:30'),
+(6, 6, 'Sofía Gómez', '0801199323456', 'Secretario(a)', 'Cliente', 'Especial', '4321-0987', 'F', '1993-06-18', 32, 'Soltero(a)', 'Miskito', 'Educación básica', 'Tablet', 'CHOLUTECA', 'CHOLUTECA', 'Aldea El Triunfo', 'Col. #1', 1, '2025-07-27 16:00:00', '2025-07-27 16:00:00'),
+(7, 7, 'Juan Hernández', '0801198734567', 'Presidente Comité de Crédito', 'Socio', 'General', '3210-9876', 'M', '1987-09-05', 38, 'Casado(a)', 'Garífuna', 'Educación superior', 'Teléfono', 'EL PARAISO', 'DANLI', 'Barrio El Centro', 'Col. El Carmen', 1, '2025-07-27 16:00:00', '2025-07-28 08:53:06'),
+(8, 8, 'Isabel López', '0801199145678', 'Vicepresidente(a)', 'Cliente', 'Especial', '2109-8765', 'F', '1991-04-22', 34, 'Viudo(a)', 'Negro de habla inglesa o Creole', 'Educación media', 'Computadora', 'FRANCISCO MORAZAN', 'DISTRITO CENTRAL', 'Col. Miraflores', 'Col. San Pedro', 1, '2025-07-27 16:00:00', '2025-07-27 16:00:00'),
+(9, 9, 'Fernando Ramírez', '0801198956789', 'Presidente Consejo Admon', 'Socio', 'General', '1098-7654', 'M', '1989-12-30', 36, 'Casado(a)', 'Mestizo', 'Educación superior', 'Teléfono', 'GRACIAS A DIOS', 'PUERTO LEMPIRA', 'Aldea Nueva', 'Barrio La Esperanza', 1, '2025-07-27 16:00:00', '2025-07-28 08:53:22'),
+(10, 10, 'Gabriela Torres', '0801199467890', 'Secretario(a)', 'Cliente', 'Especial', '0987-6543', 'F', '1994-03-08', 31, 'Soltero(a)', 'Tolupan', 'Educación media', 'Tablet', 'YORO', 'YORO', 'Col. Los Pinos', 'Col. Los Pinos', 1, '2025-07-27 16:00:00', '2025-07-27 16:00:00');
 
 -- --------------------------------------------------------
 
@@ -338,6 +344,18 @@ CREATE TABLE `tbl_capacitacion` (
   `Fecha_Inicio` date DEFAULT NULL,
   `Fecha_Fin` date DEFAULT NULL,
   `Material_Referencia` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbl_capacitacion_beneficiario`
+--
+
+CREATE TABLE `tbl_capacitacion_beneficiario` (
+  `Id_Capacitacion_Beneficiario` int(11) NOT NULL,
+  `Id_Capacitacion` int(11) NOT NULL,
+  `Id_Beneficiario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -360,7 +378,24 @@ CREATE TABLE `tbl_coordenadas_municipio` (
 
 INSERT INTO `tbl_coordenadas_municipio` (`Id`, `Id_Departamento`, `Id_Municipio`, `coordenada_x`, `coordenada_y`) VALUES
 (1, 3, 31, -87.61063734, 14.62743758),
-(2, 8, 132, -87.10167520, 14.11833060);
+(2, 8, 132, -87.10167520, 14.11833060),
+(3, 8, 134, -87.10110605, 14.01493173),
+(4, 6, 76, -87.15385437, 13.30009353);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbl_criterios`
+--
+
+CREATE TABLE `tbl_criterios` (
+  `id` int(11) NOT NULL,
+  `subindice` varchar(255) DEFAULT NULL,
+  `variable` varchar(255) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -678,6 +713,25 @@ CREATE TABLE `tbl_evaluacion` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tbl_evaluaciones`
+--
+
+CREATE TABLE `tbl_evaluaciones` (
+  `id` int(11) NOT NULL,
+  `id_organizacion` int(11) NOT NULL,
+  `criterio_id` int(11) NOT NULL,
+  `puntuacion_inicial` int(11) DEFAULT NULL,
+  `puntuacion_actualizada` int(11) DEFAULT NULL,
+  `peso` float DEFAULT NULL,
+  `ponderacion_inicial` float DEFAULT NULL,
+  `ponderacion_actual` float DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tbl_financiera`
 --
 
@@ -710,73 +764,128 @@ CREATE TABLE `tbl_ms_bitacora` (
 --
 
 INSERT INTO `tbl_ms_bitacora` (`Id_Bitacora`, `Id_Usuario`, `Id_Objeto`, `Fecha`, `Accion`, `Descripcion`) VALUES
-(595, 2, 1, '2025-07-08 05:43:41', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(596, 2, 1, '2025-07-08 06:28:36', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(597, 2, 3, '2025-07-08 06:37:40', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(598, 2, 2, '2025-07-08 06:38:25', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(599, 2, 4, '2025-07-08 06:38:32', 'Ingreso', 'El usuario accedió a la bitácora.'),
-(600, 2, 3, '2025-07-08 06:38:43', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(601, 2, 1, '2025-07-08 17:33:41', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(602, 2, 1, '2025-07-08 20:13:40', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(603, 2, 1, '2025-07-08 23:05:17', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(604, 2, 4, '2025-07-08 23:07:57', 'Ingreso', 'El usuario accedió a la bitácora.'),
-(605, 2, 1, '2025-07-08 23:37:11', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(606, 2, 1, '2025-07-09 22:58:48', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(607, 2, 1, '2025-07-09 23:27:30', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(608, 2, 2, '2025-07-09 23:33:11', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(609, 2, 3, '2025-07-09 23:37:25', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(610, 2, 3, '2025-07-09 23:38:58', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(611, 2, 1, '2025-07-10 00:04:59', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(612, 2, 1, '2025-07-10 00:38:18', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(613, 2, 1, '2025-07-10 23:07:01', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(614, 2, 3, '2025-07-10 23:26:19', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(615, 2, 1, '2025-07-13 03:30:18', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(616, 2, 1, '2025-07-13 04:06:48', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(617, 2, 1, '2025-07-13 16:38:37', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(618, 2, 3, '2025-07-13 16:42:45', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(619, 2, 2, '2025-07-13 16:46:37', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(620, 2, 4, '2025-07-13 16:47:04', 'Ingreso', 'El usuario accedió a la bitácora.'),
-(621, 2, 3, '2025-07-13 17:54:36', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(622, 2, 3, '2025-07-13 17:54:47', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(623, 2, 3, '2025-07-13 17:56:59', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(624, 2, 4, '2025-07-13 17:58:48', 'Ingreso', 'El usuario accedió a la bitácora.'),
-(625, 2, 3, '2025-07-13 18:00:08', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(626, 2, 1, '2025-07-13 18:51:55', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(627, 2, 3, '2025-07-13 21:23:39', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(628, 2, 2, '2025-07-13 21:23:43', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(629, 2, 2, '2025-07-13 21:25:21', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(630, 2, 1, '2025-07-16 05:49:40', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(631, 2, 1, '2025-07-16 14:14:37', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(632, 2, 1, '2025-07-16 14:39:50', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(633, 2, 1, '2025-07-17 22:07:27', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(634, 2, 3, '2025-07-17 22:16:08', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(635, 2, 3, '2025-07-17 22:32:22', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(636, 2, 2, '2025-07-17 22:35:23', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(637, 2, 4, '2025-07-17 22:35:29', 'Ingreso', 'El usuario accedió a la bitácora.'),
-(638, 2, 3, '2025-07-17 22:37:37', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(639, 2, 1, '2025-07-17 23:10:10', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(640, 2, 2, '2025-07-17 23:10:28', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(641, 2, 3, '2025-07-17 23:15:45', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(642, 2, 4, '2025-07-17 23:15:49', 'Ingreso', 'El usuario accedió a la bitácora.'),
-(643, 2, 10, '2025-07-17 23:24:14', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
-(644, 2, 2, '2025-07-17 23:43:00', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(645, 2, 2, '2025-07-17 23:43:34', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(646, 2, 1, '2025-07-18 01:14:00', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(647, 2, 3, '2025-07-18 01:22:37', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(648, 2, 10, '2025-07-18 01:30:19', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
-(649, 2, 3, '2025-07-18 01:30:24', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(650, 2, 10, '2025-07-18 01:30:26', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
-(651, 2, 2, '2025-07-18 01:30:29', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(652, 2, 10, '2025-07-18 01:43:04', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
-(653, 2, 3, '2025-07-18 01:43:06', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
-(654, 2, 4, '2025-07-18 01:43:09', 'Ingreso', 'El usuario accedió a la bitácora.'),
-(655, 2, 2, '2025-07-18 01:43:19', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
-(656, 2, 1, '2025-07-19 21:09:01', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(657, 2, 1, '2025-07-19 22:59:08', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(658, 2, 1, '2025-07-19 23:59:15', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(659, 2, 1, '2025-07-20 00:44:21', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(660, 2, 1, '2025-07-20 01:21:35', 'Ingreso', 'El usuario ha iniciado sesión.'),
-(661, 2, 1, '2025-07-20 03:42:14', 'Ingreso', 'El usuario ha iniciado sesión.');
+(668, 2, 4, '2025-07-23 01:51:46', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(669, 2, 4, '2025-07-23 01:52:17', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(670, 2, 3, '2025-07-23 01:53:26', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
+(671, 2, 13, '2025-07-23 02:01:19', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(672, 2, 14, '2025-07-23 02:01:20', 'Ingreso', 'El usuario ingresó a la gestión de emprendimientos'),
+(673, 2, 4, '2025-07-23 02:01:27', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(674, 2, 14, '2025-07-23 02:01:50', 'Ingreso', 'El usuario ingresó a la gestión de emprendimientos'),
+(675, 2, 2, '2025-07-23 02:01:55', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
+(676, 2, 4, '2025-07-23 02:01:58', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(677, 2, 13, '2025-07-23 02:02:26', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(678, 2, 4, '2025-07-23 02:02:32', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(679, 2, 4, '2025-07-23 02:03:35', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(680, 2, 4, '2025-07-23 02:09:37', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(681, 2, 4, '2025-07-23 02:09:52', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(682, 2, 4, '2025-07-23 02:10:16', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(683, 2, 13, '2025-07-23 02:10:19', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(684, 2, 14, '2025-07-23 02:10:42', 'Ingreso', 'El usuario ingresó a la gestión de emprendimientos'),
+(685, 2, 4, '2025-07-23 02:10:56', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(686, 2, 4, '2025-07-23 02:22:10', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(687, 2, 5, '2025-07-23 02:22:12', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(688, 2, 12, '2025-07-23 02:22:17', 'Ingreso', 'El usuario ingresó a la gestión de créditos'),
+(689, 2, 4, '2025-07-23 02:22:21', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(690, 2, 12, '2025-07-23 02:22:30', 'Ingreso', 'El usuario ingresó a la gestión de créditos'),
+(691, 2, 4, '2025-07-23 02:22:35', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(692, 2, 4, '2025-07-23 02:22:40', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(693, 2, 13, '2025-07-23 02:22:45', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(694, 2, 5, '2025-07-23 02:22:54', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(695, 2, 4, '2025-07-23 02:23:01', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(696, 2, 4, '2025-07-23 02:26:43', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(697, 2, 11, '2025-07-23 02:26:45', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(698, 2, 4, '2025-07-23 02:26:49', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(699, 2, 13, '2025-07-23 02:27:39', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(700, 2, 13, '2025-07-23 02:30:38', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(701, 2, 10, '2025-07-23 02:30:48', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
+(702, 2, 10, '2025-07-23 02:35:35', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
+(703, 2, 13, '2025-07-23 02:40:12', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(704, 2, 5, '2025-07-23 02:40:17', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(705, 2, 5, '2025-07-23 02:41:23', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(706, 2, 11, '2025-07-23 02:52:49', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(707, 2, 1, '2025-07-23 03:33:38', 'Ingreso', 'El usuario ha iniciado sesión.'),
+(708, 2, 11, '2025-07-23 03:33:38', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(709, 2, 11, '2025-07-23 03:37:18', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(710, 2, 11, '2025-07-23 03:40:19', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(711, 2, 11, '2025-07-23 03:43:14', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(712, 2, 11, '2025-07-23 03:43:34', 'Update', 'Actualizó el socio/cliente: Jose Armando Trejo Valladares'),
+(713, 2, 11, '2025-07-23 03:43:34', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(714, 2, 11, '2025-07-23 03:43:59', 'Update', 'Actualizó el socio/cliente: Jose Armando Trejo Garcia'),
+(715, 2, 11, '2025-07-23 03:43:59', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(716, 2, 11, '2025-07-23 03:44:14', 'Update', 'Actualizó el socio/cliente: samuel sm'),
+(717, 2, 11, '2025-07-23 03:44:14', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(718, 2, 3, '2025-07-23 03:44:46', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
+(719, 2, 10, '2025-07-23 03:44:49', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
+(720, 2, 5, '2025-07-23 03:44:51', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(721, 2, 11, '2025-07-23 03:45:00', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(722, 2, 12, '2025-07-23 03:45:04', 'Ingreso', 'El usuario ingresó a la gestión de créditos'),
+(723, 2, 5, '2025-07-23 03:46:15', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(724, 2, 14, '2025-07-23 03:46:16', 'Ingreso', 'El usuario ingresó a la gestión de emprendimientos'),
+(725, 2, 12, '2025-07-23 03:46:18', 'Ingreso', 'El usuario ingresó a la gestión de créditos'),
+(726, 2, 14, '2025-07-23 03:46:28', 'Ingreso', 'El usuario ingresó a la gestión de emprendimientos'),
+(727, 2, 14, '2025-07-23 03:47:16', 'Ingreso', 'El usuario ingresó a la gestión de emprendimientos'),
+(728, 2, 13, '2025-07-23 03:47:18', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(729, 2, 13, '2025-07-23 03:51:48', 'Nuevo', 'Creó un nuevo ahorro'),
+(730, 2, 13, '2025-07-23 03:51:48', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(731, 2, 13, '2025-07-23 03:51:58', 'Nuevo', 'Creó un nuevo ahorro'),
+(732, 2, 13, '2025-07-23 03:51:58', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(733, 2, 5, '2025-07-23 03:52:16', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(734, 2, 11, '2025-07-23 03:52:17', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(735, 2, 11, '2025-07-23 03:52:30', 'Update', 'Actualizó el socio/cliente: Jose Armando Trejo Valladares'),
+(736, 2, 11, '2025-07-23 03:52:30', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(737, 2, 11, '2025-07-23 03:52:39', 'Update', 'Actualizó el socio/cliente: Jose Armando Trejo Garcia'),
+(738, 2, 11, '2025-07-23 03:52:39', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(739, 2, 13, '2025-07-23 03:52:42', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(740, 2, 5, '2025-07-23 03:52:56', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(741, 2, 11, '2025-07-23 03:53:00', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(742, 2, 11, '2025-07-23 03:53:10', 'Update', 'Actualizó el socio/cliente: Jose Armando Trejo Valladares'),
+(743, 2, 11, '2025-07-23 03:53:10', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(744, 2, 13, '2025-07-23 03:53:16', 'Ingreso', 'El usuario ingresó a la gestión de ahorros'),
+(745, 2, 3, '2025-07-23 03:56:05', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
+(746, 2, 11, '2025-07-23 03:56:16', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(747, 2, 5, '2025-07-23 03:56:19', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(748, 2, 2, '2025-07-23 03:56:33', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
+(749, 2, 4, '2025-07-23 03:56:43', 'Ingreso', 'El usuario accedió a la bitácora.'),
+(750, 2, 10, '2025-07-23 03:56:50', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
+(751, 2, 3, '2025-07-23 03:56:55', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
+(752, 2, 10, '2025-07-23 03:56:58', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
+(753, 2, 10, '2025-07-23 04:05:09', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
+(754, 2, 5, '2025-07-23 04:07:57', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(755, 2, 2, '2025-07-23 04:08:02', 'Salida', 'El usuario ha cerrado sesión.'),
+(756, 15, 1, '2025-07-23 04:08:06', 'Ingreso', 'El usuario ha iniciado sesión.'),
+(757, 15, 5, '2025-07-23 04:09:52', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(758, 15, 5, '2025-07-23 04:10:54', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(759, 15, 5, '2025-07-23 04:10:56', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(760, 15, 5, '2025-07-23 04:17:56', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(761, 2, 1, '2025-07-25 22:58:39', 'Ingreso', 'El usuario ha iniciado sesión.'),
+(762, 2, 1, '2025-07-28 02:37:02', 'Ingreso', 'El usuario ha iniciado sesión.'),
+(763, 2, 14, '2025-07-28 02:37:02', 'Ingreso', 'El usuario ingresó a la gestión de emprendimientos'),
+(764, 2, 5, '2025-07-28 02:37:05', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(765, 2, 5, '2025-07-28 02:37:45', 'Ingreso', 'El usuario ingresó a la gestión de organizaciones'),
+(766, 2, 10, '2025-07-28 02:38:09', 'Ingreso', 'El usuario ingresó a la gestión de objetos'),
+(767, 2, 3, '2025-07-28 02:38:11', 'Ingreso', 'El usuario ingresó a la gestión de roles'),
+(768, 2, 2, '2025-07-28 02:38:15', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
+(769, 2, 2, '2025-07-28 02:38:18', 'Ingreso', 'El usuario ingresó a la gestión de usuarios'),
+(770, 2, 11, '2025-07-28 02:39:39', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(771, 2, 11, '2025-07-28 02:39:52', 'Update', 'Actualizó el socio/cliente: samuel sm'),
+(772, 2, 11, '2025-07-28 02:39:52', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(773, 2, 11, '2025-07-28 02:42:42', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(774, 2, 11, '2025-07-28 02:52:04', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(775, 2, 11, '2025-07-28 02:52:20', 'Update', 'Actualizó el socio/cliente: Carlos Mejía'),
+(776, 2, 11, '2025-07-28 02:52:21', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(777, 2, 11, '2025-07-28 02:52:42', 'Update', 'Actualizó el socio/cliente: José Pérez'),
+(778, 2, 11, '2025-07-28 02:52:42', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(779, 2, 11, '2025-07-28 02:53:06', 'Update', 'Actualizó el socio/cliente: Juan Hernández'),
+(780, 2, 11, '2025-07-28 02:53:06', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(781, 2, 11, '2025-07-28 02:53:22', 'Update', 'Actualizó el socio/cliente: Fernando Ramírez'),
+(782, 2, 11, '2025-07-28 02:55:45', 'Update', 'Actualizó el socio/cliente: Fernando Ramírez'),
+(783, 2, 11, '2025-07-28 02:55:50', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(784, 2, 11, '2025-07-28 02:56:20', 'Update', 'Actualizó el socio/cliente: Juan Hernández'),
+(785, 2, 11, '2025-07-28 02:56:21', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(786, 2, 11, '2025-07-28 02:56:30', 'Update', 'Actualizó el socio/cliente: Luis Martínez'),
+(787, 2, 11, '2025-07-28 02:56:30', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(788, 2, 11, '2025-07-28 02:58:04', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes'),
+(789, 2, 11, '2025-07-28 02:58:30', 'Ingreso', 'El usuario ingresó a la gestión de socios/clientes');
 
 -- --------------------------------------------------------
 
@@ -817,24 +926,33 @@ CREATE TABLE `tbl_ms_objeto` (
   `Creado_Por` varchar(100) DEFAULT NULL,
   `Fecha_Creacion` date DEFAULT NULL,
   `Modificado_Por` varchar(100) DEFAULT NULL,
-  `Fecha_Modificacion` date DEFAULT NULL
+  `Fecha_Modificacion` date DEFAULT NULL,
+  `Estado` varchar(20) DEFAULT 'ACTIVO'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbl_ms_objeto`
 --
 
-INSERT INTO `tbl_ms_objeto` (`Id_Objeto`, `Objeto`, `Descripcion`, `Tipo_Objeto`, `Creado_Por`, `Fecha_Creacion`, `Modificado_Por`, `Fecha_Modificacion`) VALUES
-(1, 'Dashboard', 'Pantalla principal del sistema', 'Pantalla', 'admin', '2025-06-21', NULL, NULL),
-(2, 'Usuarios', 'Gestión de usuarios', 'Pantalla', 'admin', '2025-06-21', NULL, NULL),
-(3, 'Roles', 'Gestión de roles y permisos', 'Pantalla', 'admin', '2025-06-21', NULL, NULL),
-(4, 'Bitácora', 'Registro de actividades', 'Pantalla', 'admin', '2025-06-21', NULL, NULL),
-(5, 'Organizaciones', 'Gestión de organizaciones', 'Pantalla', 'admin', '2025-06-21', NULL, NULL),
-(6, 'Seguridad', 'Opciones de seguridad del sistema', 'Menú', 'admin', '2025-07-05', NULL, NULL),
-(7, 'Mantenimiento', 'Opciones de mantenimiento del sistema', 'Menú', 'admin', '2025-07-05', NULL, NULL),
-(8, 'Administracion', 'Opciones de administración del sistema', 'Menú', 'admin', '2025-07-05', NULL, NULL),
-(9, 'Gestion de base', 'Opcion del menu lateral', 'PANTALLA', NULL, NULL, NULL, NULL),
-(10, 'Objetos', 'Gestión de objetos del sistema', 'Pantalla', 'admin', '2025-07-17', NULL, NULL);
+INSERT INTO `tbl_ms_objeto` (`Id_Objeto`, `Objeto`, `Descripcion`, `Tipo_Objeto`, `Creado_Por`, `Fecha_Creacion`, `Modificado_Por`, `Fecha_Modificacion`, `Estado`) VALUES
+(1, 'Dashboard', 'Pantalla principal del sistema', 'Pantalla', 'admin', '2025-06-21', NULL, NULL, 'ACTIVO'),
+(2, 'Usuarios', 'Gestión de usuarios', 'Pantalla', 'admin', '2025-06-21', NULL, NULL, 'ACTIVO'),
+(3, 'Roles', 'Gestión de roles y permisos', 'Pantalla', 'admin', '2025-06-21', NULL, NULL, 'ACTIVO'),
+(4, 'Bitácora', 'Registro de actividades', 'Pantalla', 'admin', '2025-06-21', NULL, NULL, 'ACTIVO'),
+(5, 'Organizaciones', 'Gestión de organizaciones', 'Pantalla', 'admin', '2025-06-21', NULL, NULL, 'ACTIVO'),
+(6, 'Seguridad', 'Opciones de seguridad del sistema', 'Menú', 'admin', '2025-07-05', NULL, NULL, 'ACTIVO'),
+(7, 'Mantenimiento', 'Opciones de mantenimiento del sistema', 'Menú', 'admin', '2025-07-05', NULL, NULL, 'ACTIVO'),
+(8, 'Administracion', 'Opciones de administración del sistema', 'Menú', 'admin', '2025-07-05', NULL, NULL, 'ACTIVO'),
+(9, 'Gestion de base', 'Opcion del menu lateral', 'PANTALLA', NULL, NULL, NULL, NULL, 'ACTIVO'),
+(10, 'Objetos', 'Gestión de objetos del sistema', 'Pantalla', 'admin', '2025-07-17', NULL, NULL, 'ACTIVO'),
+(11, 'Socios / Clientes', 'Gestión de socios y clientes', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO'),
+(12, 'Créditos', 'Gestión de créditos', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO'),
+(13, 'Ahorros', 'Gestión de ahorros', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO'),
+(14, 'Emprendimientos', 'Gestión de emprendimientos', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO'),
+(15, 'Cargos Directivos', 'Gestión de cargos directivos', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO'),
+(16, 'Indicadores de Género', 'Gestión de indicadores de género', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO'),
+(17, 'Reportes', 'Visualización de reportes', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO'),
+(18, 'Auditoría', 'Gestión de auditoría', 'Pantalla', 'admin', '2025-07-22', NULL, NULL, 'ACTIVO');
 
 -- --------------------------------------------------------
 
@@ -849,17 +967,18 @@ CREATE TABLE `tbl_ms_rol` (
   `Creado_Por` varchar(100) DEFAULT NULL,
   `Fecha_Creacion` date DEFAULT NULL,
   `Modificado_Por` varchar(100) DEFAULT NULL,
-  `Fecha_Modificacion` date DEFAULT NULL
+  `Fecha_Modificacion` date DEFAULT NULL,
+  `Estado` varchar(20) DEFAULT 'ACTIVO'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbl_ms_rol`
 --
 
-INSERT INTO `tbl_ms_rol` (`Id_Rol`, `Rol`, `Descripcion`, `Creado_Por`, `Fecha_Creacion`, `Modificado_Por`, `Fecha_Modificacion`) VALUES
-(1, 'ADMINISTRADOR', 'Rol con acceso total al sistema', 'sistema', '2025-06-22', NULL, NULL),
-(2, 'TECNICO DE CAMPO', 'Rol para técnicos de campo', 'sistema', '2025-06-22', NULL, NULL),
-(3, 'AUTO-REGISTRO', 'Rol para usuarios auto-registrados', 'sistema', '2025-06-22', NULL, NULL);
+INSERT INTO `tbl_ms_rol` (`Id_Rol`, `Rol`, `Descripcion`, `Creado_Por`, `Fecha_Creacion`, `Modificado_Por`, `Fecha_Modificacion`, `Estado`) VALUES
+(1, 'ADMINISTRADOR', 'Rol con acceso total al sistema', 'sistema', '2025-06-22', NULL, NULL, 'ACTIVO'),
+(2, 'TECNICO DE CAMPO', 'Rol para técnicos de campo', 'sistema', '2025-06-22', NULL, NULL, 'ACTIVO'),
+(3, 'AUTO-REGISTRO', 'Rol para usuarios auto-registrados', 'sistema', '2025-06-22', NULL, NULL, 'ACTIVO');
 
 -- --------------------------------------------------------
 
@@ -893,7 +1012,15 @@ INSERT INTO `tbl_ms_roles_objeto` (`Id_Roles_Objeto`, `Id_Rol`, `Id_Objeto`, `Pe
 (15, 1, 7, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
 (16, 1, 8, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
 (17, 1, 9, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
-(18, 1, 10, 1, 1, 1, 1, NULL, NULL, NULL, NULL);
+(18, 1, 10, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(19, 1, 5, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(20, 1, 11, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(21, 1, 12, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(22, 1, 13, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(23, 1, 14, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(24, 1, 17, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(25, 1, 15, 1, 1, 1, 1, NULL, NULL, NULL, NULL),
+(26, 2, 5, 1, 1, 1, 1, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1303,22 +1430,29 @@ CREATE TABLE `tbl_organizacion` (
   `Id_Aldea` int(11) NOT NULL,
   `Id_Usuario` int(11) NOT NULL,
   `Nombre_Organizacion` varchar(45) DEFAULT NULL,
-  `Estado_Organizacion` varchar(45) DEFAULT NULL
+  `Estado_Organizacion` varchar(45) DEFAULT NULL,
+  `tiene_personeria_juridica` tinyint(1) DEFAULT 0,
+  `fecha_personeria_juridica` date DEFAULT NULL,
+  `tiene_rtn` tinyint(1) DEFAULT 0,
+  `rtn` varchar(20) DEFAULT NULL,
+  `tiene_cuenta_bancaria` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbl_organizacion`
 --
 
-INSERT INTO `tbl_organizacion` (`Id_Organizacion`, `Id_Aldea`, `Id_Usuario`, `Nombre_Organizacion`, `Estado_Organizacion`) VALUES
-(1, 1, 2, 'Caja Rural El Progresoo', 'ACTIVO'),
-(2, 2, 2, 'Caja Rural La Esperanza', 'ACTIVO'),
-(3, 3, 2, 'Caja rural la esperanza', 'ACTIVO'),
-(4, 4, 2, 'Carja rura el triunfo', 'ACTIVO'),
-(5, 5, 2, 'Caja Rural La Tusa', 'ACTIVO'),
-(6, 6, 2, 'cerro grande', 'ACTIVO'),
-(7, 7, 2, 'caja san jeromino', 'ACTIVO'),
-(8, 8, 2, 'caja de santa lucia', 'ACTIVO');
+INSERT INTO `tbl_organizacion` (`Id_Organizacion`, `Id_Aldea`, `Id_Usuario`, `Nombre_Organizacion`, `Estado_Organizacion`, `tiene_personeria_juridica`, `fecha_personeria_juridica`, `tiene_rtn`, `rtn`, `tiene_cuenta_bancaria`) VALUES
+(1, 1, 2, 'Caja Rural El Progresoo', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(2, 2, 2, 'Caja Rural La Esperanza', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(3, 3, 2, 'Caja rural la esperanza', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(4, 4, 2, 'Carja rura el triunfo', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(5, 5, 2, 'Caja Rural La Tusa', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(6, 6, 2, 'cerro grande', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(7, 7, 2, 'caja san jeromino', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(8, 8, 2, 'caja de santa lucia', 'INACTIVO', 0, NULL, 0, NULL, 0),
+(9, 9, 2, 'Caja rural Tatumbla', 'ACTIVO', 0, NULL, 0, NULL, 0),
+(10, 10, 2, 'Caja Choluteca', 'ACTIVO', 1, '2025-07-07', 1, '0201552554', 1);
 
 -- --------------------------------------------------------
 
@@ -1330,18 +1464,21 @@ CREATE TABLE `tbl_pagos` (
   `id` int(11) NOT NULL,
   `prestamo_id` int(11) NOT NULL,
   `fecha_pago` date NOT NULL,
+  `fecha_pago_real` datetime DEFAULT NULL,
   `monto_pagado` decimal(12,2) NOT NULL,
   `observaciones` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `numero_cuota` int(11) DEFAULT NULL,
+  `estado` varchar(20) NOT NULL DEFAULT 'pendiente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbl_pagos`
 --
 
-INSERT INTO `tbl_pagos` (`id`, `prestamo_id`, `fecha_pago`, `monto_pagado`, `observaciones`, `created_at`, `updated_at`) VALUES
-(1, 1, '2025-07-17', 1000.00, 'primer pago', '2025-07-18 05:50:26', '2025-07-18 05:50:26');
+INSERT INTO `tbl_pagos` (`id`, `prestamo_id`, `fecha_pago`, `fecha_pago_real`, `monto_pagado`, `observaciones`, `created_at`, `updated_at`, `numero_cuota`, `estado`) VALUES
+(1, 1, '2025-07-17', NULL, 1000.00, 'primer pago', '2025-07-18 05:50:26', '2025-07-18 05:50:26', NULL, 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -1365,7 +1502,7 @@ CREATE TABLE `tbl_parametros` (
 INSERT INTO `tbl_parametros` (`Id_Parametro`, `Id_Usuario`, `Nombre_Parametro`, `Valor`, `Fecha_Creacion`, `Fecha_Modificacion`) VALUES
 (1, 2, 'ADMIN_INTENTOS_INVALIDOS', '3', '2025-06-07 17:37:37', NULL),
 (2, 2, 'ADMIN_DIAS_VIGENCIA', '360', '2025-06-07 17:37:37', NULL),
-(3, 2, 'LONGITUD_MIN_PASSWORD', '8', '2025-06-07 17:37:37', NULL);
+(3, 2, 'LONGITUD_MIN_PASSWORD', '8', '2025-06-07 17:37:37', '2025-07-23 02:45:50');
 
 -- --------------------------------------------------------
 
@@ -1376,6 +1513,7 @@ INSERT INTO `tbl_parametros` (`Id_Parametro`, `Id_Usuario`, `Nombre_Parametro`, 
 CREATE TABLE `tbl_prestamos` (
   `id` int(11) NOT NULL,
   `socio_id` int(11) NOT NULL,
+  `beneficiario_id` int(11) DEFAULT NULL,
   `nombre_caja_rural` varchar(255) NOT NULL,
   `monto_solicitado` decimal(10,2) NOT NULL,
   `plazo_meses` int(11) NOT NULL,
@@ -1398,8 +1536,8 @@ CREATE TABLE `tbl_prestamos` (
 -- Volcado de datos para la tabla `tbl_prestamos`
 --
 
-INSERT INTO `tbl_prestamos` (`id`, `socio_id`, `nombre_caja_rural`, `monto_solicitado`, `plazo_meses`, `destino`, `tipo_credito`, `fecha_solicitud`, `porcentaje_mora_caja`, `intereses_cobrados`, `capital_social`, `capital_trabajo`, `reservas`, `estado`, `puntaje`, `observaciones`, `created_at`, `updated_at`) VALUES
-(1, 6, 'principal', 2000.00, 12, 'banca', 'prestamo', '2025-07-02', 0.10, 0.03, 12000.00, 1000.00, 10000.00, 'pendiente', 30, NULL, '2025-07-18 05:49:46', '2025-07-18 05:49:46');
+INSERT INTO `tbl_prestamos` (`id`, `socio_id`, `beneficiario_id`, `nombre_caja_rural`, `monto_solicitado`, `plazo_meses`, `destino`, `tipo_credito`, `fecha_solicitud`, `porcentaje_mora_caja`, `intereses_cobrados`, `capital_social`, `capital_trabajo`, `reservas`, `estado`, `puntaje`, `observaciones`, `created_at`, `updated_at`) VALUES
+(1, 6, NULL, 'principal', 2000.00, 12, 'banca', 'prestamo', '2025-07-02', 0.10, 0.03, 12000.00, 1000.00, 10000.00, 'pendiente', 30, NULL, '2025-07-18 05:49:46', '2025-07-18 05:49:46');
 
 -- --------------------------------------------------------
 
@@ -1435,12 +1573,6 @@ CREATE TABLE `users` (
 --
 -- Índices para tablas volcadas
 --
-
---
--- Indices de la tabla `ahorros`
---
-ALTER TABLE `ahorros`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `cache`
@@ -1493,6 +1625,12 @@ ALTER TABLE `password_reset_tokens`
   ADD PRIMARY KEY (`email`);
 
 --
+-- Indices de la tabla `prestamos`
+--
+ALTER TABLE `prestamos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `sessions`
 --
 ALTER TABLE `sessions`
@@ -1506,6 +1644,14 @@ ALTER TABLE `sessions`
 ALTER TABLE `tbl_actividad_economica`
   ADD PRIMARY KEY (`Id_Actividad`),
   ADD KEY `Id_Beneficiario` (`Id_Beneficiario`);
+
+--
+-- Indices de la tabla `tbl_ahorros`
+--
+ALTER TABLE `tbl_ahorros`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_ahorros_beneficiario` (`Id_Beneficiario`),
+  ADD KEY `fk_ahorros_organizacion` (`Id_Organizacion`);
 
 --
 -- Indices de la tabla `tbl_aldea`
@@ -1538,12 +1684,26 @@ ALTER TABLE `tbl_capacitacion`
   ADD KEY `fk_TBL_CAPACITACION_TBL_TECNICOS1_idx` (`Id_Tecnico`);
 
 --
+-- Indices de la tabla `tbl_capacitacion_beneficiario`
+--
+ALTER TABLE `tbl_capacitacion_beneficiario`
+  ADD PRIMARY KEY (`Id_Capacitacion_Beneficiario`),
+  ADD KEY `Id_Capacitacion` (`Id_Capacitacion`),
+  ADD KEY `Id_Beneficiario` (`Id_Beneficiario`);
+
+--
 -- Indices de la tabla `tbl_coordenadas_municipio`
 --
 ALTER TABLE `tbl_coordenadas_municipio`
   ADD PRIMARY KEY (`Id`),
   ADD UNIQUE KEY `coord_unique` (`Id_Departamento`,`Id_Municipio`),
   ADD KEY `Id_Municipio` (`Id_Municipio`);
+
+--
+-- Indices de la tabla `tbl_criterios`
+--
+ALTER TABLE `tbl_criterios`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `tbl_datos`
@@ -1585,6 +1745,14 @@ ALTER TABLE `tbl_emprendimiento`
 --
 ALTER TABLE `tbl_evaluacion`
   ADD PRIMARY KEY (`Id_Evaluacion`);
+
+--
+-- Indices de la tabla `tbl_evaluaciones`
+--
+ALTER TABLE `tbl_evaluaciones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_organizacion` (`id_organizacion`),
+  ADD KEY `criterio_id` (`criterio_id`);
 
 --
 -- Indices de la tabla `tbl_financiera`
@@ -1689,12 +1857,6 @@ ALTER TABLE `users`
 --
 
 --
--- AUTO_INCREMENT de la tabla `ahorros`
---
-ALTER TABLE `ahorros`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de la tabla `failed_jobs`
 --
 ALTER TABLE `failed_jobs`
@@ -1719,16 +1881,28 @@ ALTER TABLE `migrations`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de la tabla `prestamos`
+--
+ALTER TABLE `prestamos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `tbl_actividad_economica`
 --
 ALTER TABLE `tbl_actividad_economica`
-  MODIFY `Id_Actividad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id_Actividad` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `tbl_ahorros`
+--
+ALTER TABLE `tbl_ahorros`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_aldea`
 --
 ALTER TABLE `tbl_aldea`
-  MODIFY `Id_Aldea` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id_Aldea` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_anexo_respuesta`
@@ -1740,7 +1914,7 @@ ALTER TABLE `tbl_anexo_respuesta`
 -- AUTO_INCREMENT de la tabla `tbl_beneficiario`
 --
 ALTER TABLE `tbl_beneficiario`
-  MODIFY `Id_Beneficiario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `Id_Beneficiario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_capacitacion`
@@ -1749,10 +1923,22 @@ ALTER TABLE `tbl_capacitacion`
   MODIFY `Id_Capacitacion` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `tbl_capacitacion_beneficiario`
+--
+ALTER TABLE `tbl_capacitacion_beneficiario`
+  MODIFY `Id_Capacitacion_Beneficiario` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `tbl_coordenadas_municipio`
 --
 ALTER TABLE `tbl_coordenadas_municipio`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `tbl_criterios`
+--
+ALTER TABLE `tbl_criterios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_datos`
@@ -1791,6 +1977,12 @@ ALTER TABLE `tbl_evaluacion`
   MODIFY `Id_Evaluacion` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `tbl_evaluaciones`
+--
+ALTER TABLE `tbl_evaluaciones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `tbl_financiera`
 --
 ALTER TABLE `tbl_financiera`
@@ -1800,7 +1992,7 @@ ALTER TABLE `tbl_financiera`
 -- AUTO_INCREMENT de la tabla `tbl_ms_bitacora`
 --
 ALTER TABLE `tbl_ms_bitacora`
-  MODIFY `Id_Bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=662;
+  MODIFY `Id_Bitacora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=790;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_ms_hist_contraseña`
@@ -1812,7 +2004,7 @@ ALTER TABLE `tbl_ms_hist_contraseña`
 -- AUTO_INCREMENT de la tabla `tbl_ms_objeto`
 --
 ALTER TABLE `tbl_ms_objeto`
-  MODIFY `Id_Objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id_Objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_ms_rol`
@@ -1824,7 +2016,7 @@ ALTER TABLE `tbl_ms_rol`
 -- AUTO_INCREMENT de la tabla `tbl_ms_roles_objeto`
 --
 ALTER TABLE `tbl_ms_roles_objeto`
-  MODIFY `Id_Roles_Objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `Id_Roles_Objeto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_ms_usuario`
@@ -1842,7 +2034,7 @@ ALTER TABLE `tbl_municipio`
 -- AUTO_INCREMENT de la tabla `tbl_organizacion`
 --
 ALTER TABLE `tbl_organizacion`
-  MODIFY `Id_Organizacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id_Organizacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tbl_pagos`
@@ -1885,6 +2077,13 @@ ALTER TABLE `tbl_actividad_economica`
   ADD CONSTRAINT `tbl_actividad_economica_ibfk_1` FOREIGN KEY (`Id_Beneficiario`) REFERENCES `tbl_beneficiario` (`Id_Beneficiario`);
 
 --
+-- Filtros para la tabla `tbl_ahorros`
+--
+ALTER TABLE `tbl_ahorros`
+  ADD CONSTRAINT `fk_ahorros_beneficiario` FOREIGN KEY (`Id_Beneficiario`) REFERENCES `tbl_beneficiario` (`Id_Beneficiario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_ahorros_organizacion` FOREIGN KEY (`Id_Organizacion`) REFERENCES `tbl_organizacion` (`Id_Organizacion`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `tbl_aldea`
 --
 ALTER TABLE `tbl_aldea`
@@ -1909,6 +2108,13 @@ ALTER TABLE `tbl_beneficiario`
 --
 ALTER TABLE `tbl_capacitacion`
   ADD CONSTRAINT `fk_TBL_CAPACITACION_TBL_TECNICOS1` FOREIGN KEY (`Id_Tecnico`) REFERENCES `tbl_tecnicos` (`Id_Tecnico`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Filtros para la tabla `tbl_capacitacion_beneficiario`
+--
+ALTER TABLE `tbl_capacitacion_beneficiario`
+  ADD CONSTRAINT `tbl_capacitacion_beneficiario_ibfk_1` FOREIGN KEY (`Id_Capacitacion`) REFERENCES `tbl_capacitacion` (`Id_Capacitacion`),
+  ADD CONSTRAINT `tbl_capacitacion_beneficiario_ibfk_2` FOREIGN KEY (`Id_Beneficiario`) REFERENCES `tbl_beneficiario` (`Id_Beneficiario`);
 
 --
 -- Filtros para la tabla `tbl_coordenadas_municipio`
@@ -1936,6 +2142,13 @@ ALTER TABLE `tbl_detalle_respuesta`
 ALTER TABLE `tbl_emprendimiento`
   ADD CONSTRAINT `fk_emprendimiento_municipio` FOREIGN KEY (`Id_Municipio`) REFERENCES `tbl_municipio` (`Id_Municipio`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_emprendimiento_tecnico` FOREIGN KEY (`Id_Tecnico`) REFERENCES `tbl_ms_usuario` (`Id_Usuario`) ON DELETE SET NULL;
+
+--
+-- Filtros para la tabla `tbl_evaluaciones`
+--
+ALTER TABLE `tbl_evaluaciones`
+  ADD CONSTRAINT `tbl_evaluaciones_ibfk_1` FOREIGN KEY (`id_organizacion`) REFERENCES `tbl_organizacion` (`Id_Organizacion`) ON DELETE CASCADE,
+  ADD CONSTRAINT `tbl_evaluaciones_ibfk_2` FOREIGN KEY (`criterio_id`) REFERENCES `tbl_criterios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `tbl_financiera`
