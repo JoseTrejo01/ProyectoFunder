@@ -41,6 +41,8 @@ use App\Http\Controllers\CapacitacionController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\ExportEvaluacionesController;
 use App\Http\Controllers\CriterioController;
+use App\Http\Controllers\ExportSociosPdfController;
+use App\Http\Controllers\InformeFinancieroController;
 
 // Librerías
 use App\Exports\SociosExport;
@@ -216,6 +218,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->pluck('Rubro', 'Id_Actividad');
     });
 });
+Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme']);
+Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportarInforme'])->name('informe-financiero.export');
+
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));

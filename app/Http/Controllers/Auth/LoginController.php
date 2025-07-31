@@ -62,64 +62,18 @@ class LoginController extends Controller
             return back()->withErrors(['Usuario' => 'El usuario no está activo'])->withInput();
         }
 
-        // Verificación de contraseña
+        // 6. Verificar contraseña
         if (!Hash::check($request->Contraseña, $user->Contraseña)) {
-            $user->Intentos_Fallidos = ($user->Intentos_Fallidos ?? 0) + 1;
-
-            if ($user->Intentos_Fallidos >= $limiteIntentos) {
-                $user->Estado_Usuario = 'BLOQUEADO';
-
-                try {
-                    $objeto = Objeto::where('Objeto', 'Usuarios')->first();
-                    if ($objeto) {
-                        EVENT_BITACORA(
-                            $user->Id_Usuario,
-                            $objeto->Id_Objeto,
-                            'Bloqueo',
-                            'El usuario fue bloqueado por intentos fallidos de inicio de sesión.'
-                        );
-                    }
-                } catch (\Throwable $e) {
-                    // Silenciar error
-                }
-            }
-
-            $user->save();
-
             return back()->withErrors([
-                'Usuario' => $user->Estado_Usuario === 'BLOQUEADO'
-                    ? 'Tu cuenta ha sido bloqueada'
-                    : 'Usuario/contraseña inválidos'
+                'Usuario' => 'Usuario/contraseña inválidos'
             ])->withInput();
         }
 
-        // Estado NUEVO: forzar cambio de contraseña
-        if (strtoupper(trim($user->Estado_Usuario)) === 'NUEVO') {
-            $user->Intentos_Fallidos = 0;
-            $user->save();
-
-            Auth::login($user);
-            $request->session()->regenerate();
-
-            return redirect()->route('password.change.form');
-        }
-
-        // Verificación OTP en primer ingreso
-        if ($user->Primer_Ingreso == 1) {
-            $otp = rand(100000, 999999);
-            $user->otp_code = $otp;
-            $user->otp_expires_at = now()->addMinutes(10);
-            $user->Intentos_Fallidos = 0;
-            $user->save();
-
-            Mail::raw("Tu código de verificación es: $otp", function ($message) use ($user) {
-                $message->to($user->Correo_Electronico)
-                        ->subject('Código de verificación OTP');
-            });
-
-            session(['otp_validated_user' => $user->Usuario]);
-
-            return redirect()->route('otp.form')->with('status', 'Código enviado a tu correo electrónico');
+        // 7. Verificar si el correo fue confirmado
+        if (is_null($user->email_verified_at)) {
+            return back()->withErrors([
+                'Usuario' => 'Debes verificar tu correo electrónico antes de iniciar sesión.'
+            ])->withInput();
         }
 
         // Inicio de sesión exitoso

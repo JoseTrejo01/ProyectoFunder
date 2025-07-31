@@ -3,10 +3,6 @@
 use App\Models\Bitacora;
 use App\Models\TblMsUsuario;
 
-// ESTE ARCHIVO ES PARA LA FUNCION QUE VA REGISTRAR TODO LAS INTERACCIONES DE LOS USARIOS
-// LA FUNCION ES GLOBAL, SOLO NECESITA SER LLAMADA EN LOS CONTROLADORES EN QUE SE OCUPEN
-
-
 if (!function_exists('EVENT_BITACORA')) {
     function EVENT_BITACORA($id_usuario, $id_objeto, $accion, $descripcion)
     {
@@ -22,5 +18,3 @@ if (!function_exists('EVENT_BITACORA')) {
         ]);
     }
 }
-
-

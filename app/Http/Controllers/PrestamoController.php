@@ -201,24 +201,67 @@ class PrestamoController extends Controller
         return redirect()->route('creditos')->with('success', 'Préstamo desembolsado y pago inicial registrado.');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'socio_id' => 'required|exists:tbl_organizacion,Id_Organizacion',
-            'beneficiario_id' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
-            'monto_solicitado' => 'required|numeric',
-            'plazo_meses' => 'required|integer',
-            'destino' => 'required|string|max:255',
-            'tipo_credito' => 'required|string|max:255',
-            'fecha_solicitud' => 'required|date',
-            'porcentaje_mora_caja' => 'nullable|numeric',
-            'intereses_cobrados' => 'nullable|numeric',
-            'capital_social' => 'nullable|numeric',
-            'capital_trabajo' => 'nullable|numeric',
-            'reservas' => 'nullable|numeric',
-            'estado' => 'nullable|string',
-            'observaciones' => 'nullable|string',
-            'nombre_caja_rural' => 'required|string|max:255',
+    $validated = $request->validate([
+        'socio_id' => 'required|exists:tbl_organizacion,Id_Organizacion',
+       'beneficiario_id' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
+        'departamento_id' => 'required|exists:tbl_departamento,Id_Departamento',
+        'monto_solicitado' => 'required|numeric',
+        'plazo_meses' => 'required|integer',
+        'destino' => 'required|string|max:255',
+        'tipo_credito' => 'required|string|max:255',
+        'fecha_solicitud' => 'required|date',
+        'porcentaje_mora_caja' => 'nullable|numeric',
+        'intereses_cobrados' => 'nullable|numeric',
+        'capital_social' => 'nullable|numeric',
+        'capital_trabajo' => 'nullable|numeric',
+        'reservas' => 'nullable|numeric',
+        'estado' => 'nullable|string',
+        'observaciones' => 'nullable|string',
+        'nombre_caja_rural' => 'required|string|max:255',
+    ]);
+
+    // Cálculo de puntaje automático
+    $puntaje = 0;
+    if ($request->porcentaje_mora_caja < 5) $puntaje += 30;
+    if ($request->capital_social > 50000) $puntaje += 20;
+    if ($request->capital_trabajo > 30000) $puntaje += 15;
+    if ($request->reservas > 10000) $puntaje += 10;
+    if ($request->intereses_cobrados > 5000) $puntaje += 5;
+
+    // Guardar el préstamo
+    $prestamo = Prestamo::create([
+        'socio_id' => $request->socio_id,
+        'beneficiario_id' => $request->beneficiario_id, // ✅ Aquí se guarda el campo que faltaba
+        'nombre_caja_rural' => $request->nombre_caja_rural,
+        'departamento_id' => $request->input('departamento_id'),
+        'monto_solicitado' => $request->monto_solicitado,
+        'plazo_meses' => $request->plazo_meses,
+        'destino' => $request->destino,
+        'tipo_credito' => $request->tipo_credito,
+        'fecha_solicitud' => $request->fecha_solicitud,
+        'porcentaje_mora_caja' => $request->porcentaje_mora_caja,
+        'intereses_cobrados' => $request->intereses_cobrados,
+        'capital_social' => $request->capital_social,
+        'capital_trabajo' => $request->capital_trabajo,
+        'reservas' => $request->reservas,
+        'estado' => $request->estado ?? 'pendiente',
+        'puntaje' => $puntaje,
+        'observaciones' => $request->observaciones,
+    ]);
+
+    // Generar pagos automáticos
+    $montoPorCuota = $request->monto_solicitado / $request->plazo_meses;
+    $fechaInicio = \Carbon\Carbon::parse($request->fecha_solicitud);
+
+    for ($i = 1; $i <= $request->plazo_meses; $i++) {
+        DB::table('tbl_pagos')->insert([
+            'prestamo_id' => $prestamo->id,
+            'fecha_pago' => $fechaInicio->copy()->addMonths($i)->toDateString(),
+            'monto_pagado' => $montoPorCuota,
+            'estado' => 'pendiente',
+            'observaciones' => 'Pago automático generado',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         // Cálculo de puntaje automático

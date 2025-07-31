@@ -6,18 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bitacora extends Model
 {
-    // Especifica el nombre de la tabla si no sigue la convención
     protected $table = 'tbl_ms_bitacora';
-
-    // Indica que no usará timestamps automáticos
     public $timestamps = false;
-
-    // Define la clave primaria si no es 'id'
     protected $primaryKey = 'Id_Bitacora';
 
-    // Campos que pueden asignarse masivamente
     protected $fillable = [
         'Id_Usuario',
+        'Nombre_Usuario', // Asegúrate que así se llama tu campo en la base de datos
         'Id_Objeto',
         'Fecha',
         'Accion',
@@ -26,7 +21,7 @@ class Bitacora extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'Id_Usuario', 'Id_Usuario');
+        return $this->belongsTo(\App\Models\TblMsUsuario::class, 'Id_Usuario', 'Id_Usuario');
     }
 
     public function objeto()
