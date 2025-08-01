@@ -214,3 +214,5 @@ Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'e
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));
+//Ruta de home dashboard
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

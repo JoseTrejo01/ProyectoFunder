@@ -3,8 +3,12 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    <h1>Dashboard</h1>
+    <div class="d-flex flex-column">
+        <h1>Dashboard</h1>
+        <h5 class="text-muted">Bienvenido, {{ auth()->user()->Nombre_Usuario }}</h5>
+    </div>
 @stop
+
 
 @section('content')
     <div class="row">

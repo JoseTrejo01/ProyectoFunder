@@ -8,6 +8,9 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+    <!-- Font Awesome para íconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
     <!-- Tus estilos personalizados -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet" />
 </head>
@@ -31,19 +34,13 @@
 
                 <ul class="navbar-nav ms-auto">
                     @auth
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ auth()->user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{{ route('password.change.form') }}">Cambiar Contraseña</a></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button class="dropdown-item" type="submit">Cerrar Sesión</button>
-                                </form>
-                            </li>
-                        </ul>
+                    <li class="nav-item d-flex align-items-center">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-power-off"></i> Cerrar Sesión
+                            </button>
+                        </form>
                     </li>
                     @endauth
                 </ul>
