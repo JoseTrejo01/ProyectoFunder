@@ -11,117 +11,152 @@
         @csrf
         @method('PUT')
 
-        {{-- Select de Organización --}}
-<div class="form-group">
-    <label for="Id_Organizacion">Caja Rural</label>
-    <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
-        <option value="">Seleccione una organización</option>
-        @foreach($organizaciones as $org)
-            <option value="{{ $org->Id_Organizacion }}" 
-                {{ old('Id_Organizacion', $emprendimiento->Id_Organizacion) == $org->Id_Organizacion ? 'selected' : '' }}>
-                {{ $org->Nombre_Organizacion }} - {{ $org->Estado_Organizacion }}
-            </option>
-        @endforeach
-    </select>
-    @error('Id_Organizacion') <small class="text-danger">{{ $message }}</small> @enderror
-</div>
-        <div class="form-group">
-            <label for="Caja_Rural">Nombre del Emprendimiento </label>
-            <input type="text" name="Caja_Rural" class="form-control" value="{{ old('Caja_Rural', $emprendimiento->Caja_Rural) }}" required>
-            @error('Caja_Rural') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        {{-- Select de Departamento --}}
-        <div class="form-group">
-            <label for="departamento">Departamento</label>
-            <select id="departamento" class="form-control" required>
-                <option value="">Seleccione un departamento</option>
-                @foreach($departamentos as $departamento)
-                    <option value="{{ $departamento->Id_Departamento }}" {{ $departamento->Id_Departamento == $emprendimiento->municipio->departamento->Id_Departamento ? 'selected' : '' }}>
-                        {{ $departamento->Nombre_Departamento }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        {{-- Select de Municipio --}}
-        <div class="form-group">
-            <label for="Id_Municipio">Municipio</label>
-            <select name="Id_Municipio" id="municipio" class="form-control" required>
-                <option value="{{ $emprendimiento->municipio->id }}" selected>{{ $emprendimiento->municipio->nombre }}</option>
-            </select>
-            @error('Id_Municipio') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        {{-- Select de Aldea --}}
-        <div class="form-group">
-            <label for="aldea">Aldea</label>
-            <select name="aldea_id" id="aldea" class="form-control">
-                <option value="{{ $emprendimiento->aldea->id ?? '' }}" selected>{{ $emprendimiento->aldea->nombre ?? 'Seleccione una aldea' }}</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="Comunidad">Comunidad</label>
-            <input type="text" name="Comunidad" class="form-control" value="{{ old('Comunidad', $emprendimiento->Comunidad) }}">
-            @error('Comunidad') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        <div class="form-group">
-            <label for="Tipo_Negocio">Tipo de Negocio / Descripción</label>
-            <textarea name="Tipo_Negocio" class="form-control" rows="3" required>{{ old('Tipo_Negocio', $emprendimiento->Tipo_Negocio) }}</textarea>
-            @error('Tipo_Negocio') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-4">
-                <label>Socios Hombres</label>
-                <input type="number" name="Socios_Hombres" class="form-control" value="{{ old('Socios_Hombres', $emprendimiento->Socios_Hombres) }}" min="0">
-                @error('Socios_Hombres') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-            <div class="form-group col-md-4">
-                <label>Socias Mujeres</label>
-                <input type="number" name="Socios_Mujeres" class="form-control" value="{{ old('Socios_Mujeres', $emprendimiento->Socios_Mujeres) }}" min="0">
-                @error('Socios_Mujeres') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-            <div class="form-group col-md-4">
-                <label>Total Socios</label>
-                <input type="number" id="Total_Socios" class="form-control" readonly>
+        {{-- Selección de Organización --}}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="Id_Organizacion">Caja Rural</label>
+                    <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
+                        <option value="">Seleccione una organización</option>
+                        @foreach($organizaciones as $org)
+                            <option value="{{ $org->Id_Organizacion }}" 
+                                {{ old('Id_Organizacion', $emprendimiento->Id_Organizacion) == $org->Id_Organizacion ? 'selected' : '' }}>
+                                {{ $org->Nombre_Organizacion }} - {{ $org->Estado_Organizacion }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('Id_Organizacion') <small class="text-danger">{{ $message }}</small> @enderror
+                </div>
             </div>
         </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-4">
-                <label>Empleos Hombres</label>
-                <input type="number" name="Empleos_Hombres" class="form-control" value="{{ old('Empleos_Hombres', $emprendimiento->Empleos_Hombres) }}" min="0">
-                @error('Empleos_Hombres') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-            <div class="form-group col-md-4">
-                <label>Empleos Mujeres</label>
-                <input type="number" name="Empleos_Mujeres" class="form-control" value="{{ old('Empleos_Mujeres', $emprendimiento->Empleos_Mujeres) }}" min="0">
-                @error('Empleos_Mujeres') <small class="text-danger">{{ $message }}</small> @enderror
-            </div>
-            <div class="form-group col-md-4">
-                <label>Total Empleos</label>
-                <input type="number" id="Total_Empleos" class="form-control" readonly>
-            </div>
-        </div>
+        {{-- Tabs --}}
+        <ul class="nav nav-tabs mt-3" id="emprendimientoTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="general-tab" data-toggle="tab" href="#general"
+                   role="tab" aria-controls="general" aria-selected="true">Datos Generales</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="socios-tab" data-toggle="tab" href="#socios"
+                   role="tab" aria-controls="socios" aria-selected="false">Socios y Empleos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="otros-tab" data-toggle="tab" href="#otros"
+                   role="tab" aria-controls="otros" aria-selected="false">Otros Datos</a>
+            </li>
+        </ul>
 
-        <div class="form-group">
-            <label for="Ventas_Trimestrales">Ventas Trimestrales (L)</label>
-            <input type="number" step="0.01" name="Ventas_Trimestrales" class="form-control" value="{{ old('Ventas_Trimestrales', $emprendimiento->Ventas_Trimestrales) }}">
-            @error('Ventas_Trimestrales') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
+        <div class="tab-content p-3 border border-top-0 shadow-sm bg-white rounded-bottom" id="emprendimientoTabsContent">
 
-        <div class="form-group">
-            <label for="Fecha_Levantamiento">Fecha de Levantamiento</label>
-            <input type="date" name="Fecha_Levantamiento" class="form-control" value="{{ old('Fecha_Levantamiento', $emprendimiento->Fecha_Levantamiento) }}" required>
-            @error('Fecha_Levantamiento') <small class="text-danger">{{ $message }}</small> @enderror
-        </div>
+            {{-- TAB 1: Datos Generales --}}
+            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                <div class="form-group">
+                    <label for="Caja_Rural">Nombre del Emprendimiento </label>
+                    <input type="text" name="Caja_Rural" class="form-control" 
+                           value="{{ old('Caja_Rural', $emprendimiento->Caja_Rural) }}" required>
+                </div>
 
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Actualizar</button>
-            <a href="{{ route('emprendimientos.index') }}" class="btn btn-secondary">Cancelar</a>
+                <div class="form-group">
+                    <label for="departamento">Departamento</label>
+                    <select id="departamento" class="form-control" required>
+                        <option value="">Seleccione un departamento</option>
+                        @foreach($departamentos as $departamento)
+                            <option value="{{ $departamento->Id_Departamento }}" 
+                                {{ $departamento->Id_Departamento == $emprendimiento->municipio->departamento->Id_Departamento ? 'selected' : '' }}>
+                                {{ $departamento->Nombre_Departamento }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="municipio">Municipio</label>
+                    <select name="Id_Municipio" id="municipio" class="form-control" required>
+                        <option value="{{ $emprendimiento->municipio->id }}" selected>
+                            {{ $emprendimiento->municipio->nombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="aldea">Aldea</label>
+                    <select name="aldea_id" id="aldea" class="form-control">
+                        <option value="{{ $emprendimiento->aldea->id ?? '' }}" selected>
+                            {{ $emprendimiento->aldea->nombre ?? 'Seleccione una aldea' }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Comunidad">Comunidad</label>
+                    <input type="text" name="Comunidad" class="form-control" 
+                           value="{{ old('Comunidad', $emprendimiento->Comunidad) }}">
+                </div>
+            </div>
+
+            {{-- TAB 2: Socios y Empleos --}}
+            <div class="tab-pane fade" id="socios" role="tabpanel" aria-labelledby="socios-tab">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label>Socios Hombres</label>
+                        <input type="number" name="Socios_Hombres" class="form-control" 
+                               value="{{ old('Socios_Hombres', $emprendimiento->Socios_Hombres) }}" min="0">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Socias Mujeres</label>
+                        <input type="number" name="Socios_Mujeres" class="form-control" 
+                               value="{{ old('Socios_Mujeres', $emprendimiento->Socios_Mujeres) }}" min="0">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Total Socios</label>
+                        <input type="number" id="Total_Socios" class="form-control" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label>Empleos Hombres</label>
+                        <input type="number" name="Empleos_Hombres" class="form-control" 
+                               value="{{ old('Empleos_Hombres', $emprendimiento->Empleos_Hombres) }}" min="0">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Empleos Mujeres</label>
+                        <input type="number" name="Empleos_Mujeres" class="form-control" 
+                               value="{{ old('Empleos_Mujeres', $emprendimiento->Empleos_Mujeres) }}" min="0">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Total Empleos</label>
+                        <input type="number" id="Total_Empleos" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+
+            {{-- TAB 3: Otros Datos --}}
+            <div class="tab-pane fade" id="otros" role="tabpanel" aria-labelledby="otros-tab">
+                <div class="form-group">
+                    <label for="Tipo_Negocio">Tipo de Negocio / Descripción</label>
+                    <textarea name="Tipo_Negocio" class="form-control" rows="3" required>
+                        {{ old('Tipo_Negocio', $emprendimiento->Tipo_Negocio) }}
+                    </textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="Ventas_Trimestrales">Ventas Trimestrales (L)</label>
+                    <input type="number" step="0.01" name="Ventas_Trimestrales" class="form-control" 
+                           value="{{ old('Ventas_Trimestrales', $emprendimiento->Ventas_Trimestrales) }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="Fecha_Levantamiento">Fecha de Levantamiento</label>
+                    <input type="date" name="Fecha_Levantamiento" class="form-control" 
+                           value="{{ old('Fecha_Levantamiento', $emprendimiento->Fecha_Levantamiento) }}" required>
+                </div>
+
+                <div class="form-group text-right">
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <a href="{{ route('emprendimientos.index') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </div>
         </div>
     </form>
 @stop
@@ -159,10 +194,7 @@
                 .then(data => {
                     municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
                     data.forEach(m => {
-                        const opt = document.createElement('option');
-                        opt.value = m.id;
-                        opt.textContent = m.nombre;
-                        municipioSelect.appendChild(opt);
+                        municipioSelect.innerHTML += `<option value="${m.id}">${m.nombre}</option>`;
                     });
                 });
         }
@@ -171,19 +203,14 @@
     document.getElementById('municipio').addEventListener('change', function () {
         const municipioId = this.value;
         const aldeaSelect = document.getElementById('aldea');
-
         aldeaSelect.innerHTML = '<option value="">Cargando aldeas...</option>';
-
         if (municipioId) {
             fetch(`/aldeas/${municipioId}`)
                 .then(res => res.json())
                 .then(data => {
                     aldeaSelect.innerHTML = '<option value="">Seleccione una aldea</option>';
                     data.forEach(a => {
-                        const opt = document.createElement('option');
-                        opt.value = a.id;
-                        opt.textContent = a.nombre;
-                        aldeaSelect.appendChild(opt);
+                        aldeaSelect.innerHTML += `<option value="${a.id}">${a.nombre}</option>`;
                     });
                 });
         }

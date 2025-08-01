@@ -14,36 +14,36 @@ use App\Models\Organizacion; // <--- NUEVO
 
 class EmprendimientoController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion']); // <--- incluimos organizacion
+  public function index(Request $request)
+{
+    $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion', 'aldea']); // <-- Agregamos aldea
 
-        if ($request->filled('municipio')) {
-            $query->where('Id_Municipio', $request->municipio);
-        }
-
-        if ($request->filled('fecha')) {
-            $query->whereDate('Fecha_Levantamiento', $request->fecha);
-        }
-
-        if ($request->filled('tecnico')) {
-            $query->whereHas('tecnico', function ($q) use ($request) {
-                $q->where('Nombre_Usuario', 'like', '%' . $request->tecnico . '%');
-            });
-        }
-
-        if ($request->filled('nombre')) {
-            $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
-        }
-
-        $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')
-                                 ->paginate(10)
-                                 ->appends($request->query());
-
-        $municipios = Municipio::all();
-
-        return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
+    if ($request->filled('municipio')) {
+        $query->where('Id_Municipio', $request->municipio);
     }
+
+    if ($request->filled('fecha')) {
+        $query->whereDate('Fecha_Levantamiento', $request->fecha);
+    }
+
+    if ($request->filled('tecnico')) {
+        $query->whereHas('tecnico', function ($q) use ($request) {
+            $q->where('Nombre_Usuario', 'like', '%' . $request->tecnico . '%');
+        });
+    }
+
+    if ($request->filled('nombre')) {
+        $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
+    }
+
+    $emprendimientos = $query->orderBy('Fecha_Levantamiento', 'desc')
+                             ->paginate(10)
+                             ->appends($request->query());
+
+    $municipios = Municipio::all();
+
+    return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
+}
 
     public function create()
     {

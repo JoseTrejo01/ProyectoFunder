@@ -19,4 +19,9 @@ class Aldea extends Model
     {
         return $this->belongsTo(Municipio::class, 'Id_Municipio');
     }
+
+      public function emprendimientos()
+    {
+        return $this->hasMany(Emprendimiento::class, 'Id_Aldea', 'Id_Aldea');
+    }
 }
