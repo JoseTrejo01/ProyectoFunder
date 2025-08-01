@@ -80,36 +80,55 @@
                                             <label for="Nombre_Organizacion_{{ $org->Id_Organizacion }}" class="form-label">Nombre de la Organización</label>
                                             <input type="text" class="form-control" name="Nombre_Organizacion" id="Nombre_Organizacion_{{ $org->Id_Organizacion }}" value="{{ $org->Nombre_Organizacion }}" required>
                                           </div>
-                                          <div class="mb-3">
-                                            <label for="departamento_{{ $org->Id_Organizacion }}" class="form-label">Departamento</label>
-                                            <select name="departamento" id="departamento_{{ $org->Id_Organizacion }}" class="form-control" required>
-                                              <option value="">Seleccione</option>
-                                              @foreach($departamentos as $depto)
-                                                <option value="{{ $depto->Id_Departamento }}" {{ $org->aldea && $org->aldea->municipio && $org->aldea->municipio->departamento && $org->aldea->municipio->departamento->Id_Departamento == $depto->Id_Departamento ? 'selected' : '' }}>{{ $depto->Nombre_Departamento }}</option>
-                                              @endforeach
-                                            </select>
+                                          <div class="row">
+                                              <div class="col-md-4">
+                                                  <label class="form-label">¿Tiene personería jurídica?</label>
+                                                  <select name="tiene_personeria_juridica" id="tiene_personeria_juridica_edit_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                      <option value="0" {{ $org->tiene_personeria_juridica ? '' : 'selected' }}>No</option>
+                                                      <option value="1" {{ $org->tiene_personeria_juridica ? 'selected' : '' }}>Sí</option>
+                                                  </select>
+                                              </div>
+                                              <div class="col-md-4" id="fecha_personeria_juridica_div_edit_{{ $org->Id_Organizacion }}" style="display:{{ $org->tiene_personeria_juridica ? 'block' : 'none' }};">
+                                                  <label for="fecha_personeria_juridica_edit_{{ $org->Id_Organizacion }}" class="form-label">Fecha de obtención</label>
+                                                  <input type="date" class="form-control" name="fecha_personeria_juridica" id="fecha_personeria_juridica_edit_{{ $org->Id_Organizacion }}" value="{{ $org->fecha_personeria_juridica }}">
+                                              </div>
                                           </div>
-                                          <div class="mb-3">
-                                            <label for="municipio_{{ $org->Id_Organizacion }}" class="form-label">Municipio</label>
-                                            <select name="municipio" id="municipio_{{ $org->Id_Organizacion }}" class="form-control" required>
-                                              <option value="">Seleccione un municipio</option>
-                                              @if($org->aldea && $org->aldea->municipio)
-                                                @foreach($municipiosPorDepto[$org->aldea->municipio->Id_Departamento] ?? [] as $muni)
-                                                  <option value="{{ $muni->Id_Municipio }}" {{ $org->aldea->municipio->Id_Municipio == $muni->Id_Municipio ? 'selected' : '' }}>{{ $muni->Nombre_Municipio }}</option>
-                                                @endforeach
-                                              @endif
-                                            </select>
+                                          <div class="row mt-3">
+                                              <div class="col-md-4">
+                                                  <label for="municipio_{{ $org->Id_Organizacion }}" class="form-label">Municipio</label>
+                                                  <select name="municipio" id="municipio_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                      <option value="">Seleccione un municipio</option>
+                                                      @if($org->aldea && $org->aldea->municipio)
+                                                        @foreach($municipiosPorDepto[$org->aldea->municipio->Id_Departamento] ?? [] as $muni)
+                                                          <option value="{{ $muni->Id_Municipio }}" {{ $org->aldea->municipio->Id_Municipio == $muni->Id_Municipio ? 'selected' : '' }}>{{ $muni->Nombre_Municipio }}</option>
+                                                        @endforeach
+                                                      @endif
+                                                  </select>
+                                              </div>
+                                              <div class="col-md-4">
+                                                  <label class="form-label">¿Tiene RTN?</label>
+                                                  <select name="tiene_rtn" id="tiene_rtn_edit_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                      <option value="0" {{ $org->tiene_rtn ? '' : 'selected' }}>No</option>
+                                                      <option value="1" {{ $org->tiene_rtn ? 'selected' : '' }}>Sí</option>
+                                                  </select>
+                                              </div>
+                                              <div class="col-md-4" id="rtn_div_edit_{{ $org->Id_Organizacion }}" style="display:{{ $org->tiene_rtn ? 'block' : 'none' }};">
+                                                  <label for="rtn_edit_{{ $org->Id_Organizacion }}" class="form-label">RTN</label>
+                                                  <input type="text" class="form-control" name="rtn" id="rtn_edit_{{ $org->Id_Organizacion }}" maxlength="20" value="{{ $org->rtn }}">
+                                              </div>
                                           </div>
-                                          <div class="mb-3">
-                                            <label for="Nombre_Aldea_{{ $org->Id_Organizacion }}" class="form-label">Aldea</label>
-                                            <input type="text" class="form-control" name="Nombre_Aldea" id="Nombre_Aldea_{{ $org->Id_Organizacion }}" value="{{ $org->aldea ? $org->aldea->Nombre_Aldea : '' }}" required>
-                                          </div>
-                                          <div class="mb-3">
-                                            <label for="Estado_Organizacion_{{ $org->Id_Organizacion }}" class="form-label">Estado</label>
-                                            <select name="Estado_Organizacion" id="Estado_Organizacion_{{ $org->Id_Organizacion }}" class="form-control" required>
-                                              <option value="ACTIVO" {{ $org->Estado_Organizacion == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                                              <option value="INACTIVO" {{ $org->Estado_Organizacion == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
-                                            </select>
+                                          <div class="row mt-3">
+                                              <div class="col-md-4">
+                                                  <label for="Nombre_Aldea_{{ $org->Id_Organizacion }}" class="form-label">Aldea</label>
+                                                  <input type="text" class="form-control" name="Nombre_Aldea" id="Nombre_Aldea_{{ $org->Id_Organizacion }}" value="{{ $org->aldea ? $org->aldea->Nombre_Aldea : '' }}" required>
+                                              </div>
+                                              <div class="col-md-4">
+                                                  <label class="form-label">¿Tiene cuenta bancaria?</label>
+                                                  <select name="tiene_cuenta_bancaria" id="tiene_cuenta_bancaria_edit_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                      <option value="0" {{ $org->tiene_cuenta_bancaria ? '' : 'selected' }}>No</option>
+                                                      <option value="1" {{ $org->tiene_cuenta_bancaria ? 'selected' : '' }}>Sí</option>
+                                                  </select>
+                                              </div>
                                           </div>
                                         </div>
                                         <div class="modal-footer">
@@ -156,6 +175,7 @@
             <label for="Nombre_Organizacion" class="form-label">Nombre de la Organización</label>
             <input type="text" class="form-control" name="Nombre_Organizacion" required>
           </div>
+          
           <div class="mb-3">
             <label for="departamento" class="form-label">Departamento</label>
             <select name="departamento" id="departamento" class="form-control" required>
@@ -195,16 +215,42 @@
               </div>
               <div class="col">
                   <label for="coordenada_x">Longitud</label>
-                  <input
-                      type="number"
-                      step="0.00000001"
-                      min="-180"
-                      max="180"
-                      name="coordenada_x"
-                      id="coordenada_x"
-                      class="form-control"
-                      required
-                  >
+                  <input type="text" name="coordenada_x" id="coordenada_x" class="form-control" readonly required>
+              </div>
+          </div>
+          <div class="row mt-3">
+              <div class="col-md-6">
+                  <label class="form-label">¿Tiene personería jurídica?</label>
+                  <select name="tiene_personeria_juridica" id="tiene_personeria_juridica" class="form-control" required>
+                      <option value="0">No</option>
+                      <option value="1">Sí</option>
+                  </select>
+              </div>
+              <div class="col-md-6" id="fecha_personeria_juridica_div" style="display:none;">
+                  <label for="fecha_personeria_juridica" class="form-label">Fecha de obtención</label>
+                  <input type="date" class="form-control" name="fecha_personeria_juridica" id="fecha_personeria_juridica">
+              </div>
+          </div>
+          <div class="row mt-3">
+              <div class="col-md-6">
+                  <label class="form-label">¿Tiene RTN?</label>
+                  <select name="tiene_rtn" id="tiene_rtn" class="form-control" required>
+                      <option value="0">No</option>
+                      <option value="1">Sí</option>
+                  </select>
+              </div>
+              <div class="col-md-6" id="rtn_div" style="display:none;">
+                  <label for="rtn" class="form-label">RTN</label>
+                  <input type="text" class="form-control" name="rtn" id="rtn" maxlength="20">
+              </div>
+          </div>
+          <div class="row mt-3">
+              <div class="col-md-6">
+                  <label class="form-label">¿Tiene cuenta bancaria?</label>
+                  <select name="tiene_cuenta_bancaria" id="tiene_cuenta_bancaria" class="form-control" required>
+                      <option value="0">No</option>
+                      <option value="1">Sí</option>
+                  </select>
               </div>
           </div>
         </div>
@@ -342,6 +388,46 @@
         const lng = parseFloat(this.value);
         const lat = parseFloat(document.getElementById('coordenada_y').value);
         if (esCoordenadaValida(lat, lng)) actualizarMarcador(lat, lng);
+    });
+    // Detectar apertura del modal y redibujar el mapa
+$('#modalRegistrarOrg').on('shown.bs.modal', function () {
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 200); // pequeño retardo para asegurar que el modal esté visible
+});
+
+    // Mostrar/ocultar campos según selección en registro
+    document.addEventListener('DOMContentLoaded', function() {
+        const tienePersoneria = document.getElementById('tiene_personeria_juridica');
+        const fechaPersoneriaDiv = document.getElementById('fecha_personeria_juridica_div');
+        tienePersoneria.addEventListener('change', function() {
+            fechaPersoneriaDiv.style.display = this.value == '1' ? 'block' : 'none';
+        });
+        const tieneRTN = document.getElementById('tiene_rtn');
+        const rtnDiv = document.getElementById('rtn_div');
+        tieneRTN.addEventListener('change', function() {
+            rtnDiv.style.display = this.value == '1' ? 'block' : 'none';
+        });
+    });
+
+    // Mostrar/ocultar campos en formularios de edición
+    document.addEventListener('DOMContentLoaded', function() {
+        @foreach($organizaciones as $org)
+            const tienePersoneriaEdit{{ $org->Id_Organizacion }} = document.getElementById('tiene_personeria_juridica_edit_{{ $org->Id_Organizacion }}');
+            const fechaPersoneriaDivEdit{{ $org->Id_Organizacion }} = document.getElementById('fecha_personeria_juridica_div_edit_{{ $org->Id_Organizacion }}');
+            if(tienePersoneriaEdit{{ $org->Id_Organizacion }}){
+                tienePersoneriaEdit{{ $org->Id_Organizacion }}.addEventListener('change', function() {
+                    fechaPersoneriaDivEdit{{ $org->Id_Organizacion }}.style.display = this.value == '1' ? 'block' : 'none';
+                });
+            }
+            const tieneRTNEdit{{ $org->Id_Organizacion }} = document.getElementById('tiene_rtn_edit_{{ $org->Id_Organizacion }}');
+            const rtnDivEdit{{ $org->Id_Organizacion }} = document.getElementById('rtn_div_edit_{{ $org->Id_Organizacion }}');
+            if(tieneRTNEdit{{ $org->Id_Organizacion }}){
+                tieneRTNEdit{{ $org->Id_Organizacion }}.addEventListener('change', function() {
+                    rtnDivEdit{{ $org->Id_Organizacion }}.style.display = this.value == '1' ? 'block' : 'none';
+                });
+            }
+        @endforeach
     });
 </script>
 @endsection

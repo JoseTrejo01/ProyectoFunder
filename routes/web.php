@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -68,6 +69,7 @@ Route::middleware('guest')->group(function () {
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
 });
 
+<<<<<<< HEAD
 // ===================== VERIFICACIÓN DE CORREO =====================
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
@@ -77,6 +79,9 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('login')->with('success', 'Correo verificado correctamente. Ya puedes iniciar sesión.');
     })->middleware(['signed'])->name('verification.verify');
 });
+=======
+
+>>>>>>> adbdccb0254546e420edcab2d578344d2fcb2256
 
 // ===================== RUTAS AUTENTICADOS =====================
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -97,9 +102,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin
     Route::prefix('admin')->group(function () {
+<<<<<<< HEAD
         Route::resource('usuarios', UsuarioController::class)->except(['show']);
 
         Route::prefix('database')->group(function () {
+=======
+        Route::resource('usuarios', UsuarioController::class);
+        Route::prefix('respaldo')->group(function () {
+>>>>>>> adbdccb0254546e420edcab2d578344d2fcb2256
             Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
             Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
             Route::post('/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
@@ -121,6 +131,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
         });
 
+<<<<<<< HEAD
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
             Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
@@ -129,8 +140,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/cargos/export', [ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
         });
     });
+=======
 
-    // Permisos y Bitácora
+    Route::prefix('reportes')->group(function () {
+        // Solo rutas válidas para reportes
+        Route::get('/cajas', [\App\Http\Controllers\ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
+        Route::get('/cajas/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCajas'])->name('admin.reportes.cajas.export');
+        // Rutas para cargos según género
+        Route::get('/cargos', [\App\Http\Controllers\ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
+        Route::get('/cargos/export', [\App\Http\Controllers\ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
+    });
+
+    Route::prefix('parametros')->group(function () {
+        Route::get('/', [ParametroController::class, 'index'])->name('parametros.index');
+        Route::post('/', [ParametroController::class, 'store'])->name('parametros.store');
+        Route::put('/{id}', [ParametroController::class, 'update'])->name('parametros.update');
+        Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
+    });
+
+});
+
+>>>>>>> adbdccb0254546e420edcab2d578344d2fcb2256
+
+    
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
@@ -143,6 +175,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Socios
     Route::resource('socios', SocioController::class)->except(['show']);
+    Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
     Route::get('/socios/export', function (Request $request) {
@@ -195,6 +228,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
+    Route::post('/capacitaciones/guardar', [App\Http\Controllers\CapacitacionController::class, 'store'])->name('capacitacion.store');
 
     // Auxiliares
     Route::get('/organizacion/{id}/nombre', function ($id) {
@@ -214,5 +248,10 @@ Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'e
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));
+<<<<<<< HEAD
 //Ruta de home dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+=======
+
+Route::get('reporte/export-capacitaciones', [App\Http\Controllers\ReporteController::class, 'exportCapacitacionesExcel'])->name('reporte.exportCapacitacionesExcel');
+>>>>>>> adbdccb0254546e420edcab2d578344d2fcb2256
