@@ -39,12 +39,7 @@ class PrestamoController extends Controller
             '25' => '25%',
         ];
 
-<<<<<<< HEAD
         return view('prestamos.crear', compact('organizaciones', 'beneficiarios', 'porcentajesMora', 'departamentos'));
-    }
-
-=======
-        return view('prestamos.crear', compact('organizaciones', 'beneficiarios', 'porcentajesMora'));
     }
 
     public function index()
@@ -208,7 +203,6 @@ class PrestamoController extends Controller
         return redirect()->route('creditos')->with('success', 'Préstamo desembolsado y pago inicial registrado.');
     }
 
->>>>>>> adbdccb0254546e420edcab2d578344d2fcb2256
     public function store(Request $request)
     {
         $validated = $request->validate([
