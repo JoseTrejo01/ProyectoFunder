@@ -10,21 +10,23 @@ class Emprendimiento extends Model
     protected $primaryKey = 'Id_Emprendimiento';
     public $timestamps = true;
 
-    protected $fillable = [
-        'Caja_Rural',
-        'Id_Municipio',
-        'Comunidad',
-        'Socios_Hombres',
-        'Socios_Mujeres',
-        'Tipo_Negocio',
-        'Ventas_Trimestrales',
-        'Empleos_Hombres',
-        'Empleos_Mujeres',
-        'Fecha_Levantamiento',
-        'Fecha_Inicio_Operaciones',
-        'Id_Tecnico',
-        'Id_Organizacion' // <-- agregamos este campo
-    ];
+   protected $fillable = [
+    'Caja_Rural',
+    'Id_Municipio',
+    'Id_Aldea', // <-- AGREGA ESTA LÍNEA
+    'Comunidad',
+    'Socios_Hombres',
+    'Socios_Mujeres',
+    'Tipo_Negocio',
+    'Ventas_Trimestrales',
+    'Empleos_Hombres',
+    'Empleos_Mujeres',
+    'Fecha_Levantamiento',
+    'Fecha_Inicio_Operaciones',
+    'Id_Tecnico',
+    'Id_Organizacion'
+];
+
 
     // Relación con Municipio
     public function municipio()
@@ -43,4 +45,9 @@ class Emprendimiento extends Model
     {
         return $this->belongsTo(Organizacion::class, 'Id_Organizacion', 'Id_Organizacion');
     }
+    public function aldea()
+    {
+    return $this->belongsTo(Aldea::class, 'Id_Aldea', 'Id_Aldea');
+    }
+
 }
