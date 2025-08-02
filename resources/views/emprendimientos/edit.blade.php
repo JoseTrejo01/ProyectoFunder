@@ -11,89 +11,7 @@
         @csrf
         @method('PUT')
 
-<<<<<<< HEAD
         {{-- Select de Organización --}}
-<div class="form-group">
-    <label for="Id_Organizacion">Caja Rural</label>
-    <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
-        <option value="">Seleccione una organización</option>
-        @foreach($organizaciones as $org)
-            <option value="{{ $org->Id_Organizacion }}" 
-                {{ old('Id_Organizacion', $emprendimiento->Id_Organizacion) == $org->Id_Organizacion ? 'selected' : '' }}>
-                {{ $org->Nombre_Organizacion }} - {{ $org->Estado_Organizacion }}
-            </option>
-        @endforeach
-    </select>
-    @error('Id_Organizacion') <small class="text-danger">{{ $message }}</small> @enderror
-</div>
-        <div class="form-group">
-            <label for="Caja_Rural">Nombre del Emprendimiento </label>
-            <input type="text" name="Caja_Rural" class="form-control" value="{{ old('Caja_Rural', $emprendimiento->Caja_Rural) }}" required>
-        </div>
-
-        <div class="form-group">
-            <label for="Id_Municipio">Municipio</label>
-            <select name="Id_Municipio" class="form-control" required>
-                <option value="">Seleccione un municipio</option>
-                @foreach($municipios as $municipio)
-                    <option value="{{ $municipio->Id_Municipio }}" {{ old('Id_Municipio', $emprendimiento->Id_Municipio) == $municipio->Id_Municipio ? 'selected' : '' }}>
-                        {{ $municipio->Nombre_Municipio ?? $municipio->Id_Municipio }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="Comunidad">Comunidad</label>
-            <input type="text" name="Comunidad" class="form-control" value="{{ old('Comunidad', $emprendimiento->Comunidad) }}">
-        </div>
-
-        <div class="form-group">
-            <label for="Tipo_Negocio">Tipo de Negocio / Descripción</label>
-            <textarea name="Tipo_Negocio" class="form-control" rows="3" required>{{ old('Tipo_Negocio', $emprendimiento->Tipo_Negocio) }}</textarea>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-4">
-                <label>Socios Hombres</label>
-                <input type="number" name="Socios_Hombres" class="form-control" value="{{ old('Socios_Hombres', $emprendimiento->Socios_Hombres) }}" min="0">
-            </div>
-            <div class="form-group col-md-4">
-                <label>Socias Mujeres</label>
-                <input type="number" name="Socios_Mujeres" class="form-control" value="{{ old('Socios_Mujeres', $emprendimiento->Socios_Mujeres) }}" min="0">
-            </div>
-            <div class="form-group col-md-4">
-                <label>Total Socios</label>
-                <input type="number" id="Total_Socios" class="form-control" readonly>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-4">
-                <label>Empleos Hombres</label>
-                <input type="number" name="Empleos_Hombres" class="form-control" value="{{ old('Empleos_Hombres', $emprendimiento->Empleos_Hombres) }}" min="0">
-            </div>
-            <div class="form-group col-md-4">
-                <label>Empleos Mujeres</label>
-                <input type="number" name="Empleos_Mujeres" class="form-control" value="{{ old('Empleos_Mujeres', $emprendimiento->Empleos_Mujeres) }}" min="0">
-            </div>
-            <div class="form-group col-md-4">
-                <label>Total Empleos</label>
-                <input type="number" id="Total_Empleos" class="form-control" readonly>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="Ventas_Trimestrales">Ventas Trimestrales (L)</label>
-            <input type="number" step="0.01" name="Ventas_Trimestrales" class="form-control" value="{{ old('Ventas_Trimestrales', $emprendimiento->Ventas_Trimestrales) }}">
-        </div>
-
-        <div class="form-group">
-            <label for="Fecha_Levantamiento">Fecha de Levantamiento</label>
-            <input type="date" name="Fecha_Levantamiento" class="form-control" value="{{ old('Fecha_Levantamiento', \Carbon\Carbon::parse($emprendimiento->Fecha_Levantamiento)->format('Y-m-d')) }}" required>
-        </div>
-=======
-        {{-- Selección de Organización --}}
         <div class="card shadow-sm">
             <div class="card-body">
                 <div class="form-group">
@@ -129,15 +47,13 @@
         </ul>
 
         <div class="tab-content p-3 border border-top-0 shadow-sm bg-white rounded-bottom" id="emprendimientoTabsContent">
-
             {{-- TAB 1: Datos Generales --}}
             <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
                 <div class="form-group">
-                    <label for="Caja_Rural">Nombre del Emprendimiento </label>
+                    <label for="Caja_Rural">Nombre del Emprendimiento</label>
                     <input type="text" name="Caja_Rural" class="form-control" 
                            value="{{ old('Caja_Rural', $emprendimiento->Caja_Rural) }}" required>
                 </div>
->>>>>>> 2f054e49169a2bb64cc5edc8129e26f159f4f85a
 
                 <div class="form-group">
                     <label for="departamento">Departamento</label>
@@ -218,9 +134,7 @@
             <div class="tab-pane fade" id="otros" role="tabpanel" aria-labelledby="otros-tab">
                 <div class="form-group">
                     <label for="Tipo_Negocio">Tipo de Negocio / Descripción</label>
-                    <textarea name="Tipo_Negocio" class="form-control" rows="3" required>
-                        {{ old('Tipo_Negocio', $emprendimiento->Tipo_Negocio) }}
-                    </textarea>
+                    <textarea name="Tipo_Negocio" class="form-control" rows="3" required>{{ old('Tipo_Negocio', $emprendimiento->Tipo_Negocio) }}</textarea>
                 </div>
 
                 <div class="form-group">
@@ -232,7 +146,7 @@
                 <div class="form-group">
                     <label for="Fecha_Levantamiento">Fecha de Levantamiento</label>
                     <input type="date" name="Fecha_Levantamiento" class="form-control" 
-                           value="{{ old('Fecha_Levantamiento', $emprendimiento->Fecha_Levantamiento) }}" required>
+                           value="{{ old('Fecha_Levantamiento', \Carbon\Carbon::parse($emprendimiento->Fecha_Levantamiento)->format('Y-m-d')) }}" required>
                 </div>
 
                 <div class="form-group text-right">
@@ -245,17 +159,12 @@
 @stop
 
 @section('js')
-    <script>
-        function actualizarTotales() {
-            const hombres = parseInt(document.querySelector('[name="Socios_Hombres"]').value || 0);
-            const mujeres = parseInt(document.querySelector('[name="Socios_Mujeres"]').value || 0);
-            document.getElementById('Total_Socios').value = hombres + mujeres;
+<script>
+    function actualizarTotales() {
+        const hombres = parseInt(document.querySelector('[name="Socios_Hombres"]').value || 0);
+        const mujeres = parseInt(document.querySelector('[name="Socios_Mujeres"]').value || 0);
+        document.getElementById('Total_Socios').value = hombres + mujeres;
 
-<<<<<<< HEAD
-            const empH = parseInt(document.querySelector('[name="Empleos_Hombres"]').value || 0);
-            const empM = parseInt(document.querySelector('[name="Empleos_Mujeres"]').value || 0);
-            document.getElementById('Total_Empleos').value = empH + empM;
-=======
         const empH = parseInt(document.querySelector('[name="Empleos_Hombres"]').value || 0);
         const empM = parseInt(document.querySelector('[name="Empleos_Mujeres"]').value || 0);
         document.getElementById('Total_Empleos').value = empH + empM;
@@ -267,7 +176,6 @@
 
     actualizarTotales();
 
-    // AJAX dinámico
     document.getElementById('departamento').addEventListener('change', function () {
         const departamentoId = this.value;
         const municipioSelect = document.getElementById('municipio');
@@ -285,17 +193,9 @@
                         municipioSelect.innerHTML += `<option value="${m.id}">${m.nombre}</option>`;
                     });
                 });
->>>>>>> 2f054e49169a2bb64cc5edc8129e26f159f4f85a
         }
+    });
 
-<<<<<<< HEAD
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', actualizarTotales);
-        });
-
-        actualizarTotales(); // inicializar al cargar
-    </script>
-=======
     document.getElementById('municipio').addEventListener('change', function () {
         const municipioId = this.value;
         const aldeaSelect = document.getElementById('aldea');
@@ -312,5 +212,4 @@
         }
     });
 </script>
->>>>>>> 2f054e49169a2bb64cc5edc8129e26f159f4f85a
 @stop
