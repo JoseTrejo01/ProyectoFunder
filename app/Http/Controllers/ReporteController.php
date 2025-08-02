@@ -51,7 +51,24 @@ class ReporteController extends Controller
     public function exportCapacitacionesExcel()
     {
         // 1. Obtener módulos y temas
-        $modulos = DB::table('tbl_modulo_capacitacion')->select('Id_Modulo', 'Nombre_Modulo')->get();
+        // Orden manual de módulos
+        $ordenManual = [
+            'Módulo I: Organización de cajas rurales / Gobernanza',
+            'Módulo II: Cálculo de intereses y administración de ahorros',
+            'Módulo III: Administración de préstamos',
+            'Módulo IV: Elaboración de estados financieros para las cajas rurales',
+            'Módulo V: Aspectos legales; Obtención de personalidad jurídica y/o Actualización de Junta Directiva',
+            'Contabilidad empresarial (para emprendimientos)',
+            'Elaboración de planes estratégicos'
+        ];
+        $modulosAll = DB::table('tbl_modulo_capacitacion')->select('Id_Modulo', 'Nombre_Modulo')->get();
+        $modulos = collect($ordenManual)
+            ->map(function($nombre) use ($modulosAll) {
+                return $modulosAll->first(function($m) use ($nombre) {
+                    return $m->Nombre_Modulo === $nombre;
+                });
+            })
+            ->filter();
         $temasPorModulo = [];
         $temasTotales = [];
         foreach ($modulos as $modulo) {

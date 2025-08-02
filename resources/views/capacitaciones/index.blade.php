@@ -42,10 +42,10 @@
         @php
             $modulosUnicos = collect($modulos)->unique('Nombre_Modulo')->values();
         @endphp
-        <ul class="nav nav-tabs nav-tabs-bordered nav-justified mb-3" id="moduloTabs" role="tablist" style="font-size: 1.1rem;">
+        <ul class="nav nav-tabs nav-tabs-bordered mb-1" id="moduloTabs" role="tablist" style="font-size: 0.85rem;">
             @foreach($modulosUnicos as $idx => $modulo)
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link {{ $idx === 0 ? 'active' : '' }} fw-bold text-primary" id="tabModulo{{ $modulo->Id_Modulo }}" data-bs-toggle="tab" data-bs-target="#modulo{{ $modulo->Id_Modulo }}" type="button" role="tab" aria-controls="modulo{{ $modulo->Id_Modulo }}" aria-selected="{{ $idx === 0 ? 'true' : 'false' }}" style="border-radius: 8px 8px 0 0; background: #f8f9fa;">{{ $modulo->Nombre_Modulo }}</button>
+                    <button class="nav-link {{ $idx === 0 ? 'active' : '' }} fw-bold text-primary px-1 py-0" id="tabModulo{{ $modulo->Id_Modulo }}" data-bs-toggle="tab" data-bs-target="#modulo{{ $modulo->Id_Modulo }}" type="button" role="tab" aria-controls="modulo{{ $modulo->Id_Modulo }}" aria-selected="{{ $idx === 0 ? 'true' : 'false' }}" style="border-radius: 4px 4px 0 0; background: #f8f9fa; min-width: 80px; max-width: 120px; font-size: 0.85rem; white-space: normal;">{{ $modulo->Nombre_Modulo }}</button>
                 </li>
             @endforeach
         </ul>

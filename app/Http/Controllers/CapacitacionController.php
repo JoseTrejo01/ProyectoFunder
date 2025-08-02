@@ -23,7 +23,7 @@ class CapacitacionController extends Controller
                 ->get();
         }
 
-        // Obtener módulos y temas desde la base de datos
+        // Obtener todos los módulos y temas desde la base de datos, sin orden específico (la vista controla el orden)
         $modulos = DB::table('tbl_modulo_capacitacion')
             ->select('Id_Modulo', 'Nombre_Modulo')
             ->get();
@@ -33,6 +33,7 @@ class CapacitacionController extends Controller
             $temasPorModulo[$modulo->Id_Modulo] = DB::table('tbl_tema_modulo')
                 ->where('Id_Modulo', $modulo->Id_Modulo)
                 ->select('Id_Tema', 'Nombre_Tema')
+                ->orderBy('Id_Tema', 'asc')
                 ->get();
         }
 
