@@ -25,5 +25,9 @@ class Organizacion extends Model
     {
         return $this->hasMany(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
     }
+    public function aldea()
+{
+    return $this->belongsTo(Aldea::class, 'Id_Aldea', 'Id_Aldea');
+}
 
 }
