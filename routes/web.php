@@ -122,6 +122,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Evaluación (CRUD)
     Route::resource('evaluacion', EvaluacionController::class);
+   Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])
+     ->name('dashboard.chart-data');
 
     // Exportación a Excel 
     Route::get('/evaluacion/exportar-excel', [ExportEvaluacionesController::class, 'export'])->name('evaluacion.export');

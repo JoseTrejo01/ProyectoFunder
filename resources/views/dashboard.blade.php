@@ -7,65 +7,13 @@
 @stop
 
 @section('content')
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>150</h3>
-                    <p>Nuevos Usuarios</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
+<div class="card">
+  <div class="card-header"><h3 class="card-title">Comparativa Mensual</h3></div>
+  <div class="card-body">
+    <canvas id="multiChart" style="height: 200px;"></canvas>
+  </div>
+</div>
 
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>53<sup style="font-size: 20px">% </sup></h3>
-                    <p>Tasa de Éxito</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>44</h3>
-                    <p>Mensajes Nuevos</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>65</h3>
-                    <p>Reportes</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-    </div>
-
-    
 @stop
 
 @section('css')
@@ -73,5 +21,33 @@
 @stop
 
 @section('js')
-    <!-- Agrega aquí los scripts adicionales si es necesario -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Indica aquí los módulos que deseas graficar
+   const params = new URLSearchParams();
+['evaluacion','socios','emprendimientos'].forEach(m => params.append('modules[]', m));
+const url = "{{ route('dashboard.chart-data') }}?" + params.toString();
+      fetch(url)
+        .then(res => res.json())
+        .then(json => {
+         console.log('Respuesta del API:', json);
+          const ctx = document.getElementById('multiChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: json.labels,
+              datasets: json.datasets
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          });
+        })
+        .catch(console.error);
+    });
+  </script>
 @stop
