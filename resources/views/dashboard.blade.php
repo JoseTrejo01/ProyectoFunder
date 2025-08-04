@@ -18,77 +18,9 @@
   </div>
 </div>
 
-<<<<<<< HEAD
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>53<sup style="font-size: 20px">% </sup></h3>
-                    <p>Tasa de Éxito</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>44</h3>
-                    <p>Mensajes Nuevos</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>65</h3>
-                    <p>Reportes</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <a href="#" class="small-box-footer">Más info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="row mt-4 justify-content-center">
-        <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Distribución de Socios</h5>
-                </div>
-                <div class="card-body d-flex justify-content-center align-items-center">
-                    <canvas id="sociosDoughnutChart" width="220" height="220" style="max-width:220px;max-height:220px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-8 col-md-12 mb-3">
-            <div class="card h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Participación de Hombres y Mujeres en Cargos Directivos</h5>
-                </div>
-                <div class="card-body d-flex justify-content-center align-items-center">
-                    <canvas id="cargosBarChart" width="440" height="220" style="max-width:440px;max-height:220px;"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 
     
-=======
->>>>>>> bc713d5e6cb391f2e180dc9d81a79cb57559ef99
 @stop
 
 @section('css')
@@ -260,25 +192,34 @@
     document.addEventListener('DOMContentLoaded', () => {
       // Indica aquí los módulos que deseas graficar
    const params = new URLSearchParams();
-['evaluacion','socios','emprendimientos'].forEach(m => params.append('modules[]', m));
+['evaluacion','socios','emprendimientos', 'organizacion'].forEach(m => params.append('modules[]', m));
 const url = "{{ route('dashboard.chart-data') }}?" + params.toString();
       fetch(url)
         .then(res => res.json())
         .then(json => {
-         console.log('Respuesta del API:', json);
           const ctx = document.getElementById('multiChart').getContext('2d');
           new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
               labels: json.labels,
               datasets: json.datasets
             },
             options: {
-              responsive: true,
-              scales: {
-                y: { beginAtZero: true }
-              }
-            }
+  responsive: true,
+  scales: { y: { beginAtZero: true } },
+  interaction: {
+    mode: 'nearest',    // busca el punto más cercano
+    intersect: true     // solo si estás sobre él
+  },
+  plugins: {
+    tooltip: {
+      enabled: true,
+      mode: 'nearest',
+      intersect: true
+    }
+  }
+}
+
           });
         })
         .catch(console.error);
