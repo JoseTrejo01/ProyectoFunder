@@ -18,7 +18,6 @@
         </div>
     </div>
 </form>
-
 <table class="table table-bordered table-striped text-center">
     <thead class="bg-success text-white align-middle">
         <tr>
@@ -106,16 +105,14 @@
             </td>
 
             {{-- Acciones --}}
-           {{-- Acciones --}}
-<td>
-    <a href="{{ route('evaluacion.edit', $evaAct->Id_Evaluacion ?? ($evaIni->Id_Evaluacion ?? 0)) }}" class="btn btn-sm btn-primary">Actualizar</a>
-
-    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmDeleteModal"
-        data-id="{{ $evaAct->Id_Evaluacion ?? ($evaIni->Id_Evaluacion ?? 0) }}">
-        Borrar
-    </button>
-</td>
-
+            <td>
+                <a href="{{ route('evaluacion.edit', $evaAct->Id_Evaluacion ?? ($evaIni->Id_Evaluacion ?? 0)) }}" class="btn btn-sm btn-primary">Actualizar</a>
+                <form action="{{ route('evaluacion.destroy', $evaAct->Id_Evaluacion ?? ($evaIni->Id_Evaluacion ?? 0)) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta evaluación?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+                </form>
+            </td>
         </tr>
         @endforeach
     </tbody>
