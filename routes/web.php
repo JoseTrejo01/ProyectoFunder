@@ -81,6 +81,8 @@ Route::middleware('auth')->group(function () {
 // ===================== RUTAS AUTENTICADOS =====================
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])->name('dashboard.chart-data');
+
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // Cambio de contraseña
@@ -131,7 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
-    // Resto de módulos
+    // Módulos generales
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
@@ -198,6 +200,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $organizacion = DB::table('tbl_organizaciones')->where('Id_Organizacion', $id)->first();
         return response()->json(['nombre' => $organizacion->Nombre_Organizacion ?? '']);
     });
+
     Route::get('/actividades/{id}', function ($id) {
         return DB::table('tbl_actividad_economica')
             ->where('Id_Beneficiario', $id)
