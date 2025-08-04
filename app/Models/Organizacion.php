@@ -33,13 +33,13 @@ class Organizacion extends Model
         return $this->belongsTo(Aldea::class, 'Id_Aldea', 'Id_Aldea');
     }
 
-    // Relación indirecta con Municipio
+    // Relación indirecta con Municipio (a través de Aldea)
     public function municipio()
     {
         return $this->aldea ? $this->aldea->municipio : null;
     }
 
-    // Relación indirecta con Departamento
+    // Relación indirecta con Departamento (a través del Municipio)
     public function departamento()
     {
         return $this->municipio() ? $this->municipio()->departamento : null;
@@ -68,12 +68,4 @@ class Organizacion extends Model
     {
         return $this->hasMany(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
     }
-<<<<<<< HEAD
-=======
-    public function aldea()
-{
-    return $this->belongsTo(Aldea::class, 'Id_Aldea', 'Id_Aldea');
-}
-
->>>>>>> ff87c9257943dbe10f83141c54506eae7892a345
 }
