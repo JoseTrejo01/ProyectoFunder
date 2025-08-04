@@ -139,6 +139,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('criterio', CriterioController::class);
     Route::resource('evaluacion', EvaluacionController::class);
+<<<<<<< HEAD
+=======
+   Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])
+     ->name('dashboard.chart-data');
+
+    // Exportación a Excel 
+>>>>>>> bc713d5e6cb391f2e180dc9d81a79cb57559ef99
     Route::get('/evaluacion/exportar-excel', [ExportEvaluacionesController::class, 'export'])->name('evaluacion.export');
 
     Route::resource('socios', SocioController::class)->except(['show']);
