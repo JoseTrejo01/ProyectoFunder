@@ -7,49 +7,68 @@
 @endsection
 
 @section('content')
-    <a href="{{ route('evaluacion.create') }}" class="btn btn-success mb-3">Nueva Evaluación</a>
+<a href="{{ route('evaluacion.create') }}" class="btn btn-success mb-3">Nueva Evaluación</a>
 
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th>ID</th>
-                <th>Organización</th>
-                <th>Criterio</th>
-                <th>Inicial</th>
-                <th>Actualizada</th>
-                <th>Ponderación Inicial</th>
-                <th>Ponderación Actual</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($evaluaciones as $eva)
-            <tr>
-                <td>{{ $eva->id }}</td>
-                <td>{{ optional($eva->organizacion)->Nombre_Organizacion }}</td>
-                     <td>
-                    @php
-                        echo match($eva->criterio_id) {
-                            1 => 'Excelente',
-                            2 => 'Bueno',
-                            3 => 'Malo',
-                            default => 'No definido',
-                        };
-                    @endphp
-                </td>
-                <td>{{ $eva->puntuacion_inicial }}</td>
-                <td>{{ $eva->puntuacion_actualizada }}</td>
-                <td>{{ $eva->ponderacion_inicial }}</td>
-                <td>{{ $eva->ponderacion_actual }}</td>
-                <td>
-                    <a href="{{ route('evaluacion.edit', $eva) }}" class="btn btn-sm btn-primary">Editar</a>
-                    <form action="{{ route('evaluacion.destroy', $eva) }}" method="POST" style="display:inline-block">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar esta evaluación?')">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+<table class="table table-bordered table-striped text-center">
+    <thead class="bg-success text-white align-middle">
+        <tr>
+            <th rowspan="2">No.</th>
+            <th rowspan="2">Nombre de la Organización</th>
+            <th rowspan="2">Departamento</th>
+            <th colspan="4">Evaluación Inicial</th>
+            <th colspan="4">Evaluación Actualizada</th>
+            <th rowspan="2">% de crecimiento</th>
+            <th rowspan="2">Acciones</th>
+        </tr>
+        <tr>
+            <th>Desempeño Institucional</th>
+            <th>Desempeño Financiero</th>
+            <th>Calificación Total</th>
+            <th>Categoría</th>
+
+            <th>Desempeño Institucional</th>
+            <th>Desempeño Financiero</th>
+            <th>Calificación Total</th>
+            <th>Categoría</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($evaluaciones as $index => $eva)
+        <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ $eva->organizacion->Nombre_Organizacion }}</td>
+            <td>{{ $eva->organizacion->aldea->municipio->departamento->Nombre_Departamento ?? 'No definido' }}</td>
+
+
+        {{-- Evaluación Inicial --}}
+<td>{{ $eva->porcentaje_institucional }}%</td>
+<td>{{ $eva->porcentaje_financiero }}%</td>
+<td>{{ $eva->calificacion_total_pct }}%</td>
+<td>{{ $eva->categoria_calculada }}</td>
+
+          {{-- Evaluación Actualizada --}}
+@if ($eva->actualizada)
+    <td>{{ $eva->actualizada->porcentaje_institucional }}%</td>
+    <td>{{ $eva->actualizada->porcentaje_financiero }}%</td>
+    <td>{{ $eva->actualizada->calificacion_total_pct }}%</td>
+    <td>{{ $eva->actualizada->categoria_calculada }}</td>
+@else
+    <td colspan="4" class="text-muted">Sin actualizar</td>
+@endif
+
+            {{-- % de crecimiento (esto puedes ajustar si comparas entre dos evaluaciones) --}}
+            <td>0%</td>
+
+            <td>
+                <a href="{{ route('evaluacion.edit', $eva->Id_Evaluacion) }}" class="btn btn-sm btn-primary">Editar</a>
+                <form action="{{ route('evaluacion.destroy', $eva->Id_Evaluacion) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta evaluación?');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+    </form>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
 @endsection
