@@ -11,14 +11,14 @@ class EvaluacionController extends Controller
 {
     public function create()
     {
-        $organizaciones = Organizacion::all();
+         $organizaciones = Organizacion::whereDoesntHave('evaluacion')->get();
         return view('evaluacion.create', compact('organizaciones'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'organizacion_id' => 'required|exists:tbl_organizacion,Id_Organizacion',
+           'organizacion_id' => 'required|unique:tbl_evaluacion,organizacion_id',
             'eficiencia_financiera' => 'required|in:mayor,menor',
             'apalancamiento' => 'required|in:mayor_60,30_60,menor_30',
             'sostenibilidad' => 'required|in:mayor_1,igual_1,menor_1',
@@ -139,31 +139,48 @@ class EvaluacionController extends Controller
         return redirect()->route('evaluacion.index')->with('success', 'Evaluación guardada correctamente.');
     }
 
-    public function index()
-    {
-        // Separamos las evaluaciones iniciales y las actualizadas
-        $evaluaciones = Evaluacion::with(['organizacion.aldea.municipio.departamento'])->get();
-        $actualizadas = EvaluacionActualizada::with(['organizacion.aldea.municipio.departamento'])->get();
+public function index(Request $request)
+{
+    $search = $request->input('search');
 
-        // Aplicar límites al porcentaje (máx 100%)
-        $evaluaciones->transform(function ($eval) {
-            $eval->porcentaje_institucional = min(100, round(($eval->desempeno_institucional / 315) * 100, 2));
-            $eval->porcentaje_financiero = min(100, round(($eval->total_financiero / 400) * 100, 2));
-            $eval->calificacion_total_pct = round($eval->porcentaje_institucional + $eval->porcentaje_financiero, 2);
+    // Evaluaciones iniciales con filtro por nombre de organización
+    $evaluaciones = Evaluacion::with(['organizacion.aldea.municipio.departamento', 'actualizada'])
+        ->when($search, function ($query) use ($search) {
+            $query->whereHas('organizacion', function ($q) use ($search) {
+                $q->where('Nombre_Organizacion', 'like', '%' . $search . '%');
+            });
+        })
+        ->get();
 
-            $total = $eval->calificacion_total_pct;
-            $eval->categoria_calculada = match (true) {
-                $total >= 90 => 'A',
-                $total >= 71 => 'B',
-                $total >= 50 => 'C',
-                default => 'D',
-            };
+    // Evaluaciones actualizadas con mismo filtro
+    $actualizadas = EvaluacionActualizada::with(['organizacion.aldea.municipio.departamento'])
+        ->when($search, function ($query) use ($search) {
+            $query->whereHas('organizacion', function ($q) use ($search) {
+                $q->where('Nombre_Organizacion', 'like', '%' . $search . '%');
+            });
+        })
+        ->get();
 
-            return $eval;
-        });
+    // Transformación de datos
+    $evaluaciones->transform(function ($eval) {
+        $eval->porcentaje_institucional = min(100, round(($eval->desempeno_institucional / 315) * 100, 2));
+        $eval->porcentaje_financiero = min(100, round(($eval->total_financiero / 400) * 100, 2));
+        $eval->calificacion_total_pct = round($eval->porcentaje_institucional + $eval->porcentaje_financiero, 2);
 
-        return view('evaluacion.index', compact('evaluaciones', 'actualizadas'));
-    }
+        $total = $eval->calificacion_total_pct;
+        $eval->categoria_calculada = match (true) {
+            $total >= 90 => 'A',
+            $total >= 71 => 'B',
+            $total >= 50 => 'C',
+            default => 'D',
+        };
+
+        return $eval;
+    });
+
+    return view('evaluacion.index', compact('evaluaciones', 'actualizadas'));
+}
+
 
     public function edit($id)
     {
@@ -273,7 +290,7 @@ public function update(Request $request, $id)
         'calificacion_total' => $calificacion_total,
         'categoria' => $categoria,
     ]);
-
+    $evaluacion->touch();
     // Actualizar EvaluacionActualizada si existe
     if ($evaluacion->evaluacionActualizada) {
         $evaluacion->evaluacionActualizada->update([
@@ -290,7 +307,7 @@ public function update(Request $request, $id)
             'categoria' => $categoria,
         ]);
     }
-
+    
     return redirect()->route('evaluacion.index')->with('success', 'Evaluación actualizada correctamente.');
 }
 

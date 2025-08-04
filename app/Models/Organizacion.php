@@ -62,10 +62,22 @@ class Organizacion extends Model
     {
         return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
     }
+<<<<<<< HEAD
 
     // Relación con Evaluaciones
     public function evaluaciones()
     {
         return $this->hasMany(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
     }
+=======
+   public function evaluacion()
+{
+    return $this->hasOne(Evaluacion::class, 'organizacion_id', 'Id_Organizacion');
+}
+    public function aldea()
+{
+    return $this->belongsTo(Aldea::class, 'Id_Aldea', 'Id_Aldea');
+}
+
+>>>>>>> ce148fab36258bcdaa6edac24a98efb420d543c0
 }

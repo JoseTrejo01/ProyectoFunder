@@ -7,8 +7,17 @@
 @endsection
 
 @section('content')
-<form action="{{ route('evaluacion.store') }}" method="POST">
+<form id="evaluacionForm" action="{{ route('evaluacion.store') }}" method="POST">
     @csrf
+
+    {{-- Aviso inicial --}}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Importante:</strong> La primera evaluación que realice será <b>única</b> 
+    y <b>no podrá ser modificada</b> posteriormente.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 
     {{-- Tabs --}}
     <ul class="nav nav-tabs mb-3" id="tabForm" role="tablist">
@@ -221,4 +230,48 @@
         <a href="{{ route('evaluacion.index') }}" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>
+
+
+@section('js')
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.getElementById('evaluacionForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que se envíe directamente
+
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "⚠️ La primera evaluación será ÚNICA y NO se podrá modificar después.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, guardar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit(); // Envía el formulario solo si confirma
+                }
+            });
+        });
+    </script>
+    <script>
+    const radiosAntiguedad = document.querySelectorAll('input[name="mayor_seis_meses"]');
+    const restoFormulario = document.getElementById('restoFormulario');
+    const form = document.getElementById('evaluacionForm');
+
+    // Mostrar/ocultar según respuesta
+    radiosAntiguedad.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === "1") {
+                restoFormulario.style.display = "block";
+                restoFormulario.classList.add("animate__animated", "animate__fadeIn");
+            } else {
+                restoFormulario.style.display = "none";
+            }
+        });
+    });
+@endsection
+
 @endsection
