@@ -101,12 +101,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except(['show']);
 
-        Route::prefix('database')->group(function () {
-            Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
-            Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
-            Route::post('/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
-        });
+        // Base de datos
+        Route::get('/database', [DatabaseController::class, 'index'])->name('admin.database');
+        Route::post('/database/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
+        Route::post('/database/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
 
+        // Roles
         Route::prefix('roles')->group(function () {
             Route::get('/', [RolController::class, 'index'])->name('roles.index');
             Route::post('/', [RolController::class, 'store'])->name('roles.store');
@@ -115,6 +115,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
         });
 
+        // Objetos
         Route::prefix('objetos')->group(function () {
             Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
             Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
@@ -123,6 +124,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
         });
 
+        // Reportes
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
             Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');

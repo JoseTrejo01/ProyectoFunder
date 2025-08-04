@@ -324,12 +324,12 @@ return [
             'submenu' => [
                 [
                     'text' => 'Parámetros',
-                    'url' => 'admin/parametros',
+                    'url' => 'parametros',
                     'icon' => 'fas fa-sliders-h',
                 ],
                 [
                     'text' => 'Respaldo de Base de Datos',
-                    'url' => 'admin/respaldo',
+                    'url' => 'admin/database',
                     'icon' => 'fas fa-database',
                 ],
             ],
