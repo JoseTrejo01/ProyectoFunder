@@ -5,7 +5,11 @@
 @section('content_header')
     <div class="d-flex flex-column">
         <h1>Dashboard</h1>
-        <h5 class="text-muted">Bienvenido, {{ auth()->user()->Nombre_Usuario }}</h5>
+        @auth
+            <h5 class="text-muted">Bienvenido, {{ auth()->user()->Nombre_Usuario }}</h5>
+        @else
+            <h5 class="text-muted">Bienvenido</h5>
+        @endauth
     </div>
 @stop
 
@@ -16,9 +20,6 @@
     <canvas id="multiChart" style="height: 200px;"></canvas>
   </div>
 </div>
-
-
-
 
 <div class="row mt-4 justify-content-center">
     <div class="col-lg-4 col-md-6 mb-3">
@@ -52,7 +53,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ========== GRÁFICO COMPARATIVO ==========
     const params = new URLSearchParams();
     ['evaluacion', 'socios', 'emprendimientos', 'organizacion'].forEach(m => params.append('modules[]', m));
     const url = "{{ route('dashboard.chart-data') }}?" + params.toString();
@@ -63,30 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const ctx = document.getElementById('multiChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: json.labels,
-                    datasets: json.datasets
-                },
+                data: { labels: json.labels, datasets: json.datasets },
                 options: {
                     responsive: true,
                     scales: { y: { beginAtZero: true } },
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: true
-                    },
-                    plugins: {
-                        tooltip: {
-                            enabled: true,
-                            mode: 'nearest',
-                            intersect: true
-                        }
-                    }
+                    interaction: { mode: 'nearest', intersect: true },
+                    plugins: { tooltip: { enabled: true } }
                 }
             });
         })
         .catch(console.error);
 
-    // ========== DOUGHNUT SOCIOS ==========
     const ctxSocios = document.getElementById('sociosDoughnutChart')?.getContext('2d');
     if (ctxSocios) {
         new Chart(ctxSocios, {
@@ -126,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ========== BARRAS CARGOS ==========
     const ctxBar = document.getElementById('cargosBarChart')?.getContext('2d');
     if (ctxBar) {
         new Chart(ctxBar, {

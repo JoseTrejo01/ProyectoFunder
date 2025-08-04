@@ -214,3 +214,6 @@ Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'e
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));
+
+// Ruta para la página de inicio del usuario autenticado
+Route::get('/home', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');

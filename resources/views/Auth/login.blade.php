@@ -2,7 +2,7 @@
 @section('adminlte_css_pre')
 <style>
     body {
-        background: url('{{ asset('./images/tractor-campo-generado-ia_268835-11230.avif') }}') no-repeat center center fixed;
+        background: url('{{ asset('./images/funder2.png') }}') no-repeat center center fixed;
         background-size: cover;
         font-family: 'Segoe UI', sans-serif;
     }
