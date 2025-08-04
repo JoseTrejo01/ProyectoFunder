@@ -1,4 +1,4 @@
-<?php
+<<?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -81,7 +81,7 @@ Route::middleware('auth')->group(function () {
 // ===================== RUTAS AUTENTICADOS =====================
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])->name('dashboard.chart-data');
 
     // Cambio de contraseña
     Route::get('/cambiar-contraseña', [LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
@@ -139,13 +139,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('criterio', CriterioController::class);
     Route::resource('evaluacion', EvaluacionController::class);
-<<<<<<< HEAD
-=======
-   Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])
-     ->name('dashboard.chart-data');
-
-    // Exportación a Excel 
->>>>>>> bc713d5e6cb391f2e180dc9d81a79cb57559ef99
     Route::get('/evaluacion/exportar-excel', [ExportEvaluacionesController::class, 'export'])->name('evaluacion.export');
 
     Route::resource('socios', SocioController::class)->except(['show']);
@@ -198,18 +191,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
-    Route::post('/capacitaciones/guardar', [CapacitacionController::class, 'store'])->name('capacitacion.store');
-
-    // Auxiliares
-    Route::get('/organizacion/{id}/nombre', function ($id) {
-        $organizacion = DB::table('tbl_organizaciones')->where('Id_Organizacion', $id)->first();
-        return response()->json(['nombre' => $organizacion->Nombre_Organizacion ?? '']);
-    });
-    Route::get('/actividades/{id}', function ($id) {
-        return DB::table('tbl_actividad_economica')
-            ->where('Id_Beneficiario', $id)
-            ->pluck('Rubro', 'Id_Actividad');
-    });
 });
 
 // Informe financiero público
