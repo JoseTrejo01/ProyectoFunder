@@ -90,35 +90,41 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // =================== Gráfico Comparativa Mensual ===================
+    // ========== GRÁFICO COMPARATIVO ==========
     const params = new URLSearchParams();
-    ['evaluacion', 'socios', 'emprendimientos'].forEach(m => params.append('modules[]', m));
+    ['evaluacion', 'socios', 'emprendimientos', 'organizacion'].forEach(m => params.append('modules[]', m));
     const url = "{{ route('dashboard.chart-data') }}?" + params.toString();
 
     fetch(url)
         .then(res => res.json())
         .then(json => {
-            console.log('Respuesta del API:', json);
-            const ctx = document.getElementById('multiChart')?.getContext('2d');
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: json.labels,
-                        datasets: json.datasets
+            const ctx = document.getElementById('multiChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: json.labels,
+                    datasets: json.datasets
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } },
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: true
                     },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: { beginAtZero: true }
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            mode: 'nearest',
+                            intersect: true
                         }
                     }
-                });
-            }
+                }
+            });
         })
         .catch(console.error);
 
-    // =================== Gráfico de Anillo Socios ===================
+    // ========== DOUGHNUT SOCIOS ==========
     const ctxSocios = document.getElementById('sociosDoughnutChart')?.getContext('2d');
     if (ctxSocios) {
         new Chart(ctxSocios, {
@@ -158,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // =================== Gráfico Barras Cargos ===================
+    // ========== BARRAS CARGOS ==========
     const ctxBar = document.getElementById('cargosBarChart')?.getContext('2d');
     if (ctxBar) {
         new Chart(ctxBar, {
