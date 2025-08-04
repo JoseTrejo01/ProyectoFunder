@@ -32,13 +32,14 @@ public function chartData(Request $request)
             'date_col' => 'created_at',
             'label'    => 'Socios',
         ],
-        // …otros módulos…
+        
     ];
 
     // 3. Prepara las etiquetas de mes
     $labels = [];
     for ($m = 1; $m <= 12; $m++) {
-        $labels[] = \DateTime::createFromFormat('!m', $m)->format('M');
+      $labels = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+           'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     }
 
     // 4. Construye los datasets, con CLAVE "data"
