@@ -1,6 +1,6 @@
-<?php
 
-namespace App\Exports;
+
+// namespace App\Exports;
 
 use App\Models\Socio;
 use Maatwebsite\Excel\Concerns\FromCollection;

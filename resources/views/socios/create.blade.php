@@ -1,5 +1,7 @@
 @extends('adminlte::page')
 
+@section('title', 'Nuevo Socio') {{-- Cambia el título de la pestaña --}}
+
 @section('content_header')
     <h1>Nuevo Socio</h1>
 @stop
@@ -98,7 +100,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>DNI</label>
-                            <input type="text" name="DNI" class="form-control" required pattern="\d{4}-\d{4}-\d{5}" title="Formato: 0000-0000-00000">
+                            <input type="text" name="DNI" class="form-control" maxlength="13" pattern="\d{1,13}" title="Solo se permiten hasta 13 dígitos numéricos" required>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -158,15 +160,25 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Nivel Educativo</label>
-                            <select name="nivel_educativo" class="form-control">
-                                <option value="">Seleccione</option>
-                                <option value="Sin estudios">Sin estudios</option>
-                                <option value="Educación básica">Educación básica</option>
-                                <option value="Educación media">Educación media</option>
-                                <option value="Educación superior">Educación superior</option>
-                            </select>
-                        </div>
+                        <label>Nivel Educativo</label>
+                        <select name="nivel_educativo" id="nivel_educativo" class="form-control">
+                            <option value="">Seleccione</option>
+                            <option value="Sin estudios">Sin estudios</option>
+                            <option value="Educación Prebásica">Educación Prebásica</option>
+                            <option value="Primaria">Primaria</option>
+                            <option value="Ciclo Común">Ciclo Común</option>
+                            <option value="Diversificado">Diversificado</option>
+                            <option value="Universitario">Universitario</option>
+                            <option value="Post grado">Post grado</option>
+                            <option value="Doctorado">Doctorado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Años estimados cursados</label>
+                        <input type="text" id="anios_educacion" class="form-control" readonly>
+                    </div>
+                </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
@@ -182,7 +194,8 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Teléfono</label>
-                            <input type="text" name="Telefono" class="form-control" pattern="\d{4}-\d{4}" title="Formato: 1234-5678">
+                            <input type="text" name="Telefono" class="form-control" pattern="\d{4}-\d{4}" maxlength="9" title="Formato: 1234-5678" value="{{ old('Telefono') }}" required>
+
                             <small class="form-text text-muted">Formato: 1234-5678</small>
                         </div>
                     </div>
@@ -244,31 +257,30 @@
                         <!-- Filas generadas por JS -->
                     </tbody>
                 </table>
-                <div class="form-group">
-                    <label>Tipo de Cargo</label>
-                    <select name="Tipo_Cargo" class="form-control">
-                        <option value="">Seleccione</option>
-                        <option value="Presidente(a)">Presidente(a)</option>
-                        <option value="Vicepresidente(a)">Vicepresidente(a)</option>
-                        <option value="Tesorero(a)">Tesorero(a)</option>
-                        <option value="Secretario(a)">Secretario(a)</option>
-                        <option value="Vocal I">Vocal I</option>
-                        <option value="Vocal II">Vocal II</option>
-                        <option value="Vocal III">Vocal III</option>
-                        <option value="Comité de Crédito y Cobros">Comité de Crédito y Cobros</option>
-                        <option value="Junta de Vigilancia Presidente(a)">Junta de Vigilancia Presidente(a)</option>
-                        <option value="Junta de Vigilancia Secretario(a)">Junta de Vigilancia Secretario(a)</option>
-                        <option value="Junta de Vigilancia Vocal">Junta de Vigilancia Vocal</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Socio</label>
-                    <input type="text" name="Tipo_De_Socio" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Categoría</label>
-                    <input type="text" name="categoria" class="form-control">
-                </div>
+               <div class="form-group">
+                     <label>Tipo de Socio</label>
+                       <select name="Tipo_De_Socio" id="Tipo_De_Socio" class="form-control" required>
+        <option value="">Seleccione</option>
+        <option value="Socio">Socio</option>
+        <option value="Cliente">Cliente</option>
+                     </select>
+            </div>
+
+            <div class="form-group" id="tipo_cargo_group" style="display: none;">
+                <label>Tipo de Cargo</label>
+                     <select name="Tipo_Cargo" class="form-control">
+                    <option value="">Seleccione</option>
+                    @foreach($cargosDirectivos as $cargo)
+                      <option value="{{ $cargo }}">{{ $cargo }}</option>
+                    @endforeach
+                     </select>
+</div>
+
+<div class="form-group" id="categoria_group" style="display: none;">
+    <label>Categoría</label>
+    <input type="text" name="categoria" class="form-control">
+</div>
+
             </div>
         </div>
 
@@ -277,97 +289,139 @@
     </form>
 
       <script>
-
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
         const orgSelect = document.querySelector('select[name="Id_Organizacion"]');
         const departamentoInput = document.getElementById('departamento');
         const municipioInput = document.getElementById('municipio');
         const comunidadInput = document.getElementById('comunidad');
+        const dniInput = document.getElementById('dni');
 
-        // Calcular edad automáticamente
+        const tipoSocioSelect = document.getElementById('Tipo_De_Socio');
+        const tipoCargoGroup = document.getElementById('tipo_cargo_group');
+        const categoriaGroup = document.getElementById('categoria_group');
+        
+
         const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
         const edadInput = document.getElementById('edad');
-        fechaNacimientoInput.addEventListener('change', function() {
-            const fecha = this.value;
-            if (fecha) {
-                const hoy = new Date();
-                const nacimiento = new Date(fecha);
-                let edad = hoy.getFullYear() - nacimiento.getFullYear();
-                const m = hoy.getMonth() - nacimiento.getMonth();
-                if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
-                    edad--;
-                }
-                edadInput.value = edad;
-            } else {
-                edadInput.value = '';
-            }
+        fechaNacimientoInput?.addEventListener('change', function () {
+    const fecha = this.value;
+
+    // Validar formato y año
+    const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
+    if (regexFecha.test(fecha)) {
+        const anio = parseInt(fecha.split('-')[0]);
+
+        if (anio < 1900 || anio > 9999) {
+            alert('Por favor ingrese un año válido entre 1900 y 9999');
+            this.value = '';
+            edadInput.value = '';
+            return;
+        }
+
+        // Si la fecha es válida, calcula la edad
+        const hoy = new Date();
+        const nacimiento = new Date(fecha);
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const m = hoy.getMonth() - nacimiento.getMonth();
+        if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+
+        edadInput.value = edad;
+    } else {
+        // Si el formato es inválido
+        alert('Formato de fecha inválido. Use el formato correcto.');
+        this.value = '';
+        edadInput.value = '';
+    }
+});
+dniInput?.addEventListener('input', function () {
+    // Elimina todo lo que no sea número
+    this.value = this.value.replace(/\D/g, '').slice(0, 13);
+});
+
+        tipoSocioSelect?.addEventListener('change', function () {
+            const valor = this.value;
+            tipoCargoGroup.style.display = valor === 'Socio' ? 'block' : 'none';
+            categoriaGroup.style.display = valor !== '' ? 'block' : 'none';
         });
 
-        orgSelect.addEventListener('change', function() {
+        orgSelect?.addEventListener('change', function () {
             const selected = orgSelect.options[orgSelect.selectedIndex];
             departamentoInput.value = selected.getAttribute('data-departamento') || '';
             municipioInput.value = selected.getAttribute('data-municipio') || '';
             comunidadInput.value = selected.getAttribute('data-aldea') || '';
         });
 
-        // Dinámico actividades económicas
+        const estructuraEducativa = {
+            "Sin estudios": "0",
+            "Educación Prebásica": "2 a 3 años",
+            "Primaria": "6 años (Total: 8 incluyendo Prebásica)",
+            "Ciclo Común": "3 años (Total: 11)",
+            "Diversificado": "1 a 3 años (Total: 14)",
+            "Universitario": "1 a 5 años (Total: 19)",
+            "Post grado": "2 años (Total: 21)",
+            "Doctorado": "3 a 5 años (Total: 22)"
+        };
+        const nivelEducativo = document.getElementById('nivel_educativo');
+        const aniosEducacion = document.getElementById('anios_educacion');
+        nivelEducativo?.addEventListener('change', function () {
+            aniosEducacion.value = estructuraEducativa[this.value] || '';
+        });
+
         let actividades = [];
         const btnAgregar = document.getElementById('agregar-actividad');
         const tabla = document.getElementById('tabla-actividades');
         const tbody = tabla.querySelector('tbody');
 
-        btnAgregar.addEventListener('click', function() {
-            const idx = actividades.length + 1;
-            const actividad = {
-                tipo: '',
-                rubro: '',
-                unidad: '',
-                cantidad: ''
-            };
-            actividades.push(actividad);
+        btnAgregar?.addEventListener('click', function () {
+            const idx = actividades.length;
+            actividades.push({ tipo: '', rubro: '', unidad: '', cantidad: '' });
             renderActividades();
         });
 
         function renderActividades() {
             tbody.innerHTML = '';
-            if (actividades.length > 0) {
-                tabla.style.display = '';
-            } else {
-                tabla.style.display = 'none';
-            }
+            tabla.style.display = actividades.length > 0 ? '' : 'none';
+
             actividades.forEach((act, i) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${i+1}</td>
-                    <td>
-                        <select name="actividades[${i}][tipo]" class="form-control form-control-sm" required>
-                            <option value="">Seleccione</option>
-                            <option value="Agrícola" ${act.tipo==='Agrícola'?'selected':''}>Agrícola</option>
-                            <option value="No Agrícola" ${act.tipo==='No Agrícola'?'selected':''}>No Agrícola</option>
-                        </select>
-                    </td>
-                    <td><input type="text" name="actividades[${i}][rubro]" class="form-control form-control-sm" value="${act.rubro}" required></td>
-                    <td>
-                        <select name="actividades[${i}][unidad]" class="form-control form-control-sm" required>
-                            <option value="">Seleccione</option>
-                            <option value="Manzanas" ${act.unidad==='Manzanas'?'selected':''}>Manzanas</option>
-                            <option value="Lempiras" ${act.unidad==='Lempiras'?'selected':''}>Lempiras</option>
-                        </select>
-                    </td>
-                    <td><input type="number" name="actividades[${i}][cantidad]" class="form-control form-control-sm" value="${act.cantidad}" min="0" step="0.01" required></td>
-                    <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(${i})">Eliminar</button></td>
-                `;
+                    <td>${i + 1}</td>
+                    <td><select name="actividades[${i}][tipo]" class="form-control form-control-sm tipo-select" data-idx="${i}" required><option value="">Seleccione</option><option value="Agrícola">Agrícola</option><option value="No Agrícola">No Agrícola</option></select></td>
+                    <td><select name="actividades[${i}][rubro]" class="form-control form-control-sm rubro-select" required></select></td>
+                    <td><select name="actividades[${i}][unidad]" class="form-control form-control-sm" required><option value="">Seleccione</option><option value="Manzanas">Manzanas</option><option value="Lempiras">Lempiras</option></select></td>
+                    <td><input type="number" name="actividades[${i}][cantidad]" class="form-control form-control-sm" min="0" step="0.01" required></td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(${i})">Eliminar</button></td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        window.eliminarActividad = function(idx) {
+        window.eliminarActividad = function (idx) {
             actividades.splice(idx, 1);
             renderActividades();
         };
+
+        const rubrosPorTipo = {
+            'Agrícola': ['Granos básicos', 'Vegetales', 'Café', 'Otros cultivos'],
+            'No Agrícola': ['Pecuario', 'Servicio', 'Comercio', 'Consumo', 'Otros']
+        };
+
+        document.addEventListener('change', function (e) {
+            if (e.target.matches('.tipo-select')) {
+                const idx = e.target.dataset.idx;
+                const rubroSelect = document.querySelector(`select[name="actividades[${idx}][rubro]"]`);
+                rubroSelect.innerHTML = '<option value="">Seleccione</option>';
+                rubrosPorTipo[e.target.value]?.forEach(rubro => {
+                    const option = document.createElement('option');
+                    option.value = rubro;
+                    option.textContent = rubro;
+                    rubroSelect.appendChild(option);
+                });
+            }
+        });
     });
+
       </script>
-</script>
+       </script>
 @stop
 
 @section('js')

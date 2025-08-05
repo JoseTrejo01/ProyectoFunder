@@ -9,19 +9,18 @@ class IndicadorGenero extends Model
 {
     use HasFactory;
 
-    protected $table = 'indicador_generos';
+    protected $table = 'tbl_indicador_genero';
 
     protected $fillable = [
-        'nombre_caja_rural',
-        'departamento',
-        'municipio',
-        'comunidad',
-        'nombre_apellidos',
-        'sexo',           
-        'etnia',
-        'fecha_nacimiento',
-        'edad',
-        'identidad',
-        'cargo',
+        'tipo',
+        'cantidad',
+        'edad_promedio',
+        'id_organizacion',
     ];
+
+    // Relación opcional con organizaciones si la necesitas
+    public function organizacion()
+    {
+        return $this->belongsTo(Organizacion::class, 'id_organizacion');
+    }
 }

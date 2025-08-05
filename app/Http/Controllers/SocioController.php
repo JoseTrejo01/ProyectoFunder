@@ -12,6 +12,9 @@ class SocioController extends Controller
     // listar
     public function index(Request $request)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar socios/clientes.');
+        }
         $query = Socio::query()
             ->when(
                 $request->filled('estado'),
@@ -24,7 +27,7 @@ class SocioController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('Nombre_Beneficiario', 'like', "%$search%")
                   ->orWhere('DNI', 'like', "%$search%")
-                  ->orWhere('Telefono', 'like', "%$search%");
+                  ->orWhere('Telefono', 'like', "%$search%") ;
             });
         }
 
@@ -55,78 +58,136 @@ class SocioController extends Controller
 }
 
 
-        $socios = $query->with('actividades')->paginate(10);
+        $socios = $query->with(['actividades', 'organizacion'])->paginate(10);
 
-        return view('socios.index', compact('socios'));
+        $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario ingresó a la gestión de socios/clientes'
+            );
+        }
+
+        // Lista de cargos directivos válidos para selects
+        $cargosDirectivos = [
+            'Presidente(a)',
+            'vicepresidente (a)',
+            'Tesorero (a)',
+            'Secretario (a)',
+            'Vocal I',
+            'Vocal II',
+            'Vocal III',
+            'Presidente Consejo Admon',
+            'Secretario Consejo Admon',
+            'Tesorero Consejo Admon',
+            'Presidente Comité de Crédito',
+            'Presidente Consejo Vigilancia',
+        ];
+        return view('socios.index', compact('socios', 'cargosDirectivos'));
     }
 
     // mostrar formulario de creación
     public function create()
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear socios/clientes.');
+        }
         $organizaciones = \App\Models\Organizacion::with(['aldea.municipio.departamento'])->get();
-        return view('socios.create', compact('organizaciones'));
+        // Lista de cargos directivos válidos para selects
+        $cargosDirectivos = [
+            'Presidente(a)',
+            'vicepresidente (a)',
+            'Tesorero (a)',
+            'Secretario (a)',
+            'Vocal I',
+            'Vocal II',
+            'Vocal III',
+            'Presidente Consejo Admon',
+            'Secretario Consejo Admon',
+            'Tesorero Consejo Admon',
+            'Presidente Comité de Crédito',
+            'Presidente Consejo Vigilancia',
+        ];
+        return view('socios.create', compact('organizaciones', 'cargosDirectivos'));
     }
 
     // guardar nuevo socio
- public function store(Request $request)
-{
-    $validated = $request->validate([
-        'Id_Organizacion'       => 'required|integer',
-        'Nombre_Beneficiario'   => 'required|string|max:150',
-        'DNI'                   => 'required|regex:/^\d{4}-\d{4}-\d{5}$/|unique:tbl_beneficiario,DNI',
-        'genero'                => 'required|in:M,F',
-        'fecha_nacimiento'      => 'nullable|date',
-        'edad'                  => 'nullable|integer|min:15|max:100',
-        'estado_civil'          => 'nullable|string|max:50',
-        'etnia'                 => 'nullable|string|max:100',
-        'nivel_educativo'       => 'nullable|string|max:100',
-        'medio_comunicacion'    => 'nullable|string|max:100',
-        'departamento'          => 'nullable|string|max:100',
-        'municipio'             => 'nullable|string|max:100',
-        'comunidad'             => 'nullable|string|max:100',
-        'direccion'             => 'nullable|string|max:150',
-        'Telefono'              => 'nullable|regex:/^\d{4}-\d{4}$/',
-        'actividad_economica'   => 'nullable|string|max:150',
-        'actividad_no_agricola' => 'nullable|string|max:150',
-        'Tipo_Cargo'            => 'nullable|string|max:100',
-        'Tipo_De_Socio'         => 'nullable|string|max:100',
-        'categoria'             => 'nullable|string|max:100',
-        'estado'                => 'required|boolean'
-    ]);
-
-    try {
-        $socio = Socio::create($validated);
-        // Guardar actividades económicas
-        if ($request->has('actividades')) {
-            foreach ($request->actividades as $i => $actividad) {
-                \DB::table('tbl_actividad_economica')->insert([
-                    'Id_Beneficiario' => $socio->Id_Beneficiario,
-                    'Tipo' => $actividad['tipo'],
-                    'Numero' => $i + 1,
-                    'Rubro' => $actividad['rubro'],
-                    'Unidad_Medida' => $actividad['unidad'],
-                    'Cantidad' => $actividad['cantidad'],
-                ]);
-            }
+    public function store(Request $request)
+    {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Insercion')) {
+            abort(403, 'No tienes permiso para crear socios/clientes.');
         }
-        return redirect()->route('socios.index')->with('success', 'Socio creado correctamente.');
-    } catch (\Exception $e) {
-        return back()->withErrors(['error' => 'Ocurrió un error al guardar el socio: ' . $e->getMessage()]);
+        $validated = $request->validate([
+            'Id_Organizacion'       => 'required|integer',
+            'Nombre_Beneficiario'   => 'required|string|max:150',
+            'DNI'                   => 'required|regex:/^\d{13}$/|unique:tbl_beneficiario,DNI',
+            'genero'                => 'required|in:M,F',
+            'fecha_nacimiento'      => 'nullable|date',
+            'edad'                  => 'nullable|integer|min:15|max:100',
+            'estado_civil'          => 'nullable|string|max:50',
+            'etnia'                 => 'nullable|string|max:100',
+            'nivel_educativo'       => 'nullable|string|max:100',
+            'medio_comunicacion'    => 'nullable|string|max:100',
+            'departamento'          => 'nullable|string|max:100',
+            'municipio'             => 'nullable|string|max:100',
+            'comunidad'             => 'nullable|string|max:100',
+            'direccion'             => 'nullable|string|max:150',
+            'Telefono'              => 'nullable|regex:/^\d{4}-\d{4}$/',
+            'actividad_economica'   => 'nullable|string|max:150',
+            'actividad_no_agricola' => 'nullable|string|max:150',
+            'Tipo_Cargo'            => 'nullable|string|max:100',
+            'Tipo_De_Socio'         => 'nullable|string|max:100',
+            'categoria'             => 'nullable|string|max:100',
+            'estado'                => 'required|boolean'
+        ]);
+
+        try {
+            $socio = Socio::create($validated);
+            $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
+            if ($objeto && auth()->check()) {
+                EVENT_BITACORA(
+                    auth()->user()->Id_Usuario,
+                    $objeto->Id_Objeto,
+                    'Nuevo',
+                    'Creó un nuevo socio/cliente: ' . $socio->Nombre_Beneficiario
+                );
+            }
+            // Guardar actividades económicas
+            if ($request->has('actividades')) {
+                foreach ($request->actividades as $i => $actividad) {
+                    \DB::table('tbl_actividad_economica')->insert([
+                        'Id_Beneficiario' => $socio->Id_Beneficiario,
+                        'Tipo' => $actividad['tipo'],
+                        'Numero' => $i + 1,
+                        'Rubro' => $actividad['rubro'],
+                        'Unidad_Medida' => $actividad['unidad'],
+                        'Cantidad' => $actividad['cantidad'],
+                    ]);
+                }
+            }
+            return redirect()->route('socios.index')->with('success', 'Socio creado correctamente.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Ocurrió un error al guardar el socio: ' . $e->getMessage()]);
+        }
     }
-}
 
 
 
     // actualizar socio
     public function update(Request $request, $id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para actualizar socios/clientes.');
+        }
         $validated = $request->validate([
             // 'Id_Organizacion'       => 'required|integer',
             'Nombre_Beneficiario'   => 'required|max:150',
-            'DNI'                   => [
-            'required',
-            'regex:/^\d{4}-\d{4}-\d{5}$/',
-            Rule::unique('tbl_beneficiario', 'DNI')->ignore($id, 'Id_Beneficiario'),],
+            'DNI' => [
+    'required',
+    'regex:/^\d{13,14}$/',
+    Rule::unique('tbl_beneficiario', 'DNI')->ignore($id, 'Id_Beneficiario'),],
             'genero'                => 'required|in:M,F',
             'Nombre_Caja'           => 'nullable|max:150',
             'fecha_nacimiento'      => 'nullable|date',
@@ -150,6 +211,16 @@ class SocioController extends Controller
 
         $socio = Socio::findOrFail($id);
         $socio->update($validated);
+
+        $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Update',
+                'Actualizó el socio/cliente: ' . $socio->Nombre_Beneficiario
+            );
+        }
 
         // Actualizar actividades económicas
         if ($request->has('actividades')) {
@@ -198,8 +269,21 @@ class SocioController extends Controller
     // eliminar (baja lógica)
     public function destroy($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Eliminacion')) {
+            abort(403, 'No tienes permiso para eliminar socios/clientes.');
+        }
         $socio = Socio::findOrFail($id);
         $socio->update(['estado' => 0]);
+
+        $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Delete',
+                'Inactivó el socio/cliente: ' . $socio->Nombre_Beneficiario
+            );
+        }
 
         return redirect()->route('socios.index')
             ->with('success', 'Socio inactivado correctamente.');
@@ -208,6 +292,9 @@ class SocioController extends Controller
     // ficha de socio
     public function ficha($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar socios/clientes.');
+        }
         $socio = Socio::findOrFail($id);
         return view('socios.ficha', compact('socio'));
     }
@@ -215,6 +302,9 @@ class SocioController extends Controller
     // reactivar socio
     public function reactivar($id)
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para actualizar socios/clientes.');
+        }
         $socio = Socio::findOrFail($id);
         $socio->estado = 1;
         $socio->save();
@@ -227,6 +317,9 @@ class SocioController extends Controller
         // Vista de distribución de cargos por caja rural
     public function cargosPorCaja()
     {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Cargos Directivos', 'Consultar')) {
+            abort(403, 'No tienes permiso para consultar cargos directivos.');
+        }
         $cajas = Socio::select('Id_Organizacion')
             ->groupBy('Id_Organizacion')
             ->get()
@@ -265,18 +358,64 @@ class SocioController extends Controller
                     ->where('Tipo_Cargo', 'Secretario(a)')
                     ->where('genero', 'F')
                     ->exists();
-                $caja->vocal1 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                // Vocal I
+                $vocal1_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'M')
                     ->exists();
-                $caja->vocal2 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                $vocal1_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal1 = $vocal1_h && $vocal1_m ? 'H/M' : ($vocal1_h ? 'H' : ($vocal1_m ? 'M' : ''));
+
+                // Vocal II
+                $vocal2_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'M')
                     ->exists();
-                $caja->vocal3 = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                $vocal2_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal2 = $vocal2_h && $vocal2_m ? 'H/M' : ($vocal2_h ? 'H' : ($vocal2_m ? 'M' : ''));
+
+                // Vocal III
+                $vocal3_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'M')
                     ->exists();
+                $vocal3_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal3 = $vocal3_h && $vocal3_m ? 'H/M' : ($vocal3_h ? 'H' : ($vocal3_m ? 'M' : ''));
                 return $caja;
             });
-        return view('socios.cargos', compact('cajas'));
+        // Cálculo de participación por cargo y género
+        $participacion = [
+            'presidente' => [
+                'H' => Socio::where('Tipo_Cargo', 'Presidente(a)')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Presidente(a)')->where('genero', 'F')->count(),
+            ],
+            'secretario' => [
+                'H' => Socio::where('Tipo_Cargo', 'Secretario(a)')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Secretario(a)')->where('genero', 'F')->count(),
+            ],
+            'tesorero' => [
+                'H' => Socio::where('Tipo_Cargo', 'Tesorero(a)')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Tesorero(a)')->where('genero', 'F')->count(),
+            ],
+            'presidente_credito' => [
+                'H' => Socio::where('Tipo_Cargo', 'Presidente Comité de Crédito')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Presidente Comité de Crédito')->where('genero', 'F')->count(),
+            ],
+            'presidente_vigilancia' => [
+                'H' => Socio::where('Tipo_Cargo', 'Presidente Consejo de Vigilancia')->where('genero', 'M')->count(),
+                'M' => Socio::where('Tipo_Cargo', 'Presidente Consejo de Vigilancia')->where('genero', 'F')->count(),
+            ],
+        ];
+        return view('socios.cargos', compact('cajas', 'participacion'));
     }
 
 }

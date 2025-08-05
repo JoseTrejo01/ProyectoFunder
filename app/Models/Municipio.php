@@ -31,5 +31,11 @@ class Municipio extends Model
     public function aldeas()
     {
         return $this->hasMany(Aldea::class, 'Id_Municipio');
+    // Relación con Organizacion (un municipio tiene muchas organizaciones)
     }
+    public function coordenada()
+{
+    return $this->hasOne(CoordenadaMunicipio::class, 'Id_Municipio');
+}
+
 }

@@ -16,7 +16,24 @@
                 <li class="list-group-item"><strong>Género:</strong> {{ $socio->genero }}</li>
                 <li class="list-group-item"><strong>Fecha de Nacimiento:</strong> {{ $socio->fecha_nacimiento }}</li>
                 <li class="list-group-item"><strong>Dirección:</strong> {{ $socio->direccion }}</li>
-                <li class="list-group-item"><strong>Actividad Económica:</strong> {{ $socio->actividad_economica }}</li>
+                <li class="list-group-item">
+                        <strong>Actividades Económicas:</strong>
+                          @if($socio->actividades->isEmpty())
+                        <span class="text-muted">Sin registrar</span>
+                         @else
+                       <ul>
+                      @foreach($socio->actividades as $actividad)
+                 <li>
+                    <strong>Tipo:</strong> {{ $actividad->Tipo }} |
+                    <strong>Rubro:</strong> {{ $actividad->Rubro }} |
+                    <strong>Unidad:</strong> {{ $actividad->Unidad_Medida }} |
+                    <strong>Cantidad:</strong> {{ $actividad->Cantidad }}
+                </li>
+            @endforeach
+        </ul>
+    @endif
+</li>
+        
                 <li class="list-group-item"><strong>Tipo de Socio:</strong> {{ $socio->Tipo_De_Socio }}</li>
                 <li class="list-group-item"><strong>Tipo de Cargo:</strong> {{ $socio->Tipo_Cargo }}</li>
                 <li class="list-group-item"><strong>Estado:</strong> {{ $socio->estado == 1 ? 'Activo' : 'Inactivo' }}</li>

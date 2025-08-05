@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'Funder',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -62,12 +62,12 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-    'logo_img_class' => 'brand-image img-circle elevation-3',
+    'logo' => 'Funder',
+    'logo_img' => 'images/logo_funder_transparente.png',
+    'logo_img_class' => 'brand-image logo-funder',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Admin Logo',
+    'logo_img_alt' => 'Funder Logo',
 
     /*
     |--------------------------------------------------------------------------
@@ -324,12 +324,12 @@ return [
             'submenu' => [
                 [
                     'text' => 'Parámetros',
-                    'url' => 'admin/parametros',
+                    'url' => 'parametros',
                     'icon' => 'fas fa-sliders-h',
                 ],
                 [
                     'text' => 'Respaldo de Base de Datos',
-                    'url' => 'admin/respaldo',
+                    'url' => 'admin/database',
                     'icon' => 'fas fa-database',
                 ],
             ],
@@ -409,14 +409,39 @@ return [
     ],
     [
         'text' => 'Reportes',
-        'url'  => 'reportes',
         'icon' => 'fas fa-chart-bar',
+        'submenu' => [
+            [
+                'text' => 'Cajas rurales y distribución de socios',
+                'url'  => 'admin/reportes/cajas',
+                'icon' => 'fas fa-boxes',
+            ],
+            [
+                'text' => 'Cargos según género',
+                'url'  => 'admin/reportes/cargos',
+                'icon' => 'fas fa-venus-mars',
+            ],
+              [
+                'text' => 'Informe por departamento',
+                'url'  => 'informe-financiero', // o la ruta que uses
+                'icon' => 'fas fa-chart-pie',
+            ],
+        ],
+    ],
+    [
+        'text' => 'Capacitacion',
+        'url'  => 'capacitacion',
+        'icon' => 'fas fa-chalkboard-teacher'
     ],
     [
         'text' => 'Auditoría',
         'url'  => 'auditoria',
+        'text' => 'Evaluacion',
+        'url'  => 'evaluacion',
+
         'icon' => 'fas fa-clipboard-list',
     ],
+ 
 ],
 
 
