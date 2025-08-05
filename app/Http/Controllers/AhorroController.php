@@ -37,12 +37,15 @@ class AhorroController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
-            'Id_Beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
-            'Monto' => 'required|numeric|min:0.01',
-            'Fecha' => 'required|date',
-        ]);
-
+        'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
+        'Id_Beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
+        'Monto' => 'required|numeric|min:0.01',
+        'Fecha' => 'required|date',
+    ], [
+        'Monto.required' => 'El campo monto es obligatorio.',
+        'Monto.numeric' => 'El monto debe ser un número válido.',
+        'Monto.min' => 'El monto a ahorrar debe ser mayor a cero.',
+    ]);
         Ahorro::create([
             'Id_Organizacion' => $request->Id_Organizacion,
             'Id_Beneficiario' => $request->Id_Beneficiario,
