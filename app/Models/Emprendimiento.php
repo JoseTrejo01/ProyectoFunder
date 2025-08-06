@@ -13,7 +13,7 @@ class Emprendimiento extends Model
    protected $fillable = [
     'Caja_Rural',
     'Id_Municipio',
-    'Id_Aldea', // <-- AGREGA ESTA LÍNEA
+    'Id_Aldea',
     'Comunidad',
     'Socios_Hombres',
     'Socios_Mujeres',

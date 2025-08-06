@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Departamento;
 use App\Models\Aldea;
 use App\Models\Organizacion;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class EmprendimientoController extends Controller
 {
     public function index(Request $request)
@@ -43,6 +43,43 @@ class EmprendimientoController extends Controller
 
         return view('emprendimientos.index', compact('emprendimientos', 'municipios'));
     }
+
+    public function exportPdf(Request $request)
+{
+    $query = Emprendimiento::with(['municipio', 'aldea', 'tecnico', 'organizacion']);
+
+    if ($request->filled('municipio')) {
+        $query->where('Id_Municipio', $request->municipio);
+    }
+
+    if ($request->filled('fecha')) {
+        $query->whereDate('Fecha_Levantamiento', $request->fecha);
+    }
+
+    if ($request->filled('tecnico')) {
+        $query->whereHas('tecnico', function ($q) use ($request) {
+            $q->where('Nombre_Usuario', 'like', '%' . $request->tecnico . '%');
+        });
+    }
+
+    if ($request->filled('nombre')) {
+        $query->where('Caja_Rural', 'like', '%' . $request->nombre . '%');
+    }
+
+    $emprendimientos = $query->get();
+
+$pdf = Pdf::loadView('emprendimientos.reporte', [
+    'emprendimientos' => $emprendimientos,
+    'pdf' => true, 
+])
+               ->setPaper('A4', 'landscape');
+            
+   $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+   $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+
+    return $pdf->download('reporte_emprendimientos.pdf');
+}
+
 
     public function create()
     {

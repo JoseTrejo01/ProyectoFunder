@@ -47,12 +47,13 @@
             </ul>
 
             <div class="tab-content p-3 border border-top-0 shadow-sm bg-white rounded-bottom" id="emprendimientoTabsContent">
-                
+
                 {{-- Tab 1: Datos Generales --}}
                 <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
                     <div class="form-group">
                         <label for="Caja_Rural">Nombre del Emprendimiento</label>
-                        <input type="text" name="Caja_Rural" class="form-control" value="{{ old('Caja_Rural') }}" required>
+                        <input type="text" name="Caja_Rural" maxlength="40" class="form-control solo-texto" value="{{ old('Caja_Rural') }}" required>
+                        @error('Caja_Rural') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-group">
@@ -73,6 +74,7 @@
                         <select name="Id_Municipio" id="municipio" class="form-control" required>
                             <option value="">Seleccione un municipio</option>
                         </select>
+                        @error('Id_Municipio') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-group">
@@ -84,7 +86,8 @@
 
                     <div class="form-group">
                         <label for="Comunidad">Comunidad</label>
-                        <input type="text" name="Comunidad" class="form-control" value="{{ old('Comunidad') }}">
+                        <input type="text" name="Comunidad" maxlength="40" class="form-control solo-texto" value="{{ old('Comunidad') }}">
+                        @error('Comunidad') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
                 </div>
 
@@ -93,11 +96,11 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label>Socios Hombres</label>
-                            <input type="number" name="Socios_Hombres" class="form-control" value="{{ old('Socios_Hombres', 0) }}" min="0">
+                            <input type="number" name="Socios_Hombres" class="form-control solo-numeros" value="{{ old('Socios_Hombres', 0) }}" min="0">
                         </div>
                         <div class="form-group col-md-4">
                             <label>Socias Mujeres</label>
-                            <input type="number" name="Socios_Mujeres" class="form-control" value="{{ old('Socios_Mujeres', 0) }}" min="0">
+                            <input type="number" name="Socios_Mujeres" class="form-control solo-numeros" value="{{ old('Socios_Mujeres', 0) }}" min="0">
                         </div>
                         <div class="form-group col-md-4">
                             <label>Total Socios</label>
@@ -108,11 +111,11 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label>Empleos Hombres</label>
-                            <input type="number" name="Empleos_Hombres" class="form-control" value="{{ old('Empleos_Hombres', 0) }}" min="0">
+                            <input type="number" name="Empleos_Hombres" class="form-control solo-numeros" value="{{ old('Empleos_Hombres', 0) }}" min="0">
                         </div>
                         <div class="form-group col-md-4">
                             <label>Empleos Mujeres</label>
-                            <input type="number" name="Empleos_Mujeres" class="form-control" value="{{ old('Empleos_Mujeres', 0) }}" min="0">
+                            <input type="number" name="Empleos_Mujeres" class="form-control solo-numeros" value="{{ old('Empleos_Mujeres', 0) }}" min="0">
                         </div>
                         <div class="form-group col-md-4">
                             <label>Total Empleos</label>
@@ -126,16 +129,19 @@
                     <div class="form-group">
                         <label for="Tipo_Negocio">Tipo de Negocio / Descripción</label>
                         <textarea name="Tipo_Negocio" class="form-control" rows="3" required>{{ old('Tipo_Negocio') }}</textarea>
+                        @error('Tipo_Negocio') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="Ventas_Trimestrales">Ventas Trimestrales (L)</label>
-                        <input type="number" step="0.01" name="Ventas_Trimestrales" class="form-control" value="{{ old('Ventas_Trimestrales', 0) }}">
+                        <input type="number" step="0.0000000001" name="Ventas_Trimestrales" class="form-control solo-numeros" value="{{ old('Ventas_Trimestrales', 0) }}" min="0">
+                        @error('Ventas_Trimestrales') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="Fecha_Levantamiento">Fecha de Levantamiento</label>
                         <input type="date" name="Fecha_Levantamiento" class="form-control" value="{{ old('Fecha_Levantamiento') }}" required>
+                        @error('Fecha_Levantamiento') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-group text-right">
@@ -150,7 +156,7 @@
 
 @section('js')
 <script>
-    // Función para actualizar totales
+    // Actualizar totales
     function actualizarTotales() {
         const hombres = parseInt(document.querySelector('[name="Socios_Hombres"]').value || 0);
         const mujeres = parseInt(document.querySelector('[name="Socios_Mujeres"]').value || 0);
@@ -166,7 +172,7 @@
     });
     actualizarTotales();
 
-    // Mostrar formulario solo si hay organización
+    // Mostrar formulario si hay organización
     const organizacionSelect = document.getElementById('Id_Organizacion');
     const formContent = document.getElementById('form-content');
     function toggleFormContent() {
@@ -175,7 +181,7 @@
     toggleFormContent();
     organizacionSelect.addEventListener('change', toggleFormContent);
 
-    // Cargar municipios dinámicamente
+    // Municipios
     document.getElementById('departamento').addEventListener('change', function () {
         const departamentoId = this.value;
         const municipioSelect = document.getElementById('municipio');
@@ -195,7 +201,7 @@
         }
     });
 
-    // Cargar aldeas dinámicamente
+    // Aldeas
     document.getElementById('municipio').addEventListener('change', function () {
         const municipioId = this.value;
         const aldeaSelect = document.getElementById('aldea');
@@ -210,6 +216,22 @@
                     });
                 });
         }
+    });
+
+    // Bloquear números en campos de texto
+    document.querySelectorAll('.solo-texto').forEach(input => {
+        input.addEventListener('keypress', function (e) {
+            if (/\d/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Bloquear negativos en campos numéricos
+    document.querySelectorAll('.solo-numeros').forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === '-') e.preventDefault();
+        });
     });
 </script>
 @stop

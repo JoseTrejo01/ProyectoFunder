@@ -143,7 +143,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('criterio', CriterioController::class);
     Route::resource('evaluacion', EvaluacionController::class);
-    Route::get('/evaluacion/exportar-excel', [ExportEvaluacionesController::class, 'export'])->name('evaluacion.export');
+    Route::get('/evaluaciones/exportar-pdf', [EvaluacionController::class, 'exportPdf'])->name('evaluacion.exportarPDF');
+
 
     Route::resource('socios', SocioController::class)->except(['show']);
     Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
@@ -165,7 +166,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
 
     Route::resource('genero', IndicadorGeneroController::class);
-    Route::resource('emprendimientos', EmprendimientoController::class);
+   Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
+    Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
     Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
     Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
     Route::get('/api/cajas/{id}/socios', function ($id) {
