@@ -256,7 +256,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'dashboard',
+    'dashboard_url' => 'home',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -324,12 +324,12 @@ return [
             'submenu' => [
                 [
                     'text' => 'Parámetros',
-                    'url' => 'admin/parametros',
+                    'url' => 'parametros',
                     'icon' => 'fas fa-sliders-h',
                 ],
                 [
                     'text' => 'Respaldo de Base de Datos',
-                    'url' => 'admin/respaldo',
+                    'url' => 'admin/database',
                     'icon' => 'fas fa-database',
                 ],
             ],

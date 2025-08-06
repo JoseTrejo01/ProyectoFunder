@@ -83,6 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])->name('dashboard.chart-data');
 
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
     // Cambio de contraseña
     Route::get('/cambiar-contraseña', [LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
     Route::post('/cambiar-contraseña', [LoginController::class, 'changePassword'])->name('password.change');
@@ -99,12 +101,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except(['show']);
 
-        Route::prefix('database')->group(function () {
-            Route::get('/', [DatabaseController::class, 'index'])->name('admin.database');
-            Route::post('/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
-            Route::post('/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
-        });
+        // Base de datos
+        Route::get('/database', [DatabaseController::class, 'index'])->name('admin.database');
+        Route::post('/database/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
+        Route::post('/database/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
 
+        // Roles
         Route::prefix('roles')->group(function () {
             Route::get('/', [RolController::class, 'index'])->name('roles.index');
             Route::post('/', [RolController::class, 'store'])->name('roles.store');
@@ -113,6 +115,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
         });
 
+        // Objetos
         Route::prefix('objetos')->group(function () {
             Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
             Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
@@ -121,6 +124,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
         });
 
+        // Reportes
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
             Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
@@ -131,7 +135,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
-    // Resto de módulos
+    // Módulos generales
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
@@ -191,6 +195,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
+    Route::post('/capacitaciones/guardar', [CapacitacionController::class, 'store'])->name('capacitacion.store');
+
+    // Auxiliares
+    Route::get('/organizacion/{id}/nombre', function ($id) {
+        $organizacion = DB::table('tbl_organizaciones')->where('Id_Organizacion', $id)->first();
+        return response()->json(['nombre' => $organizacion->Nombre_Organizacion ?? '']);
+    });
+
+    Route::get('/actividades/{id}', function ($id) {
+        return DB::table('tbl_actividad_economica')
+            ->where('Id_Beneficiario', $id)
+            ->pluck('Rubro', 'Id_Actividad');
+    });
 });
 
 // Informe financiero público
@@ -199,3 +216,6 @@ Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'e
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));
+
+// Ruta para la página de inicio del usuario autenticado
+Route::get('/home', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');

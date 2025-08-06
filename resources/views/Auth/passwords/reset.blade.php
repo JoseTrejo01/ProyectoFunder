@@ -3,7 +3,7 @@
 @section('adminlte_css_pre')
 <style>
     body {
-        background-image: url('{{ asset('./images/tractor-campo-generado-ia_268835-11230.avif') }}');
+        background-image: url('{{ asset('./images/funder2.png') }}');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
