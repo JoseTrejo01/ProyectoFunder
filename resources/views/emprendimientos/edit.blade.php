@@ -81,7 +81,7 @@
 
                 <div class="form-group">
                     <label for="aldea">Aldea</label>
-                    <select name="aldea_id" id="aldea" class="form-control">
+                    <select name="aldea_id" id="aldea" class="form-control" required>
                         <option value="{{ $emprendimiento->aldea->id ?? '' }}" selected>
                             {{ $emprendimiento->aldea->nombre ?? 'Seleccione una aldea' }}
                         </option>
@@ -91,9 +91,13 @@
                 <div class="form-group">
                     <label for="Comunidad">Comunidad</label>
                     <input type="text" name="Comunidad" class="form-control solo-texto" maxlength="40"
-                           value="{{ old('Comunidad', $emprendimiento->Comunidad) }}">
+                           value="{{ old('Comunidad', $emprendimiento->Comunidad) }}" required>
                     @error('Comunidad') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
+                <div class="form-group text-right mt-4">
+    <button type="button" class="btn btn-primary" onclick="siguienteTab('socios')">Siguiente</button>
+</div>
+
             </div>
 
             {{-- TAB 2: Socios y Empleos --}}
@@ -131,6 +135,11 @@
                         <input type="number" id="Total_Empleos" class="form-control" readonly>
                     </div>
                 </div>
+                <div class="form-group d-flex justify-content-between mt-4">
+    <button type="button" class="btn btn-secondary" onclick="anteriorTab('general')">Atrás</button>
+    <button type="button" class="btn btn-primary" onclick="siguienteTab('otros')">Siguiente</button>
+</div>
+
             </div>
 
             {{-- TAB 3: Otros Datos --}}
@@ -255,5 +264,59 @@
         }
     });
 </script>
+@verbatim
+<script>
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('keypress', function (e) {
+            if (e.key === '-') e.preventDefault();
+        });
+    });
+
+   <script>
+    // Validar campos solo-texto para permitir solo letras, tildes y espacios
+    document.querySelectorAll('.solo-texto').forEach(input => {
+        input.addEventListener('keypress', function (e) {
+            const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+            if (!regex.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        // También evitamos que peguen texto con números
+        input.addEventListener('paste', function (e) {
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            if (/\d/.test(pastedText)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</script>
+@endverbatim
+<script>
+    function siguienteTab(tabId) {
+        const tabTrigger = document.querySelector(`#${tabId}-tab`);
+        if (tabTrigger) {
+            new bootstrap.Tab(tabTrigger).show();
+        }
+    }
+
+    function anteriorTab(tabId) {
+        const tabTrigger = document.querySelector(`#${tabId}-tab`);
+        if (tabTrigger) {
+            new bootstrap.Tab(tabTrigger).show();
+        }
+    }
+</script>
+
 @stop
 
+@section('css')
+<style>
+    #emprendimientoTabs .nav-link {
+        pointer-events: none !important;
+        cursor: default;
+        color: #6c757d; /* gris para parecer deshabilitado */
+    }
+</style>
+@stop
