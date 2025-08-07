@@ -114,10 +114,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except(['show']);
         Route::get('/usuarios/exportar/pdf', [UsuarioController::class, 'exportarPDF'])->name('usuarios.exportar.pdf');
 
+        // Base de datos
         Route::get('/database', [DatabaseController::class, 'index'])->name('admin.database');
         Route::post('/database/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
         Route::post('/database/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
 
+        // Roles
         Route::prefix('roles')->group(function () {
             Route::get('/', [RolController::class, 'index'])->name('roles.index');
             Route::post('/', [RolController::class, 'store'])->name('roles.store');
@@ -127,6 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::get('/roles/exportar/pdf', [RolController::class, 'exportarPDF'])->name('roles.exportar.pdf');
 
+        // Objetos
         Route::prefix('objetos')->group(function () {
             Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
             Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
@@ -136,6 +139,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/exportar-pdf', [ObjetoController::class, 'exportarPDF'])->name('objetos.exportar-pdf');
         });
 
+        // Reportes
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
             Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
@@ -158,7 +162,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('evaluacion', EvaluacionController::class);
     Route::get('/evaluaciones/exportar-pdf', [EvaluacionController::class, 'exportPdf'])->name('evaluacion.exportarPDF');
 
-    // Usuarios (gestión directa)
+    // Usuarios (gestión directa, accesos rápidos)
     Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
     Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
     Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
@@ -196,10 +200,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/ahorros/caja/{id}/resumen', [AhorroController::class, 'resumenCaja'])->name('ahorros.resumen');
     Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
 
-    // Conteo de socios
+    // Conteo de socios por organización
     Route::get('/organizacion/{id}/socios', fn ($id) =>
-        response()->json(['total_socios' =>
-            DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
+        response()->json([
+            'total_socios' => DB::table('tbl_beneficiario')
+                ->where('Id_Organizacion', $id)
+                ->where('Tipo_De_Socio', 'Socio')
+                ->count()
         ])
     )->name('organizacion.socios.count');
 
@@ -209,19 +216,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Emprendimientos y Organizaciones
     Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
+
     Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
     Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
-<<<<<<< HEAD
-=======
     Route::get('/organizaciones/exportar/pdf', [OrganizacionController::class, 'exportarPDF'])->name('organizaciones.exportar.pdf');
+
+    // APIs adicionales de organizaciones/cajas
     Route::get('/api/cajas/{id}/socios', function ($id) {
-        return App\Models\Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
+        return Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
             ->where('Id_Organizacion', $id)
             ->where('estado', 1)
             ->get();
-    });
-    Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
->>>>>>> ce587a70e838cb449571acb0003f38fa1aa4bbf5
+    })->name('api.cajas.socios');
+
+    Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios'])->name('api.cajas.rurales');
 
     // Tablero de género
     Route::get('/genero', [GeneroController::class, 'index'])->name('genero.index');
