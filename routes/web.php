@@ -100,6 +100,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin
     Route::prefix('admin')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except(['show']);
+        Route::get('/usuarios/exportar/pdf', [App\Http\Controllers\Admin\UsuarioController::class, 'exportarPDF'])->name('usuarios.exportar.pdf');
+
 
         // Base de datos
         Route::get('/database', [DatabaseController::class, 'index'])->name('admin.database');
@@ -114,6 +116,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/{id}', [RolController::class, 'destroy'])->name('roles.destroy');
             Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
         });
+        Route::get('/roles/exportar/pdf', [App\Http\Controllers\Admin\RolController::class, 'exportarPDF'])->name('roles.exportar.pdf');
 
         // Objetos
         Route::prefix('objetos')->group(function () {
@@ -140,6 +143,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
     Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
+    Route::get('/bitacora/exportar/pdf', [App\Http\Controllers\Admin\BitacoraController::class, 'exportarPDF'])->name('bitacora.exportar.pdf');
 
     Route::resource('criterio', CriterioController::class);
     Route::resource('evaluacion', EvaluacionController::class);

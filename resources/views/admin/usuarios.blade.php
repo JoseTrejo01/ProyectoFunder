@@ -22,7 +22,11 @@
 
     <h2 class="text-center my-4 font-weight-bold">Gestión de Usuarios</h2>
     <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">Nuevo Usuario</button>
+    <a href="{{ route('usuarios.exportar.pdf') }}" class="btn btn-danger mb-3">
+    <i class="fas fa-file-pdf"></i> Exportar a PDF
+</a>
     <div class="table-responsive">
+      
         <table id="tabla-usuarios" class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="thead-dark">
                 <tr>

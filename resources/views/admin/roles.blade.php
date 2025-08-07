@@ -3,6 +3,10 @@
 <div class="container">
     <h2 class="text-center my-4 font-weight-bold">Gestión de Roles</h2>
     <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoRol">Nuevo Rol</button>
+    <a href="{{ route('roles.exportar.pdf') }}" class="btn btn-danger mb-3">
+    <i class="fas fa-file-pdf"></i> Exportar a PDF
+</a>
+
     <div class="table-responsive">
         <table id="tabla-roles" class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="thead-dark">
