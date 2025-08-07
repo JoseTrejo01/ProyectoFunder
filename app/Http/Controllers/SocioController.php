@@ -115,64 +115,71 @@ class SocioController extends Controller
 
     // guardar nuevo socio
     public function store(Request $request)
-    {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Insercion')) {
-            abort(403, 'No tienes permiso para crear socios/clientes.');
-        }
-        $validated = $request->validate([
-            'Id_Organizacion'       => 'required|integer',
-            'Nombre_Beneficiario'   => 'required|string|max:150',
-            'DNI'                   => 'required|regex:/^\d{13}$/|unique:tbl_beneficiario,DNI',
-            'genero'                => 'required|in:M,F',
-            'fecha_nacimiento'      => 'nullable|date',
-            'edad'                  => 'nullable|integer|min:15|max:100',
-            'estado_civil'          => 'nullable|string|max:50',
-            'etnia'                 => 'nullable|string|max:100',
-            'nivel_educativo'       => 'nullable|string|max:100',
-            'medio_comunicacion'    => 'nullable|string|max:100',
-            'departamento'          => 'nullable|string|max:100',
-            'municipio'             => 'nullable|string|max:100',
-            'comunidad'             => 'nullable|string|max:100',
-            'direccion'             => 'nullable|string|max:150',
-            'Telefono'              => 'nullable|regex:/^\d{4}-\d{4}$/',
-            'actividad_economica'   => 'nullable|string|max:150',
-            'actividad_no_agricola' => 'nullable|string|max:150',
-            'Tipo_Cargo'            => 'nullable|string|max:100',
-            'Tipo_De_Socio'         => 'nullable|string|max:100',
-            'categoria'             => 'nullable|string|max:100',
-            'estado'                => 'required|boolean'
-        ]);
-
-        try {
-            $socio = Socio::create($validated);
-            $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
-            if ($objeto && auth()->check()) {
-                EVENT_BITACORA(
-                    auth()->user()->Id_Usuario,
-                    $objeto->Id_Objeto,
-                    'Nuevo',
-                    'Creó un nuevo socio/cliente: ' . $socio->Nombre_Beneficiario
-                );
-            }
-            // Guardar actividades económicas
-            if ($request->has('actividades')) {
-                foreach ($request->actividades as $i => $actividad) {
-                    \DB::table('tbl_actividad_economica')->insert([
-                        'Id_Beneficiario' => $socio->Id_Beneficiario,
-                        'Tipo' => $actividad['tipo'],
-                        'Numero' => $i + 1,
-                        'Rubro' => $actividad['rubro'],
-                        'Unidad_Medida' => $actividad['unidad'],
-                        'Cantidad' => $actividad['cantidad'],
-                    ]);
-                }
-            }
-            return redirect()->route('socios.index')->with('success', 'Socio creado correctamente.');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Ocurrió un error al guardar el socio: ' . $e->getMessage()]);
-        }
+{
+    if (!auth()->user() || !auth()->user()->tienePermiso('Socios / Clientes', 'Insercion')) {
+        abort(403, 'No tienes permiso para crear socios/clientes.');
     }
 
+    $validated = $request->validate([
+        'Id_Organizacion'       => 'required|integer',
+        'Nombre_Beneficiario'   => 'required|string|max:150|regex:/^[A-ZÁÉÍÓÚÑ][a-zA-ZáéíóúñÁÉÍÓÚÑ\s]{0,149}$/',
+        'DNI'                   => 'required|regex:/^\d{13}$/|unique:tbl_beneficiario,DNI',
+        'genero'                => 'required|in:M,F',
+        'fecha_nacimiento'      => 'required|date|before:-18 years',
+        'edad'                  => 'nullable|integer|min:18|max:100',
+        'estado_civil'          => 'nullable|string|max:50',
+        'etnia'                 => 'nullable|string|max:100',
+        'nivel_educativo'       => 'nullable|string|max:100',
+        'medio_comunicacion'    => 'nullable|string|max:100',
+        'departamento'          => 'nullable|string|max:100',
+        'municipio'             => 'nullable|string|max:100',
+        'comunidad'             => 'nullable|string|max:100',
+        'direccion'             => 'nullable|string|max:150',
+        'Telefono'              => 'nullable|regex:/^\d{4}-\d{4}$/',
+        'actividad_economica'   => 'nullable|string|max:150',
+        'actividad_no_agricola' => 'nullable|string|max:150',
+        'Tipo_Cargo'            => 'nullable|string|max:100',
+        'Tipo_De_Socio'         => 'nullable|string|max:100',
+        'categoria'             => 'nullable|string|max:100',
+        'estado'                => 'required|boolean',
+    ]);
+
+    try {
+        // Crear socio
+        $socio = Socio::create($validated);
+
+        // Registrar bitácora
+        $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Nuevo',
+                'Creó un nuevo socio/cliente: ' . $socio->Nombre_Beneficiario
+            );
+        }
+
+        // Guardar actividades económicas si existen
+        if ($request->has('actividades') && is_array($request->actividades)) {
+            foreach ($request->actividades as $i => $actividad) {
+                \DB::table('tbl_actividad_economica')->insert([
+                    'Id_Beneficiario' => $socio->Id_Beneficiario,
+                    'Tipo'            => $actividad['tipo'],
+                    'Numero'          => $i + 1,
+                    'Rubro'           => $actividad['rubro'],
+                    'Unidad_Medida'   => $actividad['unidad'],
+                    'Cantidad'        => $actividad['cantidad'],
+                ]);
+            }
+        }
+
+        return redirect()->route('socios.index')->with('success', 'Socio creado correctamente.');
+    } catch (\Exception $e) {
+        return back()
+            ->withErrors(['error' => 'Ocurrió un error al guardar el socio: ' . $e->getMessage()])
+            ->withInput(); // ✅ conserva los datos en el formulario
+    }
+}
 
 
     // actualizar socio

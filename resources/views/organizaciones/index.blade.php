@@ -215,7 +215,7 @@
               </div>
               <div class="col">
                   <label for="coordenada_x">Longitud</label>
-                  <input type="text" name="coordenada_x" id="coordenada_x" class="form-control" readonly required>
+                  <input type="text" name="coordenada_x" id="coordenada_x" class="form-control" required>
               </div>
           </div>
           <div class="row mt-3">

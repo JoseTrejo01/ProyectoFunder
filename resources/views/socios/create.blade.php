@@ -70,137 +70,134 @@
 
         <!-- Tab panes -->
         <div class="tab-content" id="socioTabContent">
-            <!-- Datos personales -->
-            <div class="tab-pane fade show active" id="datos" role="tabpanel" aria-labelledby="datos-tab">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Organización</label>
-                            <select name="Id_Organizacion" class="form-control" required>
-                                <option value="">Seleccione una organización</option>
-                                @foreach($organizaciones as $org)
-                                    <option value="{{ $org->Id_Organizacion }}"
-                                        data-aldea="{{ $org->aldea ? $org->aldea->Nombre_Aldea : '' }}"
-                                        data-municipio="{{ $org->aldea && $org->aldea->municipio ? $org->aldea->municipio->Nombre_Municipio : '' }}"
-                                        data-departamento="{{ $org->aldea && $org->aldea->municipio && $org->aldea->municipio->departamento ? $org->aldea->municipio->departamento->Nombre_Departamento : '' }}"
-                                    >{{ $org->Nombre_Organizacion }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <!-- Campo de Nombre de la Caja Rural eliminado, ahora se selecciona desde el select de organización -->
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Nombre completo</label>
-                            <input type="text" name="Nombre_Beneficiario" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>DNI</label>
-                            <input type="text" name="DNI" class="form-control" maxlength="13" pattern="\d{1,13}" title="Solo se permiten hasta 13 dígitos numéricos" required>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Género</label>
-                            <select name="genero" class="form-control" required>
-                                <option value="">Seleccione</option>
-                                <option value="M">Masculino</option>
-                                <option value="F">Femenino</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Fecha de nacimiento</label>
-                            <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Edad</label>
-                            <input type="number" name="edad" id="edad" class="form-control" min="15" max="100" readonly>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Estado Civil</label>
-                            <select name="estado_civil" class="form-control">
-                                <option value="">Seleccione</option>
-                                <option value="Soltero(a)">Soltero(a)</option>
-                                <option value="Casado(a)">Casado(a)</option>
-                                <option value="Unión Libre">Unión Libre</option>
-                                <option value="Viudo(a)">Viudo(a)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Etnia</label>
-                            <select name="etnia" class="form-control">
-                                <option value="">Seleccione</option>
-                                <option value="Lenca">Lenca</option>
-                                <option value="Garífuna">Garífuna</option>
-                                <option value="Miskito">Miskito</option>
-                                <option value="Tawahka">Tawahka</option>
-                                <option value="Tolupan">Tolupan</option>
-                                <option value="Pech">Pech</option>
-                                <option value="Maya Chortí">Maya Chortí</option>
-                                <option value="Negro de habla inglesa o Creole">Negro de habla inglesa o Creole</option>
-                                <option value="Mestizo">Mestizo</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                        <label>Nivel Educativo</label>
-                        <select name="nivel_educativo" id="nivel_educativo" class="form-control">
-                            <option value="">Seleccione</option>
-                            <option value="Sin estudios">Sin estudios</option>
-                            <option value="Educación Prebásica">Educación Prebásica</option>
-                            <option value="Primaria">Primaria</option>
-                            <option value="Ciclo Común">Ciclo Común</option>
-                            <option value="Diversificado">Diversificado</option>
-                            <option value="Universitario">Universitario</option>
-                            <option value="Post grado">Post grado</option>
-                            <option value="Doctorado">Doctorado</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Años estimados cursados</label>
-                        <input type="text" id="anios_educacion" class="form-control" readonly>
-                    </div>
-                </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Medio de Comunicación</label>
-                            <select name="medio_comunicacion" class="form-control">
-                                <option value="">Seleccione</option>
-                                <option value="Teléfono">Teléfono</option>
-                                <option value="Tablet">Tablet</option>
-                                <option value="Computadora">Computadora</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" name="Telefono" class="form-control" pattern="\d{4}-\d{4}" maxlength="9" title="Formato: 1234-5678" value="{{ old('Telefono') }}" required>
-
-                            <small class="form-text text-muted">Formato: 1234-5678</small>
-                        </div>
-                    </div>
-                </div>
+     <!-- Datos personales -->
+<div class="tab-pane fade show active" id="datos" role="tabpanel" aria-labelledby="datos-tab">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Organización</label>
+                <select name="Id_Organizacion" class="form-control" required>
+                    <option value="">Seleccione una organización</option>
+                    @foreach($organizaciones as $org)
+                        <option value="{{ $org->Id_Organizacion }}"
+                            data-aldea="{{ $org->aldea?->Nombre_Aldea }}"
+                            data-municipio="{{ $org->aldea?->municipio?->Nombre_Municipio }}"
+                            data-departamento="{{ $org->aldea?->municipio?->departamento?->Nombre_Departamento }}"
+                            {{ old('Id_Organizacion') == $org->Id_Organizacion ? 'selected' : '' }}
+                        >{{ $org->Nombre_Organizacion }}</option>
+                    @endforeach
+                </select>
             </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Nombre completo</label>
+                <input type="text" name="Nombre_Beneficiario" id="nombre_beneficiario" class="form-control" required maxlength="40" value="{{ old('Nombre_Beneficiario') }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>DNI</label>
+                <input type="text" name="DNI" id="dni" class="form-control" required maxlength="13" minlength="13" pattern="\d{13}" title="Debe ingresar exactamente 13 dígitos numéricos" value="{{ old('DNI') }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Género</label>
+                <select name="genero" class="form-control" required>
+                    <option value="">Seleccione</option>
+                    <option value="M" {{ old('genero') == 'M' ? 'selected' : '' }}>Masculino</option>
+                    <option value="F" {{ old('genero') == 'F' ? 'selected' : '' }}>Femenino</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Fecha de nacimiento</label>
+                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento') }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Edad</label>
+                <input type="number" name="edad" id="edad" class="form-control" min="15" max="100" readonly value="{{ old('edad') }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Estado Civil</label>
+                <select name="estado_civil" class="form-control">
+                    <option value="">Seleccione</option>
+                    <option value="Soltero(a)" {{ old('estado_civil') == 'Soltero(a)' ? 'selected' : '' }}>Soltero(a)</option>
+                    <option value="Casado(a)" {{ old('estado_civil') == 'Casado(a)' ? 'selected' : '' }}>Casado(a)</option>
+                    <option value="Unión Libre" {{ old('estado_civil') == 'Unión Libre' ? 'selected' : '' }}>Unión Libre</option>
+                    <option value="Viudo(a)" {{ old('estado_civil') == 'Viudo(a)' ? 'selected' : '' }}>Viudo(a)</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Etnia</label>
+                <select name="etnia" class="form-control">
+                    <option value="">Seleccione</option>
+                    @foreach(['Lenca', 'Garífuna', 'Miskito', 'Tawahka', 'Tolupan', 'Pech', 'Maya Chortí', 'Negro de habla inglesa o Creole', 'Mestizo'] as $etnia)
+                        <option value="{{ $etnia }}" {{ old('etnia') == $etnia ? 'selected' : '' }}>{{ $etnia }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Nivel Educativo</label>
+                <select name="nivel_educativo" id="nivel_educativo" class="form-control">
+                    <option value="">Seleccione</option>
+                    <option value="Sin estudios" {{ old('nivel_educativo') == 'Sin estudios' ? 'selected' : '' }}>Sin estudios</option>
+                    <option value="Educación Prebásica" {{ old('nivel_educativo') == 'Educación Prebásica' ? 'selected' : '' }}>Educación Prebásica</option>
+                    <option value="Primaria" {{ old('nivel_educativo') == 'Primaria' ? 'selected' : '' }}>Primaria</option>
+                    <option value="Ciclo Común" {{ old('nivel_educativo') == 'Ciclo Común' ? 'selected' : '' }}>Ciclo Común</option>
+                    <option value="Diversificado" {{ old('nivel_educativo') == 'Diversificado' ? 'selected' : '' }}>Diversificado</option>
+                    <option value="Universitario" {{ old('nivel_educativo') == 'Universitario' ? 'selected' : '' }}>Universitario</option>
+                    <option value="Post grado" {{ old('nivel_educativo') == 'Post grado' ? 'selected' : '' }}>Post grado</option>
+                    <option value="Doctorado" {{ old('nivel_educativo') == 'Doctorado' ? 'selected' : '' }}>Doctorado</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Años estimados cursados</label>
+                <input type="text" name="anios_educacion" id="anios_educacion" class="form-control" readonly value="{{ old('anios_educacion') }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Medio de Comunicación</label>
+                <select name="medio_comunicacion" class="form-control">
+                    <option value="">Seleccione</option>
+                    <option value="Teléfono" {{ old('medio_comunicacion') == 'Teléfono' ? 'selected' : '' }}>Teléfono</option>
+                    <option value="Tablet" {{ old('medio_comunicacion') == 'Tablet' ? 'selected' : '' }}>Tablet</option>
+                    <option value="Computadora" {{ old('medio_comunicacion') == 'Computadora' ? 'selected' : '' }}>Computadora</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" name="Telefono" id="telefono" class="form-control" pattern="\d{4}-\d{4}" maxlength="9" title="Formato: 1234-5678" value="{{ old('Telefono') }}" required>
+                <small class="form-text text-muted">Formato: 1234-5678</small>
+            </div>
+        </div>
+    </div>
+</div>
+
 
             <!-- Ubicación -->
             <div class="tab-pane fade" id="ubicacion" role="tabpanel" aria-labelledby="ubicacion-tab">
@@ -226,11 +223,20 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Dirección</label>
-                            <input type="text" name="direccion" class="form-control">
-                        </div>
-                    </div>
+    <div class="form-group">
+        <label>Dirección</label>
+        <input 
+            type="text" 
+            name="direccion" 
+            class="form-control" 
+            maxlength="40" 
+            pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]{1,40}" 
+            title="Solo letras, números y espacios. Máximo 40 caracteres." 
+            value="{{ old('direccion') }}" 
+            required
+        >
+    </div>
+</div>
                 </div>
             </div>
 
@@ -277,8 +283,17 @@
 </div>
 
 <div class="form-group" id="categoria_group" style="display: none;">
-    <label>Categoría</label>
-    <input type="text" name="categoria" class="form-control">
+    <label>Categoría o Descripción</label>
+    <input 
+        type="text" 
+        name="categoria" 
+        class="form-control" 
+        id="categoria" 
+        maxlength="50" 
+        pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{1,50}" 
+        title="Solo letras y espacios. Máximo 50 caracteres." 
+        value="{{ old('categoria') }}"
+    >
 </div>
 
             </div>
@@ -288,143 +303,299 @@
         <a href="{{ route('socios.index') }}" class="btn btn-secondary mt-3">Cancelar</a>
     </form>
 
-      <script>
-document.addEventListener('DOMContentLoaded', function () {
-        const orgSelect = document.querySelector('select[name="Id_Organizacion"]');
-        const departamentoInput = document.getElementById('departamento');
-        const municipioInput = document.getElementById('municipio');
-        const comunidadInput = document.getElementById('comunidad');
-        const dniInput = document.getElementById('dni');
+     
 
-        const tipoSocioSelect = document.getElementById('Tipo_De_Socio');
-        const tipoCargoGroup = document.getElementById('tipo_cargo_group');
-        const categoriaGroup = document.getElementById('categoria_group');
-        
-
-        const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
-        const edadInput = document.getElementById('edad');
-        fechaNacimientoInput?.addEventListener('change', function () {
-    const fecha = this.value;
-
-    // Validar formato y año
-    const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
-    if (regexFecha.test(fecha)) {
-        const anio = parseInt(fecha.split('-')[0]);
-
-        if (anio < 1900 || anio > 9999) {
-            alert('Por favor ingrese un año válido entre 1900 y 9999');
-            this.value = '';
-            edadInput.value = '';
-            return;
-        }
-
-        // Si la fecha es válida, calcula la edad
-        const hoy = new Date();
-        const nacimiento = new Date(fecha);
-        let edad = hoy.getFullYear() - nacimiento.getFullYear();
-        const m = hoy.getMonth() - nacimiento.getMonth();
-        if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
-
-        edadInput.value = edad;
-    } else {
-        // Si el formato es inválido
-        alert('Formato de fecha inválido. Use el formato correcto.');
-        this.value = '';
-        edadInput.value = '';
-    }
-});
-dniInput?.addEventListener('input', function () {
-    // Elimina todo lo que no sea número
-    this.value = this.value.replace(/\D/g, '').slice(0, 13);
-});
-
-        tipoSocioSelect?.addEventListener('change', function () {
-            const valor = this.value;
-            tipoCargoGroup.style.display = valor === 'Socio' ? 'block' : 'none';
-            categoriaGroup.style.display = valor !== '' ? 'block' : 'none';
-        });
-
-        orgSelect?.addEventListener('change', function () {
-            const selected = orgSelect.options[orgSelect.selectedIndex];
-            departamentoInput.value = selected.getAttribute('data-departamento') || '';
-            municipioInput.value = selected.getAttribute('data-municipio') || '';
-            comunidadInput.value = selected.getAttribute('data-aldea') || '';
-        });
-
-        const estructuraEducativa = {
-            "Sin estudios": "0",
-            "Educación Prebásica": "2 a 3 años",
-            "Primaria": "6 años (Total: 8 incluyendo Prebásica)",
-            "Ciclo Común": "3 años (Total: 11)",
-            "Diversificado": "1 a 3 años (Total: 14)",
-            "Universitario": "1 a 5 años (Total: 19)",
-            "Post grado": "2 años (Total: 21)",
-            "Doctorado": "3 a 5 años (Total: 22)"
-        };
-        const nivelEducativo = document.getElementById('nivel_educativo');
-        const aniosEducacion = document.getElementById('anios_educacion');
-        nivelEducativo?.addEventListener('change', function () {
-            aniosEducacion.value = estructuraEducativa[this.value] || '';
-        });
-
-        let actividades = [];
-        const btnAgregar = document.getElementById('agregar-actividad');
-        const tabla = document.getElementById('tabla-actividades');
-        const tbody = tabla.querySelector('tbody');
-
-        btnAgregar?.addEventListener('click', function () {
-            const idx = actividades.length;
-            actividades.push({ tipo: '', rubro: '', unidad: '', cantidad: '' });
-            renderActividades();
-        });
-
-        function renderActividades() {
-            tbody.innerHTML = '';
-            tabla.style.display = actividades.length > 0 ? '' : 'none';
-
-            actividades.forEach((act, i) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${i + 1}</td>
-                    <td><select name="actividades[${i}][tipo]" class="form-control form-control-sm tipo-select" data-idx="${i}" required><option value="">Seleccione</option><option value="Agrícola">Agrícola</option><option value="No Agrícola">No Agrícola</option></select></td>
-                    <td><select name="actividades[${i}][rubro]" class="form-control form-control-sm rubro-select" required></select></td>
-                    <td><select name="actividades[${i}][unidad]" class="form-control form-control-sm" required><option value="">Seleccione</option><option value="Manzanas">Manzanas</option><option value="Lempiras">Lempiras</option></select></td>
-                    <td><input type="number" name="actividades[${i}][cantidad]" class="form-control form-control-sm" min="0" step="0.01" required></td>
-                    <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(${i})">Eliminar</button></td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        window.eliminarActividad = function (idx) {
-            actividades.splice(idx, 1);
-            renderActividades();
-        };
-
-        const rubrosPorTipo = {
-            'Agrícola': ['Granos básicos', 'Vegetales', 'Café', 'Otros cultivos'],
-            'No Agrícola': ['Pecuario', 'Servicio', 'Comercio', 'Consumo', 'Otros']
-        };
-
-        document.addEventListener('change', function (e) {
-            if (e.target.matches('.tipo-select')) {
-                const idx = e.target.dataset.idx;
-                const rubroSelect = document.querySelector(`select[name="actividades[${idx}][rubro]"]`);
-                rubroSelect.innerHTML = '<option value="">Seleccione</option>';
-                rubrosPorTipo[e.target.value]?.forEach(rubro => {
-                    const option = document.createElement('option');
-                    option.value = rubro;
-                    option.textContent = rubro;
-                    rubroSelect.appendChild(option);
-                });
-            }
-        });
-    });
-
-      </script>
-       </script>
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const orgSelect = document.querySelector('select[name="Id_Organizacion"]');
+    const departamentoInput = document.getElementById('departamento');
+    const municipioInput = document.getElementById('municipio');
+    const comunidadInput = document.getElementById('comunidad');
+    const dniInput = document.getElementById('dni');
+    const tipoSocioSelect = document.getElementById('Tipo_De_Socio');
+    const tipoCargoGroup = document.getElementById('tipo_cargo_group');
+    const categoriaGroup = document.getElementById('categoria_group');
+    const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
+    const edadInput = document.getElementById('edad');
+
+    fechaNacimientoInput?.addEventListener('change', function () {
+    const fecha = this.value;
+
+    // Validación de formato YYYY-MM-DD (lo hace el navegador, pero lo dejamos por seguridad)
+    const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexFecha.test(fecha)) {
+        Swal.fire({
+    icon: 'warning',
+    title: 'Fecha inválida',
+    text: 'Debe usar el formato YYYY-MM-DD.',
+    confirmButtonText: 'Entendido',
+    confirmButtonColor: '#d33'
+});
+
+        this.value = '';
+        edadInput.value = '';
+        return;
+    }
+
+    const nacimiento = new Date(fecha);
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const m = hoy.getMonth() - nacimiento.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+
+    if (edad < 18) {
+       Swal.fire({
+    icon: 'warning',
+    title: 'Edad no permitida',
+    text: 'Debe tener al menos 18 años para registrarse.',
+    confirmButtonText: 'Entendido',
+    confirmButtonColor: '#d33'
+});
+
+        this.value = '';
+        edadInput.value = '';
+        return;
+    }
+
+    // Si es válida y mayor de edad
+    edadInput.value = edad;
+});
+
+    dniInput?.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 13);
+    });
+
+    tipoSocioSelect?.addEventListener('change', function () {
+        const valor = this.value;
+        tipoCargoGroup.style.display = valor === 'Socio' ? 'block' : 'none';
+        categoriaGroup.style.display = valor !== '' ? 'block' : 'none';
+    });
+
+    orgSelect?.addEventListener('change', function () {
+        const selected = orgSelect.options[orgSelect.selectedIndex];
+        departamentoInput.value = selected.getAttribute('data-departamento') || '';
+        municipioInput.value = selected.getAttribute('data-municipio') || '';
+        comunidadInput.value = selected.getAttribute('data-aldea') || '';
+    });
+
+    const estructuraEducativa = {
+        "Sin estudios": "0",
+        "Educación Prebásica": "2 a 3 años",
+        "Primaria": "6 años (Total: 8 incluyendo Prebásica)",
+        "Ciclo Común": "3 años (Total: 11)",
+        "Diversificado": "1 a 3 años (Total: 14)",
+        "Universitario": "1 a 5 años (Total: 19)",
+        "Post grado": "2 años (Total: 21)",
+        "Doctorado": "3 a 5 años (Total: 22)"
+    };
+    const nivelEducativo = document.getElementById('nivel_educativo');
+    const aniosEducacion = document.getElementById('anios_educacion');
+    nivelEducativo?.addEventListener('change', function () {
+        aniosEducacion.value = estructuraEducativa[this.value] || '';
+    });
+
+    const rubrosPorTipo = {
+        'Agrícola': ['Granos básicos', 'Vegetales', 'Café', 'Otros cultivos'],
+        'No Agrícola': ['Pecuario', 'Servicio', 'Comercio', 'Consumo', 'Otros']
+    };
+
+    let actividades = [];
+    let actividadIndex = 0;
+    const btnAgregar = document.getElementById('agregar-actividad');
+    const tabla = document.getElementById('tabla-actividades');
+    const tbody = tabla.querySelector('tbody');
+
+    btnAgregar?.addEventListener('click', function () {
+        actividades.push({ index: actividadIndex++, tipo: '', rubro: '', unidad: '', cantidad: '' });
+        renderActividades();
+    });
+
+    window.eliminarActividad = function (idx) {
+        actividades = actividades.filter(a => a.index !== idx);
+        renderActividades();
+    };
+
+    function renderActividades() {
+        tbody.innerHTML = '';
+        tabla.style.display = actividades.length > 0 ? '' : 'none';
+
+        actividades.forEach((act, i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${i + 1}</td>
+                <td>
+                    <select name="actividades[${act.index}][tipo]" class="form-control form-control-sm tipo-select" data-idx="${act.index}" required>
+                        <option value="">Seleccione</option>
+                        <option value="Agrícola" ${act.tipo === 'Agrícola' ? 'selected' : ''}>Agrícola</option>
+                        <option value="No Agrícola" ${act.tipo === 'No Agrícola' ? 'selected' : ''}>No Agrícola</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="actividades[${act.index}][rubro]" class="form-control form-control-sm rubro-select" data-idx="${act.index}" required>
+                        <option value="">Seleccione</option>
+                        ${
+                            act.tipo && rubrosPorTipo[act.tipo]
+                            ? rubrosPorTipo[act.tipo].map(r =>
+                                `<option value="${r}" ${r === act.rubro ? 'selected' : ''}>${r}</option>`).join('')
+                            : ''
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select name="actividades[${act.index}][unidad]" class="form-control form-control-sm" required>
+                        <option value="">Seleccione</option>
+                        <option value="Manzanas" ${act.unidad === 'Manzanas' ? 'selected' : ''}>Manzanas</option>
+                        <option value="Lempiras" ${act.unidad === 'Lempiras' ? 'selected' : ''}>Lempiras</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="actividades[${act.index}][cantidad]" class="form-control form-control-sm" min="0" step="0.01" value="${act.cantidad || ''}" required>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarActividad(${act.index})">Eliminar</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll('select, input').forEach(input => {
+            input.addEventListener('change', function () {
+                const idx = parseInt(this.name.match(/\[(\d+)\]/)[1]);
+                const act = actividades.find(a => a.index === idx);
+                if (!act) return;
+
+                if (this.name.includes('[tipo]')) act.tipo = this.value;
+                if (this.name.includes('[rubro]')) act.rubro = this.value;
+                if (this.name.includes('[unidad]')) act.unidad = this.value;
+                if (this.name.includes('[cantidad]')) act.cantidad = this.value;
+            });
+        });
+    }
+
+    document.addEventListener('change', function (e) {
+        if (e.target.matches('.tipo-select')) {
+            const idx = e.target.dataset.idx;
+            const rubroSelect = document.querySelector(`select[name="actividades[${idx}][rubro]"]`);
+            rubroSelect.innerHTML = '<option value="">Seleccione</option>';
+            rubrosPorTipo[e.target.value]?.forEach(rubro => {
+                const option = document.createElement('option');
+                option.value = rubro;
+                option.textContent = rubro;
+                rubroSelect.appendChild(option);
+            });
+
+            const act = actividades.find(a => a.index == idx);
+            if (act) act.tipo = e.target.value;
+        }
+    });
+
+    // ←←← AGREGADO: Cargar actividades desde old() de Laravel si hubo error
+    @if(old('actividades'))
+        actividades = {!! json_encode(old('actividades')) !!}.map((a, i) => ({
+            index: actividadIndex++,
+            tipo: a.tipo || '',
+            rubro: a.rubro || '',
+            unidad: a.unidad || '',
+            cantidad: a.cantidad || ''
+        }));
+        renderActividades();
+    @endif
+});
+
+const nombreInput = document.getElementById('nombre_beneficiario');
+
+nombreInput?.addEventListener('keypress', function (e) {
+    const char = e.key;
+
+    // Permitir solo letras y espacio
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/;
+    if (!regex.test(char)) {
+        e.preventDefault(); // Bloquea el carácter
+    }
+});
+
+nombreInput?.addEventListener('input', function () {
+    // Elimina cualquier carácter pegado con copiar/pegar que no sea válido
+    this.value = this.value
+        .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')    // limpia símbolos, números, etc.
+        .replace(/\s{2,}/g, ' ');                   // evita espacios múltiples
+
+    // Limita a 40 caracteres
+    if (this.value.length > 40) {
+        this.value = this.value.substring(0, 40);
+    }
+
+    // Forzar que la primera letra sea mayúscula
+    if (this.value.length === 1) {
+        this.value = this.value.charAt(0).toUpperCase();
+    }
+});
+const dniInput = document.getElementById('dni');
+
+// Bloquear entrada de letras y símbolos
+dniInput?.addEventListener('keypress', function (e) {
+    const char = e.key;
+    if (!/^\d$/.test(char)) {
+        e.preventDefault(); // Bloquea letras y símbolos
+    }
+});
+
+// Limpiar cualquier caracter inválido pegado
+dniInput?.addEventListener('input', function () {
+    // Elimina todo lo que no sea número
+    this.value = this.value.replace(/\D/g, '');
+
+    // Limita a 13 caracteres
+    if (this.value.length > 13) {
+        this.value = this.value.slice(0, 13);
+    }
+});
+const telefonoInput = document.getElementById('telefono');
+
+// Bloquear letras y símbolos (permitir solo números)
+telefonoInput?.addEventListener('keypress', function (e) {
+    const char = e.key;
+    // Permitir solo números mientras se escriben los primeros 8 dígitos (excluyendo guion)
+    if (!/\d/.test(char) || this.value.length >= 9) {
+        e.preventDefault();
+    }
+});
+
+// Formatear automáticamente como 1234-5678
+telefonoInput?.addEventListener('input', function () {
+    // Eliminar todo lo que no sea número
+    let cleanValue = this.value.replace(/\D/g, '');
+
+    // Insertar guion después del cuarto dígito
+    if (cleanValue.length > 4) {
+        cleanValue = cleanValue.slice(0, 4) + '-' + cleanValue.slice(4, 8);
+    }
+
+    this.value = cleanValue.slice(0, 9); // limitar a 9 caracteres
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const direccionInput = document.querySelector('input[name="direccion"]');
+    
+    direccionInput?.addEventListener('input', function () {
+        // Eliminar caracteres que no sean letras, números o espacio
+        this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]/g, '').slice(0, 40);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const categoriaInput = document.getElementById('categoria');
+
+    categoriaInput?.addEventListener('input', function () {
+        // Permitir solo letras (mayúsculas, minúsculas, tildes, ñ) y espacios
+        this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, '').slice(0, 50);
+    });
+});
+</script>
 @endsection
