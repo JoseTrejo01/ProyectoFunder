@@ -8,6 +8,7 @@ use App\Models\Rol;
 use App\Models\User;
 use App\Models\Objeto;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RolController extends Controller
 {
@@ -122,4 +123,26 @@ class RolController extends Controller
 
         return back()->with('success', 'Rol desactivado correctamente');
     }
+
+ 
+public function exportarPDF()
+{
+    if (!auth()->user()->tienePermiso('Roles', 'Consultar')) {
+        return view('errors.403', ['mensaje' => 'No tiene permiso para exportar roles']);
+    }
+
+    $roles = Rol::where('Estado', 'ACTIVO')->get();
+
+    $pdf = Pdf::loadView('admin.reportes.roles_pdf', [
+    'roles' => $roles,
+    'pdf' => true, 
+])
+              ->setPaper('a4', 'portrait');
+      $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+   $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+
+    return $pdf->download('reporte_roles.pdf');
 }
+
+}
+
