@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Notifications\CredencialesUsuarioNuevo;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class UsuarioController extends Controller
 {
     public function index()
@@ -35,6 +35,25 @@ class UsuarioController extends Controller
         return view('admin.usuarios', compact('usuarios', 'roles'));
     }
 
+    public function exportarPDF()
+{
+    if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
+        return view('errors.403', ['mensaje' => 'No tiene permiso para exportar usuarios']);
+    }
+
+    $usuarios = User::with('rol')->orderBy('Id_Usuario', 'desc')->get();
+
+  $pdf = Pdf::loadView('admin.reportes.usuarios_pdf', [
+    'usuarios' => $usuarios,
+    'pdf' => true, 
+])
+              ->setPaper('a4', 'landscape');
+       $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+   $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+
+    return $pdf->download('reporte_usuarios.pdf');
+}
+    
     public function store(Request $request)
     {
         if (!auth()->user()->tienePermiso('Usuarios', 'Insercion')) {

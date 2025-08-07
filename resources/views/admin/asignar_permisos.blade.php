@@ -4,6 +4,10 @@
 <div class="container">
     <h2 class="text-center my-4 font-weight-bold">Gestión De Roles y Permisos</h2>
     <form>
+        <a href="{{ route('roles.exportar.pdf') }}" class="btn btn-danger mb-3">
+    <i class="fas fa-file-pdf"></i> Exportar a PDF
+</a>
+
         <div class="row mb-3 align-items-end">
             <div class="col">
                 <label for="Id_Rol" class="form-label">Rol</label>

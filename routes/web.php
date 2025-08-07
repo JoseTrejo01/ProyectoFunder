@@ -108,12 +108,66 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cambiar-contraseña', [LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
     Route::post('/cambiar-contraseña', [LoginController::class, 'changePassword'])->name('password.change');
 
+<<<<<<< HEAD
     // Permisos y Bitácora
+=======
+    // Parámetros
+    Route::prefix('parametros')->group(function () {
+        Route::get('/', [ParametroController::class, 'index'])->name('parametros.index');
+        Route::post('/', [ParametroController::class, 'store'])->name('parametros.store');
+        Route::put('/{id}', [ParametroController::class, 'update'])->name('parametros.update');
+        Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
+    });
+
+    // Admin
+    Route::prefix('admin')->group(function () {
+        Route::resource('usuarios', UsuarioController::class)->except(['show']);
+        Route::get('/usuarios/exportar/pdf', [App\Http\Controllers\Admin\UsuarioController::class, 'exportarPDF'])->name('usuarios.exportar.pdf');
+
+
+        // Base de datos
+        Route::get('/database', [DatabaseController::class, 'index'])->name('admin.database');
+        Route::post('/database/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
+        Route::post('/database/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
+
+        // Roles
+        Route::prefix('roles')->group(function () {
+            Route::get('/', [RolController::class, 'index'])->name('roles.index');
+            Route::post('/', [RolController::class, 'store'])->name('roles.store');
+            Route::put('/{id}', [RolController::class, 'update'])->name('roles.update');
+            Route::delete('/{id}', [RolController::class, 'destroy'])->name('roles.destroy');
+            Route::post('/store', [GestionController::class, 'storeRol'])->name('roles.store.gestion');
+        });
+        Route::get('/roles/exportar/pdf', [App\Http\Controllers\Admin\RolController::class, 'exportarPDF'])->name('roles.exportar.pdf');
+
+        // Objetos
+        Route::prefix('objetos')->group(function () {
+            Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
+            Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
+            Route::put('/{id}', [ObjetoController::class, 'update'])->name('objetos.update');
+            Route::delete('/{id}', [ObjetoController::class, 'destroy'])->name('objetos.destroy');
+            Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
+        });
+
+        // Reportes
+        Route::prefix('reportes')->group(function () {
+            Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
+            Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
+            Route::get('/cajas/export', [ExportReportesController::class, 'exportCajas'])->name('admin.reportes.cajas.export');
+            Route::get('/cargos', [ReporteController::class, 'cargos'])->name('admin.reportes.cargos');
+            Route::get('/cargos/export', [ExportReportesController::class, 'exportCargos'])->name('admin.reportes.cargos.export');
+            Route::get('/export-capacitaciones', [ReporteController::class, 'exportCapacitacionesExcel'])->name('reporte.exportCapacitacionesExcel');
+        });
+    });
+
+    // Módulos generales
+>>>>>>> a6c5664b10ebfccef744797dc8c88ad0500e4a49
     Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
     Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
 
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
     Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
+    Route::get('/bitacora/exportar/pdf', [App\Http\Controllers\Admin\BitacoraController::class, 'exportarPDF'])->name('bitacora.exportar.pdf');
 
     // Gestión (Roles y Objetos)
     Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');

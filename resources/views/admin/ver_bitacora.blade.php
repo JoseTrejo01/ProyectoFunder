@@ -24,9 +24,16 @@
                 <input type="hidden" name="fecha_desde" value="{{ request('fecha_desde') }}">
                 <input type="hidden" name="fecha_hasta" value="{{ request('fecha_hasta') }}">
                 <button type="submit" class="btn btn-danger btn-sm w-100">Borrar registros filtrados</button>
+                
             </form>
+            
         </div>
+        
     </div>
+    <a href="{{ route('bitacora.exportar.pdf', request()->query()) }}" class="btn btn-danger mb-3">
+    <i class="fas fa-file-pdf"></i> Exportar a PDF
+</a>
+
     <div class="table-responsive">
         <table id="tabla-bitacora" class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="thead-dark">
