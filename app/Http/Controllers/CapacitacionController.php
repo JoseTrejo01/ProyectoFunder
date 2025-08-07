@@ -4,12 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Objeto;
+use Illuminate\Support\Facades\Auth;
 
 class CapacitacionController extends Controller
 {
     // Vista principal: Selección de caja rural, módulos, temas y miembros
     public function index()
     {
+        // Verificar permisos para consultar capacitaciones
+        if (!auth()->user() || !auth()->user()->tienePermiso('Capacitacion', 'Consultar')) {
+            return redirect()->back()->with('error', 'No tiene permisos para consultar capacitaciones');
+        }
+
+        // Registrar acceso a gestión de capacitaciones en bitácora
+        $objeto = Objeto::where('Objeto', 'Capacitacion')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario accedió a la gestión de capacitaciones'
+            );
+        }
+
         // Obtener organizaciones activas
         $organizaciones = DB::table('tbl_organizacion')->where('Estado_Organizacion', 'ACTIVO')->get();
 
@@ -43,6 +61,11 @@ class CapacitacionController extends Controller
     // Guardar registro de capacitación (miembros, módulos, temas)
     public function store(Request $request)
     {
+        // Verificar permisos para crear capacitaciones
+        if (!auth()->user() || !auth()->user()->tienePermiso('Capacitacion', 'Insercion')) {
+            return redirect()->back()->with('error', 'No tiene permisos para crear capacitaciones');
+        }
+
         $request->validate([
             'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
             'Fecha' => 'required|date',
@@ -99,6 +122,23 @@ class CapacitacionController extends Controller
             }
 
             DB::commit();
+
+            // Registrar creación de capacitación en bitácora
+            $objeto = Objeto::where('Objeto', 'Capacitacion')->first();
+         
+            if ($objeto && Auth::check()) {
+                $organizacion = DB::table('tbl_organizacion')
+                    ->where('Id_Organizacion', $request->Id_Organizacion)
+                    ->first();
+                    
+                EVENT_BITACORA(
+                    Auth::user()->Id_Usuario,
+                    $objeto->Id_Objeto,
+                    'Nuevo',
+                    "Registró una capacitación para la organización: {$organizacion->Nombre_Organizacion} en fecha: {$request->Fecha}"
+                );
+            }
+
             return redirect()->route('capacitacion.index')->with('success', 'Registro guardado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();

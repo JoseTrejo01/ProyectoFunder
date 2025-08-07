@@ -15,6 +15,11 @@ class EmprendimientoController extends Controller
 {
     public function index(Request $request)
     {
+        // Verificar permisos para consultar emprendimientos
+        if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Consultar')) {
+            return redirect()->back()->with('error', 'No tiene permisos para consultar emprendimientos');
+        }
+
         $query = Emprendimiento::with(['municipio', 'tecnico', 'organizacion', 'aldea']);
 
         if ($request->filled('municipio')) {
@@ -83,6 +88,11 @@ $pdf = Pdf::loadView('emprendimientos.reporte', [
 
     public function create()
     {
+        // Verificar permisos para crear emprendimientos
+        if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Insercion')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para crear emprendimientos']);
+        }
+
         $departamentos = Departamento::all();
         $tecnicos = User::all();
         $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')->get();
@@ -92,8 +102,9 @@ $pdf = Pdf::loadView('emprendimientos.reporte', [
 
     public function store(Request $request)
     {
-        if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Actualizacion')) {
-            abort(403, 'No tienes permiso para actualizar emprendimientos.');
+        // Verificar permisos para crear emprendimientos
+        if (!auth()->user() || !auth()->user()->tienePermiso('Emprendimientos', 'Insercion')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para crear emprendimientos']);
         }
 
         $validated = $request->validate([

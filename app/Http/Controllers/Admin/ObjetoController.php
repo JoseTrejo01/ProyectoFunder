@@ -15,6 +15,7 @@ class ObjetoController extends Controller
             return view('errors.403', ['mensaje' => 'No tiene permiso para consultar objetos']);
         }
 
+        // Filtrar solo objetos activos
         $objetos = Objeto::where('Estado', 'ACTIVO')->get();
 
         $objeto = Objeto::where('Objeto', 'Objetos')->first();
@@ -100,6 +101,15 @@ class ObjetoController extends Controller
         }
 
         $objetoEdit = Objeto::findOrFail($id);
+
+        // Verificar si hay roles con permisos asignados a este objeto
+        $rolesConPermisos = \App\Models\RolesObjeto::where('Id_Objeto', $objetoEdit->Id_Objeto)->count();
+        
+        if ($rolesConPermisos > 0) {
+            return back()->with('error', 'No se puede desactivar el objeto porque tiene permisos asignados a roles. Primero elimine los permisos.');
+        }
+
+        // Desactivar el objeto en lugar de eliminarlo
         $objetoEdit->Estado = 'INACTIVO';
         $objetoEdit->save();
 
@@ -109,10 +119,10 @@ class ObjetoController extends Controller
                 Auth::user()->Id_Usuario,
                 $objeto->Id_Objeto,
                 'Delete',
-                'Inactivó el objeto: ' . $objetoEdit->Objeto
+                'Desactivó el objeto: ' . $objetoEdit->Objeto
             );
         }
 
-        return back()->with('success', 'Objeto inactivado correctamente');
+        return back()->with('success', 'Objeto desactivado correctamente');
     }
 }

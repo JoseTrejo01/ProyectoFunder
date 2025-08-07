@@ -101,7 +101,7 @@
     <tbody>
         @foreach($actualizadas as $index => $evaAct)
             @php
-                $evaIni = $evaluaciones->firstWhere('organizacion_id', $evaAct->organizacion_id);
+                $evaIni = $evaluaciones->firstWhere('id_organizacion', $evaAct->id_organizacion);
                 $esActualizada = $evaIni && $evaIni->updated_at > $evaIni->created_at;
 
                 $instIni = $evaAct->desempeno_institucional;

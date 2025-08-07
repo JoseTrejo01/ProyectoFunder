@@ -6,19 +6,46 @@ use Illuminate\Http\Request;
 use App\Models\Evaluacion;
 use App\Models\Organizacion;
 use App\Models\EvaluacionActualizada;
+use App\Models\Objeto;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 class EvaluacionController extends Controller
 {
     public function create()
     {
+        // Verificar permisos para crear evaluaciones
+        if (!auth()->user() || !auth()->user()->tienePermiso('Evaluacion', 'Insercion')) {
+            return redirect()->back()->with('error', 'No tiene permisos para crear evaluaciones');
+        }
+
+        // Registrar acceso a creación de evaluaciones en bitácora
+        $objeto = Objeto::where('Objeto', 'Evaluacion')->first();
+        if (!$objeto) {
+            // Si no existe el objeto "Evaluacion", usar uno genérico o crear referencia
+            $objeto = Objeto::where('Objeto', 'Dashboard')->first();
+        }
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario accedió a la creación de evaluaciones'
+            );
+        }
+
          $organizaciones = Organizacion::whereDoesntHave('evaluacion')->get();
         return view('evaluacion.create', compact('organizaciones'));
     }
 
     public function store(Request $request)
     {
+        // Verificar permisos para crear evaluaciones
+        if (!auth()->user() || !auth()->user()->tienePermiso('Evaluacion', 'Insercion')) {
+            return redirect()->back()->with('error', 'No tiene permisos para crear evaluaciones');
+        }
+
         $validated = $request->validate([
-           'organizacion_id' => 'required|unique:tbl_evaluacion,organizacion_id',
+           'id_organizacion' => 'required|unique:tbl_evaluaciones,id_organizacion',
             'eficiencia_financiera' => 'required|in:mayor,menor',
             'apalancamiento' => 'required|in:mayor_60,30_60,menor_30',
             'sostenibilidad' => 'required|in:mayor_1,igual_1,menor_1',
@@ -119,10 +146,25 @@ class EvaluacionController extends Controller
             'categoria' => $categoria,
         ]);
 
+        // Registrar creación de evaluación en bitácora
+        $objeto = Objeto::where('Objeto', 'Evaluacion')->first();
+        if (!$objeto) {
+            $objeto = Objeto::where('Objeto', 'Dashboard')->first();
+        }
+        if ($objeto && Auth::check()) {
+            $organizacion = Organizacion::find($data['id_organizacion']);
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Nuevo',
+                "Creó una evaluación para la organización: {$organizacion->Nombre_Organizacion} con categoría: {$categoria}"
+            );
+        }
+
         // Guardar evaluación estática (congelada)
         EvaluacionActualizada::create([
             'evaluacion_id' => $evaluacion->Id_Evaluacion,
-            'organizacion_id' => $data['organizacion_id'],
+            'id_organizacion' => $data['id_organizacion'],
             'total_organizacion' => $total_organizacion,
             'total_gestion' => $total_gestion,
             'total_componentes' => $total_organizacion + $total_gestion,

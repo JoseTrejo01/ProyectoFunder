@@ -99,8 +99,14 @@ class RolController extends Controller
 
         $rol = Rol::findOrFail($id);
 
-        // Acción combinada: Desasociar usuarios y marcar como INACTIVO
-        User::where('Id_Rol', $rol->Id_Rol)->update(['Id_Rol' => null]);
+        // Verificar si hay usuarios asignados a este rol
+        $usuariosConEsteRol = User::where('Id_Rol', $rol->Id_Rol)->count();
+        
+        if ($usuariosConEsteRol > 0) {
+            return back()->with('error', 'No se puede desactivar el rol porque tiene usuarios asignados. Primero cambie el rol de los usuarios.');
+        }
+
+        // Desactivar el rol en lugar de eliminarlo
         $rol->Estado = 'INACTIVO';
         $rol->save();
 
@@ -110,10 +116,10 @@ class RolController extends Controller
                 Auth::user()->Id_Usuario,
                 $objeto->Id_Objeto,
                 'Delete',
-                'Inactivó el rol: ' . $rol->Rol
+                'Desactivó el rol: ' . $rol->Rol
             );
         }
 
-        return back()->with('success', 'Rol inactivado correctamente');
+        return back()->with('success', 'Rol desactivado correctamente');
     }
 }

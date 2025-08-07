@@ -5,14 +5,32 @@ namespace App\Http\Controllers;
 use App\Models\Ahorro;
 use App\Models\Organizacion;
 use App\Models\Beneficiario;
+use App\Models\Objeto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class AhorroController extends Controller
 {
     // Mostrar vista principal con cajas rurales y ahorros si hay caja seleccionada
     public function index(Request $request)
     {
+        // Verificar permisos de acceso
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Consultar')) {
+            return redirect()->back()->with('error', 'No tiene permisos para consultar ahorros');
+        }
+
+        // Registrar acceso a gestión de ahorros en bitácora
+        $objeto = Objeto::where('Objeto', 'Ahorros')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario accedió a la gestión de ahorros'
+            );
+        }
+
         $cajas = Organizacion::all();
         $selectedCaja = $request->query('caja');
         $ahorros = [];
@@ -29,6 +47,11 @@ class AhorroController extends Controller
     // Mostrar formulario para crear un nuevo ahorro
     public function create()
     {
+        // Verificar permisos para crear ahorros
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Insercion')) {
+            return redirect()->back()->with('error', 'No tiene permisos para crear ahorros');
+        }
+
         $cajas = Organizacion::all();
         return view('ahorros.create', compact('cajas'));
     }
@@ -36,7 +59,12 @@ class AhorroController extends Controller
     // Guardar nuevo ahorro en la base de datos
     public function store(Request $request)
     {
+        // Verificar permisos para crear ahorros
+        if (!auth()->user() || !auth()->user()->tienePermiso('Ahorros', 'Insercion')) {
+            return redirect()->back()->with('error', 'No tiene permisos para crear ahorros');
+        }
         $request->validate([
+<<<<<<< HEAD
         'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
         'Id_Beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
         'Monto' => 'required|numeric|min:0.01',
@@ -47,11 +75,32 @@ class AhorroController extends Controller
         'Monto.min' => 'El monto a ahorrar debe ser mayor a cero.',
     ]);
         Ahorro::create([
+=======
+            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
+            'Id_Beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
+            'Monto' => 'required|numeric|min:0.01',
+            'Fecha' => 'required|date',
+        ]);
+
+        $ahorro = Ahorro::create([
+>>>>>>> 186d98310603c7c276655944da701b6700fbc8d4
             'Id_Organizacion' => $request->Id_Organizacion,
             'Id_Beneficiario' => $request->Id_Beneficiario,
             'Monto' => $request->Monto,
             'Fecha' => $request->Fecha,
         ]);
+
+        // Registrar creación de ahorro en bitácora
+        $objeto = Objeto::where('Objeto', 'Ahorros')->first();
+        if ($objeto && Auth::check()) {
+            $beneficiario = Beneficiario::find($request->Id_Beneficiario);
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Nuevo',
+                "Registró un ahorro de L.{$request->Monto} para {$beneficiario->Nombre_Beneficiario}"
+            );
+        }
 
         return redirect()->route('ahorros.index', ['caja' => $request->Id_Organizacion])
                          ->with('success', 'Ahorro registrado correctamente.');
