@@ -125,6 +125,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/{id}', [ObjetoController::class, 'update'])->name('objetos.update');
             Route::delete('/{id}', [ObjetoController::class, 'destroy'])->name('objetos.destroy');
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
+            Route::get('/exportar-pdf', [ObjetoController::class, 'exportarPDF'])->name('objetos.exportar-pdf');
         });
 
         // Reportes

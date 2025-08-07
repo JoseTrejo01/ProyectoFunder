@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Objeto;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ObjetoController extends Controller
 {
@@ -124,5 +125,35 @@ class ObjetoController extends Controller
         }
 
         return back()->with('success', 'Objeto desactivado correctamente');
+    }
+
+    public function exportarPDF()
+    {
+        if (!auth()->user()->tienePermiso('Objetos', 'Consultar')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para exportar objetos']);
+        }
+
+        $objetos = Objeto::where('Estado', 'ACTIVO')->get();
+
+        $pdf = Pdf::loadView('admin.reportes.objetos_pdf', [
+            'objetos' => $objetos,
+            'pdf' => true, 
+        ])
+                  ->setPaper('a4', 'portrait');
+        $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+        $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+
+        // Registrar en bitácora
+        $objeto = Objeto::where('Objeto', 'Objetos')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Reporte',
+                'Exportó reporte PDF de objetos'
+            );
+        }
+
+        return $pdf->download('reporte_objetos.pdf');
     }
 }
