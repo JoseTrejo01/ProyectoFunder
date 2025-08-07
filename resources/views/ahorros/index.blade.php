@@ -14,9 +14,9 @@
 @section('content')
     <div class="card mt-3">
         @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
         @endif
         <div class="card-body">
             <div class="form-group">
@@ -36,7 +36,7 @@
                     <a class="nav-link active" id="socios-tab" data-toggle="tab" href="#socios" role="tab"><strong>Socios</strong></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="no-socios-tab" data-toggle="tab" href="#no-socios" role="tab"><strong>No Socios</strong></a>
+                    <a class="nav-link" id="clientes-tab" data-toggle="tab" href="#clientes" role="tab"><strong>Clientes</strong></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="totales-tab" data-toggle="tab" href="#totales" role="tab"><strong>Totales</strong></a>
@@ -47,8 +47,8 @@
                 <div class="tab-pane fade show active" id="socios" role="tabpanel">
                     <div id="lista-socios"></div>
                 </div>
-                <div class="tab-pane fade" id="no-socios" role="tabpanel">
-                    <div id="lista-no-socios"></div>
+                <div class="tab-pane fade" id="clientes" role="tabpanel">
+                    <div id="lista-clientes"></div>
                 </div>
                 <div class="tab-pane fade" id="totales" role="tabpanel">
                     <div id="resumen-totales"></div>
@@ -70,26 +70,26 @@
         if (!id) {
             // Limpiar todo si no hay caja seleccionada
             document.getElementById('lista-socios').innerHTML = '';
-            document.getElementById('lista-no-socios').innerHTML = '';
+            document.getElementById('lista-clientes').innerHTML = '';
             document.getElementById('resumen-totales').innerHTML = '';
             document.getElementById('listado-ahorros').innerHTML = '';
             return;
         }
 
-        // Fetch socios y no socios con sus ahorros y resumen
+        // Fetch socios y clientes con sus ahorros y resumen
         fetch(`/api/ahorros/caja/${id}/socios`)
             .then(response => response.json())
             .then(data => {
                 const listaSocios = document.getElementById('lista-socios');
-                const listaNoSocios = document.getElementById('lista-no-socios');
+                const listaClientes = document.getElementById('lista-clientes');
                 const resumenTotales = document.getElementById('resumen-totales');
 
                 listaSocios.innerHTML = '';
-                listaNoSocios.innerHTML = '';
+                listaClientes.innerHTML = '';
                 resumenTotales.innerHTML = '';
 
                 // Mostrar socios
-                if (data.socios.length > 0) {
+                if (data.socios && data.socios.length > 0) {
                     data.socios.forEach(socio => {
                         const monto = parseFloat(socio.Monto ?? 0).toLocaleString('es-HN', { minimumFractionDigits: 2 });
                         listaSocios.innerHTML += `<p><strong>${socio.Nombre_Beneficiario}</strong> - L. ${monto}</p>`;
@@ -98,22 +98,22 @@
                     listaSocios.innerHTML = '<p>No hay socios registrados.</p>';
                 }
 
-                // Mostrar no socios
-                if (data.no_socios.length > 0) {
-                    data.no_socios.forEach(noSocio => {
-                        const monto = parseFloat(noSocio.Monto ?? 0).toLocaleString('es-HN', { minimumFractionDigits: 2 });
-                        listaNoSocios.innerHTML += `<p><strong>${noSocio.Nombre_Beneficiario}</strong> - L. ${monto}</p>`;
+                // Mostrar clientes
+                if (data.clientes && data.clientes.length > 0) {
+                    data.clientes.forEach(cliente => {
+                        const monto = parseFloat(cliente.Monto ?? 0).toLocaleString('es-HN', { minimumFractionDigits: 2 });
+                        listaClientes.innerHTML += `<p><strong>${cliente.Nombre_Beneficiario}</strong> - L. ${monto}</p>`;
                     });
                 } else {
-                    listaNoSocios.innerHTML = '<p>No hay no socios registrados.</p>';
+                    listaClientes.innerHTML = '<p>No hay clientes registrados.</p>';
                 }
 
                 // Mostrar resumen totales
                 const totalSocios = data.socios.reduce((sum, s) => sum + parseFloat(s.Monto ?? 0), 0);
-                const totalNoSocios = data.no_socios.reduce((sum, s) => sum + parseFloat(s.Monto ?? 0), 0);
+                const totalClientes = data.clientes.reduce((sum, c) => sum + parseFloat(c.Monto ?? 0), 0);
 
-                const totalPersonas = data.socios.length + data.no_socios.length;
-                const totalAhorros = totalSocios + totalNoSocios;
+                const totalPersonas = (data.socios.length + data.clientes.length);
+                const totalAhorros = totalSocios + totalClientes;
                 const promedio = totalPersonas > 0 ? (totalAhorros / totalPersonas) : 0;
 
                 resumenTotales.innerHTML = `
@@ -137,21 +137,40 @@
                     return;
                 }
 
-                let resumenHTML = '<ul class="list-group">';
+                let tablaHTML = `
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre del Beneficiario</th>
+                                    <th>Monto (Lps)</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
                 data.forEach(ahorro => {
                     const montoFormateado = Number(ahorro.Monto).toLocaleString('es-HN', { minimumFractionDigits: 2 });
                     const fechaFormateada = new Date(ahorro.Fecha).toLocaleDateString('es-HN');
                     const beneficiario = ahorro.beneficiario ? ahorro.beneficiario.Nombre_Beneficiario : 'Sin nombre';
 
-                    resumenHTML += `
-                        <li class="list-group-item">
-                            <strong>${beneficiario}</strong> - L. ${montoFormateado} - Fecha: ${fechaFormateada}
-                        </li>
+                    tablaHTML += `
+                        <tr>
+                            <td>${beneficiario}</td>
+                            <td>L. ${montoFormateado}</td>
+                            <td>${fechaFormateada}</td>
+                        </tr>
                     `;
                 });
-                resumenHTML += '</ul>';
 
-                contenedor.innerHTML = resumenHTML;
+                tablaHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                contenedor.innerHTML = tablaHTML;
             })
             .catch(error => {
                 console.error('Error al cargar el listado de ahorros:', error);
@@ -168,5 +187,4 @@
         }
     });
 </script>
-
 @stop
