@@ -9,6 +9,7 @@ use App\Models\Departamento;
 use App\Models\Municipio;
 use App\Models\Aldea;
 use App\Models\CoordenadaMunicipio;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrganizacionController extends Controller
 {
@@ -222,5 +223,37 @@ class OrganizacionController extends Controller
             });
 
         return response()->json($cajas);
+    }
+
+    public function exportarPDF()
+    {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Consultar')) {
+            abort(403, 'No tienes permiso para exportar organizaciones.');
+        }
+
+        $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')
+                                    ->with(['aldea.municipio.departamento'])
+                                    ->get();
+
+        $pdf = Pdf::loadView('organizaciones.pdf', [
+            'organizaciones' => $organizaciones,
+            'pdf' => true, 
+        ])
+                  ->setPaper('a4', 'landscape');
+        $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+        $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+
+        // Registrar en bitácora
+        $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
+        if ($objeto && auth()->check()) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Reporte',
+                'Exportó reporte PDF de organizaciones'
+            );
+        }
+
+        return $pdf->download('reporte_organizaciones.pdf');
     }
 }

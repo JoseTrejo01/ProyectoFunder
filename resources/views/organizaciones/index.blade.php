@@ -29,6 +29,11 @@
     <a href="{{ route('organizaciones.mapa') }}" class="btn btn-outline-info" title="Ver Mapa de Cajas Rurales">
         <i class="fas fa-map-marked-alt"></i> Ver Mapa
     </a>
+
+    <!-- Botón Exportar PDF -->
+    <a href="{{ route('organizaciones.exportar.pdf') }}" class="btn btn-outline-danger" title="Exportar PDF">
+        <i class="fas fa-file-pdf"></i> Exportar PDF
+    </a>
 </div>
 
     <div class="table-responsive">

@@ -175,6 +175,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
     Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
     Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
+    Route::get('/organizaciones/exportar/pdf', [OrganizacionController::class, 'exportarPDF'])->name('organizaciones.exportar.pdf');
     Route::get('/api/cajas/{id}/socios', function ($id) {
         return App\Models\Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
             ->where('Id_Organizacion', $id)
