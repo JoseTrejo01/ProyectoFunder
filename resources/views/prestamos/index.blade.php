@@ -3,25 +3,29 @@
 @section('title', 'Créditos')
 
 @section('content_header')
-    <h1>Listado de Préstamos</h1>
-@stop
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="m-0">Listado de Préstamos</h1>
+        <div>
+            <a href="{{ route('prestamos.create') }}" class="btn btn-primary">Nueva Solicitud</a>
+            <a href="{{ route('creditos.reportes') }}" class="btn btn-danger ms-2">Reportes y Métricas</a>
+        </div>
+    </div>
+@endsection
 
 @section('content')
 <div class="tab-content mt-3" id="creditosTabsContent">
     {{-- TAB LISTADO --}}
     <div class="tab-pane fade show active" id="listado" role="tabpanel" aria-labelledby="listado-tab">
-        <a href="{{ route('prestamos.create') }}" class="btn btn-primary mb-3">Nueva Solicitud</a>
-        <a href="{{ route('creditos.reportes') }}" class="btn btn-info mb-3 ms-2">Reportes y Métricas</a>
         @if($prestamos->count())
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
                     <tr>
                         <th>ID</th>
                         <th>Socio</th>
                         <th>Monto</th>
                         <th>Destino</th>
                         <th>Estado</th>
-                        <th>Fecha de la solicitud</th>
+                        <th>Fecha de Solicitud</th>
                         <th>Acciones</th>
                         <th>Pagos</th>
                     </tr>
@@ -31,20 +35,35 @@
                         <tr>
                             <td>{{ $prestamo->id }}</td>
                             <td>{{ $prestamo->organizacion->Nombre_Organizacion ?? 'N/A' }}</td>
-                            <td>{{ number_format($prestamo->monto_solicitado, 2) }}</td>
+                            <td>L. {{ number_format($prestamo->monto_solicitado, 2) }}</td>
                             <td>{{ $prestamo->destino }}</td>
-                            <td>{{ ucfirst($prestamo->estado) }}</td>
+                            <td>
+                                @switch($prestamo->estado)
+                                    @case('pendiente')
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                        @break
+                                    @case('aprobado')
+                                        <span class="badge bg-success">Aprobado</span>
+                                        @break
+                                    @case('rechazado')
+                                        <span class="badge bg-danger">Rechazado</span>
+                                        @break
+                                    @case('desembolsado')
+                                        <span class="badge bg-primary">Desembolsado</span>
+                                        @break
+                                    @default
+                                        <span class="badge bg-secondary">N/A</span>
+                                @endswitch
+                            </td>
                             <td>{{ \Carbon\Carbon::parse($prestamo->fecha_solicitud)->format('d/m/Y') }}</td>
                             <td>
                                 @if ($prestamo->estado === 'pendiente')
                                     <form action="{{ route('prestamos.aprobar', $prestamo->id) }}" method="POST" style="display:inline-block">
-                                        @csrf
-                                        @method('PUT')
+                                        @csrf @method('PUT')
                                         <button class="btn btn-success btn-sm">Aprobar</button>
                                     </form>
                                     <form action="{{ route('prestamos.rechazar', $prestamo->id) }}" method="POST" style="display:inline-block">
-                                        @csrf
-                                        @method('PUT')
+                                        @csrf @method('PUT')
                                         <button class="btn btn-danger btn-sm">Rechazar</button>
                                     </form>
                                 @elseif ($prestamo->estado === 'aprobado')
@@ -64,12 +83,14 @@
                 </tbody>
             </table>
         @else
-            <p>No hay préstamos registrados.</p>
+            <div class="alert alert-info">
+                No hay préstamos registrados.
+            </div>
         @endif
     </div>
 
     {{-- TAB REPORTES --}}
-    <div class="tab-pane fade" id="reportes" role="tabpanel" aria-labelledby="reportes-tab">
+    <div class="tab-pane fade mt-4" id="reportes" role="tabpanel" aria-labelledby="reportes-tab">
         <h3>Reportes y Métricas</h3>
         <ul>
             <li><strong>Total de préstamos por mes:</strong></li>
@@ -90,5 +111,4 @@
         </ul>
     </div>
 </div>
-
-@stop
+@endsection
