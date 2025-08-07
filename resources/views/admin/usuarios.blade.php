@@ -110,6 +110,7 @@
                       id="Correo_Electronico{{ $usuario->Id_Usuario }}"
                       name="Correo_Electronico"
                       value="{{ old('Correo_Electronico', $usuario->Correo_Electronico) }}"
+                      maxlength="30"
                       required>
                     @error('Correo_Electronico')
                       <div class="invalid-feedback">{{ $message }}</div>
@@ -189,7 +190,7 @@
                 class="form-control @error('Nombre_Usuario') is-invalid @enderror"
                 value="{{ old('Nombre_Usuario') }}"
                 required
-                maxlength="40"
+                maxlength="20"
                 pattern="^[A-Z ]{1,40}$"
                 title="Solo letras mayúsculas y espacios, máximo 40 caracteres">
               @error('Nombre_Usuario')
@@ -203,6 +204,7 @@
                 id="Correo_Electronico"
                 class="form-control @error('Correo_Electronico') is-invalid @enderror"
                 value="{{ old('Correo_Electronico') }}"
+                maxlength="20"
                 required
                 title="Ingresa un correo válido">
               @error('Correo_Electronico')
