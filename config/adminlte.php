@@ -328,6 +328,16 @@ return [
                     'icon' => 'fas fa-sliders-h',
                 ],
                 [
+                    'text' => 'Roles',
+                    'url' => 'admin/roles',
+                    'icon' => 'fas fa-user-tag',
+                ],
+                [
+                    'text' => 'Objetos',
+                    'url' => 'admin/objetos',
+                    'icon' => 'fas fa-cube',
+                ],
+                [
                     'text' => 'Respaldo de Base de Datos',
                     'url' => 'admin/database',
                     'icon' => 'fas fa-database',
@@ -352,22 +362,6 @@ return [
                     'text' => 'Bitácora',
                     'url' => 'ver-bitacora',
                     'icon' => 'fas fa-book',
-                ],
-            ],
-        ],
-        [
-            'text' => 'Mantenimiento',
-            'icon' => 'fas fa-tools',
-            'submenu' => [
-                [
-                    'text' => 'Roles',
-                    'url' => 'admin/roles',
-                    'icon' => 'fas fa-user-tag',
-                ],
-                [
-                    'text' => 'Objetos',
-                    'url' => 'admin/objetos',
-                    'icon' => 'fas fa-cube',
                 ],
             ],
         ],
