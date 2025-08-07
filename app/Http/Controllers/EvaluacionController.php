@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Evaluacion;
 use App\Models\Organizacion;
 use App\Models\EvaluacionActualizada;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class EvaluacionController extends Controller
 {
     public function create()
@@ -138,6 +138,51 @@ class EvaluacionController extends Controller
 
         return redirect()->route('evaluacion.index')->with('success', 'Evaluación guardada correctamente.');
     }
+
+
+public function exportPdf(Request $request)
+{
+    $evaluaciones = Evaluacion::with(['organizacion.aldea.municipio.departamento'])
+        ->when($request->input('search'), function ($query) use ($request) {
+            $query->whereHas('organizacion', function ($q) use ($request) {
+                $q->where('Nombre_Organizacion', 'like', '%' . $request->search . '%');
+            });
+        })
+        ->get();
+
+    $actualizadas = EvaluacionActualizada::with('organizacion.aldea.municipio.departamento')
+        ->when($request->input('search'), function ($query) use ($request) {
+            $query->whereHas('organizacion', function ($q) use ($request) {
+                $q->where('Nombre_Organizacion', 'like', '%' . $request->search . '%');
+            });
+        })
+        ->get();
+
+    // Transformaciones opcionales para mostrar porcentajes y categorías
+    $evaluaciones->transform(function ($eval) {
+        $eval->porcentaje_institucional = min(100, round(($eval->desempeno_institucional / 315) * 100, 2));
+        $eval->porcentaje_financiero = min(100, round(($eval->total_financiero / 400) * 100, 2));
+        $eval->calificacion_total_pct = round($eval->porcentaje_institucional + $eval->porcentaje_financiero, 2);
+        $total = $eval->calificacion_total_pct;
+        $eval->categoria_calculada = match (true) {
+            $total >= 90 => 'A',
+            $total >= 71 => 'B',
+            $total >= 50 => 'C',
+            default => 'D',
+        };
+        return $eval;
+    });
+
+    // Cargar vista y generar PDF
+    $pdf = pdf::loadView('evaluacion.reporte_pdf', [
+        'evaluaciones' => $evaluaciones,
+        'actualizadas' => $actualizadas,
+        'pdf' => true,
+    ]);
+    $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+    return $pdf->stream('reporte_evaluaciones.pdf');
+}
 
 public function index(Request $request)
 {
@@ -313,14 +358,11 @@ public function update(Request $request, $id)
 
 public function destroy($id)
 {
-    $evaluacion = Evaluacion::findOrFail($id);
-    
-    // Opcional: también eliminar la evaluación actualizada relacionada si existe
-    if ($evaluacion->evaluacionActualizada) {
-        $evaluacion->evaluacionActualizada->delete();
-    }
+    // Elimina primero cualquier evaluación actualizada relacionada
+    EvaluacionActualizada::where('evaluacion_id', $id)->delete();
 
-    $evaluacion->delete();
+    // Luego elimina la evaluación principal
+    Evaluacion::destroy($id);
 
     return redirect()->route('evaluacion.index')->with('success', 'Evaluación eliminada correctamente.');
 }

@@ -69,9 +69,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
     Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
 
+<<<<<<< HEAD
     // Roles y objetos
     Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');
     Route::post('/objetos/store', [GestionController::class, 'storeObjeto'])->name('objetos.store');
+=======
+    Route::resource('criterio', CriterioController::class);
+    Route::resource('evaluacion', EvaluacionController::class);
+    Route::get('/evaluaciones/exportar-pdf', [EvaluacionController::class, 'exportPdf'])->name('evaluacion.exportarPDF');
+
+>>>>>>> 0877008e14f562a2508aeee56d8b2ed1e7accbef
 
     // Administración usuarios
     Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
@@ -120,6 +127,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ahorros', [AhorroController::class, 'index'])->name('ahorros.index');
     Route::get('/api/ahorros/caja/{id}/resumen', [AhorroController::class, 'resumenCaja'])->name('ahorros.resumen');
     Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
+<<<<<<< HEAD
     Route::get('/ahorros/create', [AhorroController::class, 'create'])->name('ahorros.create');
     Route::post('/ahorros', [AhorroController::class, 'store'])->name('ahorros.store');
     Route::get('/api/cajas/{id}/beneficiarios', [AhorroController::class, 'obtenerSocios']);
@@ -128,6 +136,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // API adicional para contar socios por organizacion (si lo usas)
     Route::get('/organizacion/{id}/socios', function ($id) {
         $total = DB::table('tbl_beneficiario')
+=======
+
+    Route::resource('genero', IndicadorGeneroController::class);
+   Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
+    Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
+    Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
+    Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
+    Route::get('/api/cajas/{id}/socios', function ($id) {
+        return App\Models\Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
+>>>>>>> 0877008e14f562a2508aeee56d8b2ed1e7accbef
             ->where('Id_Organizacion', $id)
             ->where('Tipo_De_Socio', 'Socio')
             ->count();
