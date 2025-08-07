@@ -184,6 +184,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/genero/datos', [GeneroController::class, 'obtenerDatos'])->name('genero.datos');
 });
 
+<<<<<<< HEAD
 /*
 |--------------------------------------------------------------------------
 | FALLBACK (opcional): si la ruta no existe, redirige a home/login
@@ -192,3 +193,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::fallback(function () {
     return redirect()->route('home');
 });
+=======
+// Informe financiero público
+Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme']);
+Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportInformeFinancieroExcel'])->name('informe-financiero.export');
+Route::get('/informe-financiero/pdf', [InformeFinancieroController::class, 'exportInformeFinancieroPDF'])
+    ->name('informe.financiero.pdf');
+
+// Ruta de prueba
+Route::get('/prueba', fn () => view('prueba'));
+
+// Ruta para la página de inicio del usuario autenticado
+Route::get('/home', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+>>>>>>> 4499b33f6bf54e2970e1787d1e57319efc1c9ff4
