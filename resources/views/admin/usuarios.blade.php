@@ -1,11 +1,8 @@
 @extends('adminlte::page')
 
-@section('title', 'Gestión de Usuarios')
-
 @section('content')
 <div class="container">
 
-  {{-- Alert de éxito (SweetAlert) --}}
   @if(session('success'))
     <script>
       document.addEventListener('DOMContentLoaded', function () {
@@ -23,15 +20,12 @@
   @endif
 
   <h2 class="text-center my-4 font-weight-bold">Gestión de Usuarios</h2>
-
-  <div class="d-flex gap-2 mb-3">
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
-      <i class="fas fa-user-plus me-1"></i> Nuevo Usuario
-    </button>
-    <a href="{{ route('usuarios.exportar.pdf') }}" class="btn btn-danger">
-      <i class="fas fa-file-pdf me-1"></i> Exportar a PDF
-    </a>
-  </div>
+  <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+    Nuevo Usuario
+  </button>
+  <a href="{{ route('usuarios.exportar.pdf') }}" class="btn btn-danger mb-3">
+    <i class="fas fa-file-pdf"></i> Exportar a PDF
+  </a>
 
   <div class="table-responsive">
     <table id="tabla-usuarios" class="table table-bordered table-striped table-hover shadow-sm">
@@ -44,7 +38,7 @@
           <th>Estado</th>
           <th>Registro</th>
           <th>Vencimiento</th>
-          <th style="width:110px;">Acción</th>
+          <th>Acción</th>
         </tr>
       </thead>
       <tbody>
@@ -56,16 +50,16 @@
           <td>{{ $usuario->rol->Rol ?? '-' }}</td>
           <td>{{ $usuario->Estado_Usuario }}</td>
           <td>{{ $usuario->Fecha_Creacion }}</td>
-          <td>{{ $usuario->Fecha_Vencimiento ? \Carbon\Carbon::parse($usuario->Fecha_Vencimiento)->format('Y-m-d') : '-' }}</td>
+          <td>{{ $usuario->Fecha_Vencimiento ?? '-' }}</td>
           <td>
             <div class="d-flex align-items-center gap-1">
-              <button class="btn btn-xs btn-primary p-1" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}" title="Editar" style="font-size: .85rem;">
+              <button class="btn btn-xs btn-primary p-1" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario{{ $usuario->Id_Usuario }}" title="Editar" style="font-size: 0.85rem;">
                 <i class="fas fa-edit"></i>
               </button>
               <form action="{{ route('usuarios.destroy', $usuario->Id_Usuario) }}" method="POST" style="display:inline-block" onsubmit="return confirmarEliminacion(event)">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-xs btn-danger p-1" title="Borrar" style="font-size: .85rem;">
+                <button type="submit" class="btn btn-xs btn-danger p-1" title="Borrar" style="font-size: 0.85rem;">
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </form>
@@ -73,7 +67,7 @@
           </td>
         </tr>
 
-        {{-- Modal Editar Usuario --}}
+        <!-- Modal Editar Usuario -->
         <div class="modal fade" id="modalEditarUsuario{{ $usuario->Id_Usuario }}" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel{{ $usuario->Id_Usuario }}" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -94,23 +88,21 @@
                       disabled>
                     <input type="hidden" name="Usuario" value="{{ $usuario->Usuario }}">
                   </div>
-
                   <div class="mb-3">
                     <label for="Nombre_Usuario{{ $usuario->Id_Usuario }}" class="form-label">Nombre de Usuario</label>
                     <input type="text"
-                      class="form-control validacion-texto @error('Nombre_Usuario') is-invalid @enderror"
+                      class="form-control @error('Nombre_Usuario') is-invalid @enderror"
                       id="Nombre_Usuario{{ $usuario->Id_Usuario }}"
                       name="Nombre_Usuario"
                       value="{{ old('Nombre_Usuario', $usuario->Nombre_Usuario) }}"
                       required
-                      maxlength="40"
-                      pattern="[A-ZÁÉÍÓÚÑ ]{1,40}"
+                      maxlength="20"
+                      pattern="^[A-Z ]{1,40}$"
                       title="Solo letras mayúsculas y espacios, máximo 40 caracteres">
                     @error('Nombre_Usuario')
                       <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                   </div>
-
                   <div class="mb-3">
                     <label for="Correo_Electronico{{ $usuario->Id_Usuario }}" class="form-label">Correo</label>
                     <input type="email"
@@ -118,48 +110,43 @@
                       id="Correo_Electronico{{ $usuario->Id_Usuario }}"
                       name="Correo_Electronico"
                       value="{{ old('Correo_Electronico', $usuario->Correo_Electronico) }}"
-                      maxlength="120"
+                      maxlength="30"
                       required>
                     @error('Correo_Electronico')
                       <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                   </div>
-
                   <div class="mb-3">
                     <label for="Id_Rol{{ $usuario->Id_Usuario }}" class="form-label">Rol</label>
                     <select class="form-control" id="Id_Rol{{ $usuario->Id_Usuario }}" name="Id_Rol" required>
                       @foreach($roles as $rol)
-                        <option value="{{ $rol->Id_Rol }}" @selected($usuario->Id_Rol == $rol->Id_Rol)>{{ $rol->Rol }}</option>
+                        <option value="{{ $rol->Id_Rol }}" @if($usuario->Id_Rol == $rol->Id_Rol) selected @endif>{{ $rol->Rol }}</option>
                       @endforeach
                     </select>
                   </div>
-
                   <div class="mb-3">
                     <label for="Estado_Usuario{{ $usuario->Id_Usuario }}" class="form-label">Estado</label>
                     <select class="form-control" id="Estado_Usuario{{ $usuario->Id_Usuario }}" name="Estado_Usuario" required>
-                      <option value="NUEVO"      @selected($usuario->Estado_Usuario=='NUEVO')>NUEVO</option>
-                      <option value="ACTIVO"     @selected($usuario->Estado_Usuario=='ACTIVO')>ACTIVO</option>
-                      <option value="BLOQUEADO"  @selected($usuario->Estado_Usuario=='BLOQUEADO')>BLOQUEADO</option>
-                      <option value="INACTIVO"   @selected($usuario->Estado_Usuario=='INACTIVO')>INACTIVO</option>
-                      <option value="VACACIONES" @selected($usuario->Estado_Usuario=='VACACIONES')>VACACIONES</option>
+                      <option value="ACTIVO"   @if($usuario->Estado_Usuario=='ACTIVO')   selected @endif>ACTIVO</option>
+                      <option value="INACTIVO" @if($usuario->Estado_Usuario=='INACTIVO') selected @endif>INACTIVO</option>
+                      <option value="NUEVO"    @if($usuario->Estado_Usuario=='NUEVO')    selected @endif>NUEVO</option>
+                      <option value="BLOQUEADO"@if($usuario->Estado_Usuario=='BLOQUEADO')selected @endif>BLOQUEADO</option>
+                      <option value="VACACIONES"@if($usuario->Estado_Usuario=='VACACIONES')selected @endif>VACACIONES</option>
                     </select>
                   </div>
-
                   <div class="mb-3">
                     <label for="Fecha_Vencimiento{{ $usuario->Id_Usuario }}" class="form-label">Fecha de Vencimiento</label>
                     <input type="date"
                       class="form-control"
                       id="Fecha_Vencimiento{{ $usuario->Id_Usuario }}"
                       name="Fecha_Vencimiento"
-                      value="{{ old('Fecha_Vencimiento', $usuario->Fecha_Vencimiento ? \Carbon\Carbon::parse($usuario->Fecha_Vencimiento)->format('Y-m-d') : '') }}">
+                      value="{{ old('Fecha_Vencimiento', $usuario->Fecha_Vencimiento? \Carbon\Carbon::parse($usuario->Fecha_Vencimiento)->format('Y-m-d') : '') }}">
                   </div>
                 </div>
-
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                   <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
-
               </form>
             </div>
           </div>
@@ -169,7 +156,7 @@
     </table>
   </div>
 
-  {{-- Modal Nuevo Usuario --}}
+  <!-- Modal Nuevo Usuario -->
   <div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalNuevoUsuarioLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -185,33 +172,31 @@
               <input type="text"
                 name="Usuario"
                 id="Usuario"
-                class="form-control validacion-usuario @error('Usuario') is-invalid @enderror"
+                class="form-control @error('Usuario') is-invalid @enderror"
                 value="{{ old('Usuario') }}"
                 required
-                maxlength="20"
-                pattern="[A-Z0-9]{1,20}"
-                title="Solo letras mayúsculas y números (máx. 20)">
+                maxlength="10"
+                pattern="^[A-Z]{1,10}$"
+                title="Solo letras mayúsculas, máximo 10 caracteres">
               @error('Usuario')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
-
             <div class="mb-3">
               <label for="Nombre_Usuario" class="form-label">Nombre de Usuario</label>
               <input type="text"
                 name="Nombre_Usuario"
                 id="Nombre_Usuario"
-                class="form-control validacion-texto @error('Nombre_Usuario') is-invalid @enderror"
+                class="form-control @error('Nombre_Usuario') is-invalid @enderror"
                 value="{{ old('Nombre_Usuario') }}"
                 required
-                maxlength="40"
-                pattern="[A-ZÁÉÍÓÚÑ ]{1,40}"
+                maxlength="20"
+                pattern="^[A-Z ]{1,40}$"
                 title="Solo letras mayúsculas y espacios, máximo 40 caracteres">
               @error('Nombre_Usuario')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
-
             <div class="mb-3">
               <label for="Correo_Electronico" class="form-label">Correo</label>
               <input type="email"
@@ -219,41 +204,37 @@
                 id="Correo_Electronico"
                 class="form-control @error('Correo_Electronico') is-invalid @enderror"
                 value="{{ old('Correo_Electronico') }}"
-                maxlength="120"
+                maxlength="20"
                 required
                 title="Ingresa un correo válido">
               @error('Correo_Electronico')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
-
             <div class="mb-3">
               <label for="Id_Rol" class="form-label">Rol</label>
               <select class="form-control" id="Id_Rol" name="Id_Rol" required>
                 <option value="">Seleccione un rol</option>
                 @foreach($roles as $rol)
-                  <option value="{{ $rol->Id_Rol }}" @selected(old('Id_Rol')==$rol->Id_Rol)>{{ $rol->Rol }}</option>
+                  <option value="{{ $rol->Id_Rol }}">{{ $rol->Rol }}</option>
                 @endforeach
               </select>
             </div>
-
             <div class="mb-3">
               <label for="Estado_Usuario" class="form-label">Estado</label>
               <select class="form-control" id="Estado_Usuario" name="Estado_Usuario" required>
-                <option value="NUEVO" @selected(old('Estado_Usuario')=='NUEVO')>NUEVO</option>
-                <option value="ACTIVO" @selected(old('Estado_Usuario')=='ACTIVO')>ACTIVO</option>
-                <option value="BLOQUEADO" @selected(old('Estado_Usuario')=='BLOQUEADO')>BLOQUEADO</option>
-                <option value="INACTIVO" @selected(old('Estado_Usuario')=='INACTIVO')>INACTIVO</option>
-                <option value="VACACIONES" @selected(old('Estado_Usuario')=='VACACIONES')>VACACIONES</option>
+                <option value="NUEVO">NUEVO</option>
+                <option value="ACTIVO">ACTIVO</option>
+                <option value="BLOQUEADO">BLOQUEADO</option>
+                <option value="INACTIVO">INACTIVO</option>
+                <option value="VACACIONES">VACACIONES</option>
               </select>
             </div>
           </div>
-
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn btn-success">Guardar</button>
           </div>
-
         </form>
       </div>
     </div>
@@ -262,28 +243,9 @@
 </div>
 @endsection
 
-@section('css')
-  {{-- Font Awesome (íconos) --}}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-  {{-- DataTables Bootstrap 5 --}}
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css" />
-  <style>
-    .validacion-texto, .validacion-usuario { text-transform: uppercase; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button { padding: .25rem .6rem; }
-  </style>
-@endsection
-
 @section('js')
-  {{-- Bootstrap 5 (bundle) y SweetAlert2 --}}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  {{-- jQuery (requerido por DataTables 2 si usas estilo jQuery), y DataTables + Bootstrap5 --}}
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-
-  {{-- Abrir modal de creación si hay errores de validación --}}
   @if ($errors->any())
     <script>
       document.addEventListener('DOMContentLoaded', function () {
@@ -292,23 +254,17 @@
       });
     </script>
   @endif
-
-  {{-- Alert de error de permisos --}}
   @if(session('error'))
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        Swal.fire({
-          icon: 'error',
-          title: 'Acceso denegado',
-          text: @json(session('error')),
-          confirmButtonText: 'Aceptar'
-        });
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso denegado',
+        text: '{{ session('error') }}',
+        confirmButtonText: 'Aceptar'
       });
     </script>
   @endif
-
   <script>
-    // Confirmación al eliminar
     function confirmarEliminacion(e) {
       e.preventDefault();
       Swal.fire({
@@ -327,28 +283,9 @@
       });
       return false;
     }
-
-    // Forzar mayúsculas y filtrar caracteres
-    function aplicarValidacionesMayusculas(selector, soloLetras = true) {
-      document.querySelectorAll(selector).forEach(function (campo) {
-        campo.addEventListener('input', function () {
-          this.value = this.value.toUpperCase();
-          // Limpieza extra (solo letras/espacios si soloLetras, si no letras y números)
-          const regex = soloLetras ? /[^A-ZÁÉÍÓÚÑ ]/g : /[^A-Z0-9]/g;
-          this.value = this.value.replace(regex, '');
-        });
-        campo.addEventListener('keypress', function (e) {
-          const allow = soloLetras ? /^[A-ZÁÉÍÓÚÑ ]$/i : /^[A-Z0-9]$/i;
-          if (!allow.test(e.key)) e.preventDefault();
-        });
-        campo.addEventListener('paste', function () {
-          setTimeout(() => { this.dispatchEvent(new Event('input')); }, 10);
-        });
-      });
-    }
-
-    // DataTable
-    $(document).ready(function () {
+  </script>
+  <script>
+    $(document).ready(function() {
       $('#tabla-usuarios').DataTable({
         language: {
           lengthMenu: 'Mostrar _MENU_ registros',
@@ -365,20 +302,42 @@
           },
           processing: 'Procesando...'
         },
-        order: [[5, 'desc']], // Fecha de Registro
+        order: [[5, 'desc']],
         searching: false
       });
     });
-
-    // Aplicar validaciones a campos de creación
-    document.addEventListener('DOMContentLoaded', function () {
-      aplicarValidacionesMayusculas('input#Usuario', false);           // letras y números
-      aplicarValidacionesMayusculas('input#Nombre_Usuario', true);     // solo letras y espacios
-
-      // Aplicar a campos de edición (por cada usuario)
-      @foreach($usuarios as $usuario)
-        aplicarValidacionesMayusculas('#Nombre_Usuario{{ $usuario->Id_Usuario }}', true);
-      @endforeach
-    });
   </script>
+ <script>
+  // Función para forzar mayúsculas y restringir caracteres válidos
+  function aplicarValidacionesMayusculas(selector, soloLetras = true) {
+    document.querySelectorAll(selector).forEach(function (campo) {
+      campo.addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+      });
+
+      campo.addEventListener('keypress', function (e) {
+        const regex = soloLetras ? /^[a-zA-Z ]$/ : /^[a-zA-Z0-9]$/;
+        if (!regex.test(e.key)) {
+          e.preventDefault();
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    aplicarValidacionesMayusculas('input[name="Usuario"]', false); // Solo letras y números
+    aplicarValidacionesMayusculas('input[name="Nombre_Usuario"]'); // Solo letras y espacios
+
+    // También aplicar a los campos en los formularios de edición
+    @foreach($usuarios as $usuario)
+      aplicarValidacionesMayusculas('#Usuario{{ $usuario->Id_Usuario }}', false);
+      aplicarValidacionesMayusculas('#Nombre_Usuario{{ $usuario->Id_Usuario }}');
+    @endforeach
+  });
+</script>
+
+@endsection
+
+@section('css')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 @endsection
