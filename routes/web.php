@@ -96,6 +96,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard y logout
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/dashboard/chart-data', [DashboardController::class, 'chartData'])
+        ->name('dashboard.chart-data');
+
 
     // Cambio de contraseña
     Route::get('/cambiar-contraseña', [LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
