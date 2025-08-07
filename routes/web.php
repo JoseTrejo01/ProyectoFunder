@@ -219,6 +219,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Informe financiero público
 Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme']);
 Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportInformeFinancieroExcel'])->name('informe-financiero.export');
+Route::get('/informe-financiero/pdf', [InformeFinancieroController::class, 'exportInformeFinancieroPDF'])
+    ->name('informe.financiero.pdf');
 
 // Ruta de prueba
 Route::get('/prueba', fn () => view('prueba'));

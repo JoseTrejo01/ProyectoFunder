@@ -8,6 +8,9 @@
         <div>
             <a href="{{ route('prestamos.create') }}" class="btn btn-primary">Nueva Solicitud</a>
             <a href="{{ route('creditos.reportes') }}" class="btn btn-danger ms-2">Reportes y Métricas</a>
+            <a href="{{ route('informe.financiero.pdf') }}" class="btn btn-danger ms-2">
+    Exportar (PDF)
+</a>
         </div>
     </div>
 @endsection
