@@ -26,6 +26,7 @@ use App\Http\Controllers\CriterioController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\EmprendimientoController;
 use App\Http\Controllers\OrganizacionController;
+use App\Http\Controllers\InformeFinancieroController; // <- agregado
 
 // Models
 use App\Models\Socio;
@@ -46,6 +47,22 @@ Route::get('/', function () {
     }
     return view('welcome');
 })->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| RUTAS PÚBLICAS ADICIONALES
+|--------------------------------------------------------------------------
+*/
+// Informe financiero público
+Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme'])->name('informe.financiero.show');
+Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportInformeFinancieroExcel'])->name('informe.financiero.export');
+Route::get('/informe-financiero/pdf', [InformeFinancieroController::class, 'exportInformeFinancieroPDF'])->name('informe.financiero.pdf');
+
+// Ruta de prueba
+Route::get('/prueba', fn () => view('prueba'))->name('prueba');
+
+// Alias opcional a dashboard (evita colisión de nombre)
+Route::get('/home', function () { return redirect()->route('dashboard'); })->name('home.dashboard');
 
 /*
 |--------------------------------------------------------------------------
@@ -102,7 +119,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/roles/store', [GestionController::class, 'storeRol'])->name('roles.store');
     Route::post('/objetos/store', [GestionController::class, 'storeObjeto'])->name('objetos.store');
 
-    // Evaluaciones (si tu módulo está activo)
+    // Evaluaciones
     Route::resource('criterio', CriterioController::class);
     Route::resource('evaluacion', EvaluacionController::class);
     Route::get('/evaluaciones/exportar-pdf', [EvaluacionController::class, 'exportPdf'])->name('evaluacion.exportarPDF');
@@ -172,7 +189,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Indicadores de Género como recurso separado para evitar colisión con /genero
     Route::resource('indicadores-genero', IndicadorGeneroController::class);
 
-    // Emprendimientos y Organizaciones (si tu módulo está activo)
+    // Emprendimientos y Organizaciones
     Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
 
@@ -184,25 +201,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/genero/datos', [GeneroController::class, 'obtenerDatos'])->name('genero.datos');
 });
 
-<<<<<<< HEAD
 /*
 |--------------------------------------------------------------------------
-| FALLBACK (opcional): si la ruta no existe, redirige a home/login
+| FALLBACK: si la ruta no existe, redirige a home/login
 |--------------------------------------------------------------------------
 */
 Route::fallback(function () {
     return redirect()->route('home');
 });
-=======
-// Informe financiero público
-Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme']);
-Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportInformeFinancieroExcel'])->name('informe-financiero.export');
-Route::get('/informe-financiero/pdf', [InformeFinancieroController::class, 'exportInformeFinancieroPDF'])
-    ->name('informe.financiero.pdf');
-
-// Ruta de prueba
-Route::get('/prueba', fn () => view('prueba'));
-
-// Ruta para la página de inicio del usuario autenticado
-Route::get('/home', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
->>>>>>> 4499b33f6bf54e2970e1787d1e57319efc1c9ff4
