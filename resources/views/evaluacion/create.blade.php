@@ -43,8 +43,8 @@
         {{-- General --}}
         <div class="tab-pane fade show active" id="general">
             <div class="mb-3">
-                <label for="organizacion_id" class="form-label">Organización</label>
-                <select name="organizacion_id" class="form-control" required>
+                <label for="id_organizacion" class="form-label">Organización</label>
+                <select name="id_organizacion" class="form-control" required>
                     @foreach($organizaciones as $org)
                         <option value="{{ $org->Id_Organizacion }}">{{ $org->Nombre_Organizacion }}</option>
                     @endforeach

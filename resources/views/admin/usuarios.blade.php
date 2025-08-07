@@ -87,7 +87,7 @@
                           </div>
                           <div class="mb-3">
                             <label for="Nombre_Usuario{{ $usuario->Id_Usuario }}" class="form-label">Nombre de Usuario</label>
-                            <input type="text" class="form-control" id="Nombre_Usuario{{ $usuario->Id_Usuario }}" name="Nombre_Usuario" value="{{ $usuario->Nombre_Usuario }}" required maxlength="40>
+                            <input type="text" class="form-control validacion-texto" id="Nombre_Usuario{{ $usuario->Id_Usuario }}" name="Nombre_Usuario" value="{{ $usuario->Nombre_Usuario }}" required maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
                           </div>
                           <div class="mb-3">
                             <label for="Correo_Electronico{{ $usuario->Id_Usuario }}" class="form-label">Correo</label>
@@ -152,8 +152,7 @@
                 type="text"
                 name="Usuario"
                 id="Usuario"
-                maxlength="30"
-                class="form-control @error('Usuario') is-invalid @enderror"
+                class="form-control validacion-usuario @error('Usuario') is-invalid @enderror"
                 value="{{ old('Usuario') }}"
                 required
                 maxlength="60"
@@ -169,7 +168,7 @@
               </div>
               <div class="mb-3">
                 <label for="Nombre_Usuario" class="form-label">Nombre de Usuario</label>
-                <input type="text" class="form-control" id="Nombre_Usuario" name="Nombre_Usuario" required maxlength="40>
+                <input type="text" class="form-control validacion-texto" id="Nombre_Usuario" name="Nombre_Usuario" required maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
               </div>
               <div class="mb-3">
                 <label for="Correo_Electronico" class="form-label">Correo</label>
@@ -283,46 +282,41 @@
             order: [[5, 'desc']], // Cambiado: 5 es la columna 'Fecha de Registro'
             searching: false
         });
-    });
-    </script>
 
-    <script>
-    // Aplica validaciones cada vez que se abre el modal Nuevo Usuario
-    document.addEventListener('DOMContentLoaded', function () {
-        var modalNuevoUsuario = document.getElementById('modalNuevoUsuario');
-        if (modalNuevoUsuario) {
-            modalNuevoUsuario.addEventListener('shown.bs.modal', function () {
-                // Forzar mayúsculas en Usuario y Nombre_Usuario
-                var usuarioInput = document.getElementById('Usuario');
-                var nombreUsuarioInput = document.getElementById('Nombre_Usuario');
-                if (usuarioInput) {
-                    usuarioInput.addEventListener('input', function () {
-                        this.value = this.value.toUpperCase();
-                    });
-                }
-                if (nombreUsuarioInput) {
-                    nombreUsuarioInput.setAttribute('maxlength', '40');
-                    nombreUsuarioInput.addEventListener('input', function () {
-                        this.value = this.value.toUpperCase();
-                        if (this.value.length > 40) {
-                            this.value = this.value.slice(0, 40);
-                        }
-                    });
-                }
-                // Bloquear caracteres especiales en Usuario y Nombre_Usuario
-                var campos = [usuarioInput, nombreUsuarioInput];
-                campos.forEach(function(campo) {
-                    if (campo) {
-                        campo.addEventListener('keypress', function(e) {
-                            const regex = /^[A-Za-z0-9 ]+$/;
-                            if (!regex.test(e.key)) {
-                                e.preventDefault();
-                            }
-                        });
-                    }
-                });
-            });
-        }
+        // Validación para campos de texto - solo letras y mayúsculas
+        $('.validacion-texto').on('input', function() {
+            let valor = $(this).val();
+            
+            // Eliminar números y caracteres especiales, mantener solo letras, espacios y acentos
+            let valorLimpio = valor.replace(/[^A-ZÁÉÍÓÚÑa-záéíóúñ\s]/g, '');
+            
+            // Convertir a mayúsculas
+            valorLimpio = valorLimpio.toUpperCase();
+            
+            // Actualizar el valor del campo
+            $(this).val(valorLimpio);
+        });
+
+        // Validación para campo Usuario - solo letras mayúsculas y números
+        $('.validacion-usuario').on('input', function() {
+            let valor = $(this).val();
+            
+            // Eliminar caracteres especiales, mantener solo letras y números
+            let valorLimpio = valor.replace(/[^A-Za-z0-9]/g, '');
+            
+            // Convertir a mayúsculas
+            valorLimpio = valorLimpio.toUpperCase();
+            
+            // Actualizar el valor del campo
+            $(this).val(valorLimpio);
+        });
+
+        // Prevenir pegado de contenido inválido
+        $('.validacion-texto, .validacion-usuario').on('paste', function(e) {
+            setTimeout(() => {
+                $(this).trigger('input');
+            }, 10);
+        });
     });
     </script>
 
@@ -330,4 +324,9 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        .validacion-texto, .validacion-usuario {
+            text-transform: uppercase;
+        }
+    </style>
 @endsection
