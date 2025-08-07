@@ -133,6 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/{id}', [ObjetoController::class, 'update'])->name('objetos.update');
             Route::delete('/{id}', [ObjetoController::class, 'destroy'])->name('objetos.destroy');
             Route::post('/store', [GestionController::class, 'storeObjeto'])->name('objetos.store.gestion');
+            Route::get('/exportar-pdf', [ObjetoController::class, 'exportarPDF'])->name('objetos.exportar-pdf');
         });
 
         Route::prefix('reportes')->group(function () {
@@ -210,6 +211,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
     Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
     Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
+<<<<<<< HEAD
+=======
+    Route::get('/organizaciones/exportar/pdf', [OrganizacionController::class, 'exportarPDF'])->name('organizaciones.exportar.pdf');
+    Route::get('/api/cajas/{id}/socios', function ($id) {
+        return App\Models\Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
+            ->where('Id_Organizacion', $id)
+            ->where('estado', 1)
+            ->get();
+    });
+    Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios']);
+>>>>>>> ce587a70e838cb449571acb0003f38fa1aa4bbf5
 
     // Tablero de género
     Route::get('/genero', [GeneroController::class, 'index'])->name('genero.index');

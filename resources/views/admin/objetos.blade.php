@@ -2,7 +2,16 @@
 @section('content')
 <div class="container">
     <h2 class="text-center my-4 font-weight-bold">Gestión de Objetos</h2>
-    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoObjeto">Nuevo Objeto</button>
+    
+    <div class="d-flex justify-content-between mb-3">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevoObjeto">
+            <i class="fas fa-plus"></i> Nuevo Objeto
+        </button>
+        <a href="{{ route('objetos.exportar-pdf') }}" class="btn btn-danger" target="_blank">
+            <i class="fas fa-file-pdf"></i> Exportar PDF
+        </a>
+    </div>
+    
     <div class="table-responsive">
         <table id="tabla-objetos" class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="thead-dark">
