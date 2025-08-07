@@ -83,7 +83,8 @@
                                         <div class="modal-body">
                                           <div class="mb-3">
                                             <label for="Nombre_Organizacion_{{ $org->Id_Organizacion }}" class="form-label">Nombre de la Organización</label>
-                                            <input type="text" class="form-control" name="Nombre_Organizacion" id="Nombre_Organizacion_{{ $org->Id_Organizacion }}" value="{{ $org->Nombre_Organizacion }}" required>
+                                           <input type="text" class="form-control" name="Nombre_Organizacion" id="Nombre_Organizacion_{{ $org->Id_Organizacion }}" value="{{ $org->Nombre_Organizacion }}" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
+
                                           </div>
                                           <div class="row">
                                               <div class="col-md-4">
@@ -125,7 +126,8 @@
                                           <div class="row mt-3">
                                               <div class="col-md-4">
                                                   <label for="Nombre_Aldea_{{ $org->Id_Organizacion }}" class="form-label">Aldea</label>
-                                                  <input type="text" class="form-control" name="Nombre_Aldea" id="Nombre_Aldea_{{ $org->Id_Organizacion }}" value="{{ $org->aldea ? $org->aldea->Nombre_Aldea : '' }}" required>
+                                                 <input type="text" class="form-control" name="Nombre_Aldea" id="Nombre_Aldea_{{ $org->Id_Organizacion }}" value="{{ $org->aldea ? $org->aldea->Nombre_Aldea : '' }}" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
+
                                               </div>
                                               <div class="col-md-4">
                                                   <label class="form-label">¿Tiene cuenta bancaria?</label>
@@ -178,7 +180,8 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="Nombre_Organizacion" class="form-label">Nombre de la Organización</label>
-            <input type="text" class="form-control" name="Nombre_Organizacion" required>
+            <input type="text" class="form-control" name="Nombre_Organizacion" id="Nombre_Organizacion" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
+
           </div>
           
           <div class="mb-3">
@@ -198,7 +201,8 @@
           </div>
           <div class="mb-3">
             <label for="Nombre_Aldea" class="form-label">Aldea</label>
-            <input type="text" class="form-control" name="Nombre_Aldea" required>
+            <input type="text" class="form-control" name="Nombre_Aldea" id="Nombre_Aldea" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
+
           </div>
           <div class="mb-3">
             <label for="map">Ubicación geográfica</label>
@@ -435,4 +439,31 @@ $('#modalRegistrarOrg').on('shown.bs.modal', function () {
         @endforeach
     });
 </script>
+<script>
+    // Evitar el ingreso de números en campos de texto
+    function bloquearNumeros(inputSelector) {
+        document.querySelectorAll(inputSelector).forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (/\d/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Limpiar números pegados con CTRL+V
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/[0-9]/g, '');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        bloquearNumeros('input[name="Nombre_Organizacion"]');
+        bloquearNumeros('input[name="Nombre_Aldea"]');
+        @foreach($organizaciones as $org)
+            bloquearNumeros('#Nombre_Organizacion_{{ $org->Id_Organizacion }}');
+            bloquearNumeros('#Nombre_Aldea_{{ $org->Id_Organizacion }}');
+        @endforeach
+    });
+</script>
+
 @endsection
