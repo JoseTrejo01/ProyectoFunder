@@ -11,6 +11,6 @@ class Objeto extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'Objeto', 'Descripcion', 'Tipo_Objeto', 'Creado_Por', 'Fecha_Creacion', 'Modificado_Por', 'Fecha_Modificacion'
+        'Objeto', 'Descripcion', 'Tipo_Objeto', 'Estado', 'Creado_Por', 'Fecha_Creacion', 'Modificado_Por', 'Fecha_Modificacion'
     ];
 }

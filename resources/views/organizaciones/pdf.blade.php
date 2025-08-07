@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte de Socios - Funder</title>
+    <title>Reporte de Organizaciones - Funder</title>
     <style>
         @page {
             margin: 30px 40px;
@@ -76,7 +76,7 @@
 
     <div class="center-title">
         <div>FUNDER</div>
-        <div>Reporte de Socios</div>
+        <div>Reporte de Organizaciones</div>
     </div>
 
     <div class="logo">
@@ -89,39 +89,35 @@
     <thead>
         <tr>
             <th>No.</th>
-            <th>Nombre</th>
-            <th>DNI</th>
-            <th>Teléfono</th>
-            <th>Género</th>
-            <th>Estado Civil</th>
-            <th>Nivel Educativo</th>
+            <th>ID</th>
+            <th>Nombre Organización</th>
             <th>Departamento</th>
             <th>Municipio</th>
-            <th>Comunidad</th>
-            <th>Tipo Socio</th>
+            <th>Aldea</th>
+            <th>RTN</th>
+            <th>Personería Jurídica</th>
+            <th>Cuenta Bancaria</th>
             <th>Estado</th>
         </tr>
     </thead>
     <tbody>
         @php $count = 1; @endphp
-        @forelse($socios as $socio)
+        @forelse($organizaciones as $org)
             <tr>
                 <td>{{ $count++ }}</td>
-                <td style="text-align: left;">{{ $socio->Nombre_Beneficiario }}</td>
-                <td>{{ $socio->DNI }}</td>
-                <td>{{ $socio->Telefono }}</td>
-                <td>{{ $socio->genero }}</td>
-                <td>{{ $socio->estado_civil }}</td>
-                <td>{{ $socio->nivel_educativo }}</td>
-                <td>{{ $socio->departamento }}</td>
-                <td>{{ $socio->municipio }}</td>
-                <td>{{ $socio->comunidad }}</td>
-                <td>{{ $socio->Tipo_De_Socio }}</td>
-                <td>{{ $socio->estado == 1 ? 'Activo' : 'Inactivo' }}</td>
+                <td>{{ $org->Id_Organizacion }}</td>
+                <td style="text-align: left;">{{ $org->Nombre_Organizacion }}</td>
+                <td>{{ $org->aldea && $org->aldea->municipio && $org->aldea->municipio->departamento ? $org->aldea->municipio->departamento->Nombre_Departamento : 'N/D' }}</td>
+                <td>{{ $org->aldea && $org->aldea->municipio ? $org->aldea->municipio->Nombre_Municipio : 'N/D' }}</td>
+                <td>{{ $org->aldea ? $org->aldea->Nombre_Aldea : 'N/D' }}</td>
+                <td>{{ $org->rtn ?? 'N/A' }}</td>
+                <td>{{ $org->tiene_personeria_juridica ? 'Sí' : 'No' }}</td>
+                <td>{{ $org->tiene_cuenta_bancaria ? 'Sí' : 'No' }}</td>
+                <td>{{ $org->Estado_Organizacion }}</td>
             </tr>
         @empty
             <tr>
-                <td colspan="12">No hay socios para mostrar.</td>
+                <td colspan="10">No hay organizaciones para mostrar.</td>
             </tr>
         @endforelse
     </tbody>

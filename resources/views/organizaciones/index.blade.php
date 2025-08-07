@@ -29,6 +29,11 @@
     <a href="{{ route('organizaciones.mapa') }}" class="btn btn-outline-info" title="Ver Mapa de Cajas Rurales">
         <i class="fas fa-map-marked-alt"></i> Ver Mapa
     </a>
+
+    <!-- Botón Exportar PDF -->
+    <a href="{{ route('organizaciones.exportar.pdf') }}" class="btn btn-outline-danger" title="Exportar PDF">
+        <i class="fas fa-file-pdf"></i> Exportar PDF
+    </a>
 </div>
 
     <div class="table-responsive">
@@ -219,7 +224,7 @@
               </div>
               <div class="col">
                   <label for="coordenada_x">Longitud</label>
-                  <input type="text" name="coordenada_x" id="coordenada_x" class="form-control" readonly required>
+                  <input type="text" name="coordenada_x" id="coordenada_x" class="form-control" required>
               </div>
           </div>
           <div class="row mt-3">

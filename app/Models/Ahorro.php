@@ -22,7 +22,8 @@ class Ahorro extends Model
     public function beneficiario()
     {
         return $this->belongsTo(Beneficiario::class, 'Id_Beneficiario', 'Id_Beneficiario');
-    }
+}
+    
 
     public function organizacion()
     {

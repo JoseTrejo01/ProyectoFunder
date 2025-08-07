@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte de Socios - Funder</title>
+    <title>Reporte de Objetos - Funder</title>
     <style>
         @page {
             margin: 30px 40px;
@@ -76,7 +76,7 @@
 
     <div class="center-title">
         <div>FUNDER</div>
-        <div>Reporte de Socios</div>
+        <div>Reporte de Objetos</div>
     </div>
 
     <div class="logo">
@@ -89,39 +89,27 @@
     <thead>
         <tr>
             <th>No.</th>
-            <th>Nombre</th>
-            <th>DNI</th>
-            <th>Teléfono</th>
-            <th>Género</th>
-            <th>Estado Civil</th>
-            <th>Nivel Educativo</th>
-            <th>Departamento</th>
-            <th>Municipio</th>
-            <th>Comunidad</th>
-            <th>Tipo Socio</th>
+            <th>ID</th>
+            <th>Nombre del Objeto</th>
+            <th>Descripción</th>
+            <th>Tipo de Objeto</th>
             <th>Estado</th>
         </tr>
     </thead>
     <tbody>
         @php $count = 1; @endphp
-        @forelse($socios as $socio)
+        @forelse($objetos as $objeto)
             <tr>
                 <td>{{ $count++ }}</td>
-                <td style="text-align: left;">{{ $socio->Nombre_Beneficiario }}</td>
-                <td>{{ $socio->DNI }}</td>
-                <td>{{ $socio->Telefono }}</td>
-                <td>{{ $socio->genero }}</td>
-                <td>{{ $socio->estado_civil }}</td>
-                <td>{{ $socio->nivel_educativo }}</td>
-                <td>{{ $socio->departamento }}</td>
-                <td>{{ $socio->municipio }}</td>
-                <td>{{ $socio->comunidad }}</td>
-                <td>{{ $socio->Tipo_De_Socio }}</td>
-                <td>{{ $socio->estado == 1 ? 'Activo' : 'Inactivo' }}</td>
+                <td>{{ $objeto->Id_Objeto }}</td>
+                <td style="text-align: left;">{{ $objeto->Objeto }}</td>
+                <td style="text-align: left;">{{ $objeto->Descripcion ?? 'Sin descripción' }}</td>
+                <td>{{ $objeto->Tipo_Objeto ?? 'No especificado' }}</td>
+                <td>{{ $objeto->Estado }}</td>
             </tr>
         @empty
             <tr>
-                <td colspan="12">No hay socios para mostrar.</td>
+                <td colspan="6">No hay objetos para mostrar.</td>
             </tr>
         @endforelse
     </tbody>

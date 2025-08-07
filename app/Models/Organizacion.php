@@ -72,6 +72,6 @@ class Organizacion extends Model
     // Relación con Evaluación (si solo hay una por organización)
     public function evaluacion()
     {
-        return $this->hasOne(Evaluacion::class, 'organizacion_id', 'Id_Organizacion');
+        return $this->hasOne(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
     }
 }

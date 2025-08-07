@@ -6,11 +6,28 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Objeto;
 
 class DashboardController extends Controller
 {
 public function chartData(Request $request)
 {
+    // Verificar permisos para consultar datos de gráficos
+    if (!auth()->user() || !auth()->user()->tienePermiso('Dashboard', 'Consultar')) {
+        return response()->json(['error' => 'No tiene permiso para consultar datos de gráficos'], 403);
+    }
+
+    // Registrar acceso a datos de gráficos en bitácora
+    $objeto = Objeto::where('Objeto', 'Dashboard')->first();
+    if ($objeto && Auth::check()) {
+        EVENT_BITACORA(
+            Auth::user()->Id_Usuario,
+            $objeto->Id_Objeto,
+            'Consultar',
+            'El usuario consultó datos de gráficos del dashboard'
+        );
+    }
+
     // 1. Recibe módulos vía query (o usa los por defecto)
     $modules = $request->query('modules', ['evaluacion', 'ahorro']);
     $year    = now()->year;
@@ -81,6 +98,22 @@ public function chartData(Request $request)
 
     public function index()
     {
+        // Verificar si el usuario está autenticado
+        if (!auth()->user()) {
+            return redirect()->route('login')->with('error', 'Debe iniciar sesión para acceder al dashboard');
+        }
+   
+        // Registrar acceso al dashboard en bitácora
+        $objeto = Objeto::where('Objeto', 'Dashboard')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Ingreso',
+                'El usuario ingresó al dashboard principal'
+            );
+        }
+
         // Importar el modelo Socio
         \App\Models\Socio::class;
 

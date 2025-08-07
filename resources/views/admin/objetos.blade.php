@@ -2,7 +2,16 @@
 @section('content')
 <div class="container">
     <h2 class="text-center my-4 font-weight-bold">Gestión de Objetos</h2>
-    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalNuevoObjeto">Nuevo Objeto</button>
+    
+    <div class="d-flex justify-content-between mb-3">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevoObjeto">
+            <i class="fas fa-plus"></i> Nuevo Objeto
+        </button>
+        <a href="{{ route('objetos.exportar-pdf') }}" class="btn btn-danger" target="_blank">
+            <i class="fas fa-file-pdf"></i> Exportar PDF
+        </a>
+    </div>
+    
     <div class="table-responsive">
         <table id="tabla-objetos" class="table table-bordered table-striped table-hover shadow-sm">
             <thead class="thead-dark">
@@ -50,15 +59,15 @@
                         <div class="modal-body">
                           <div class="mb-3">
                             <label for="Objeto{{ $objeto->Id_Objeto }}" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="Objeto{{ $objeto->Id_Objeto }}" name="Objeto" value="{{ $objeto->Objeto }}" required>
+                            <input type="text" class="form-control validacion-texto" id="Objeto{{ $objeto->Id_Objeto }}" name="Objeto" value="{{ $objeto->Objeto }}" required maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
                           </div>
                           <div class="mb-3">
                             <label for="Descripcion{{ $objeto->Id_Objeto }}" class="form-label">Descripción</label>
-                            <input type="text" class="form-control" id="Descripcion{{ $objeto->Id_Objeto }}" name="Descripcion" value="{{ $objeto->Descripcion }}">
+                            <input type="text" class="form-control validacion-texto" id="Descripcion{{ $objeto->Id_Objeto }}" name="Descripcion" value="{{ $objeto->Descripcion }}" maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
                           </div>
                           <div class="mb-3">
                             <label for="Tipo_Objeto{{ $objeto->Id_Objeto }}" class="form-label">Tipo</label>
-                            <input type="text" class="form-control" id="Tipo_Objeto{{ $objeto->Id_Objeto }}" name="Tipo_Objeto" value="{{ $objeto->Tipo_Objeto }}">
+                            <input type="text" class="form-control validacion-texto" id="Tipo_Objeto{{ $objeto->Id_Objeto }}" name="Tipo_Objeto" value="{{ $objeto->Tipo_Objeto }}" maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
                           </div>
                         </div>
                         <div class="modal-footer">
@@ -86,15 +95,15 @@
             <div class="modal-body">
               <div class="mb-3">
                 <label for="Objeto" class="form-label">Nombre</label>
-                <input type="text" class="form-control" id="Objeto" name="Objeto" required>
+                <input type="text" class="form-control validacion-texto" id="Objeto" name="Objeto" required maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
               </div>
               <div class="mb-3">
                 <label for="Descripcion" class="form-label">Descripción</label>
-                <input type="text" class="form-control" id="Descripcion" name="Descripcion">
+                <input type="text" class="form-control validacion-texto" id="Descripcion" name="Descripcion" maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
               </div>
               <div class="mb-3">
                 <label for="Tipo_Objeto" class="form-label">Tipo</label>
-                <input type="text" class="form-control" id="Tipo_Objeto" name="Tipo_Objeto">
+                <input type="text" class="form-control validacion-texto" id="Tipo_Objeto" name="Tipo_Objeto" maxlength="40" pattern="[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+" title="Solo se permiten letras y espacios">
               </div>
             </div>
             <div class="modal-footer">
@@ -122,6 +131,19 @@
             timer: 2500,
             timerProgressBar: true,
             showConfirmButton: false
+        });
+    });
+</script>
+@endif
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: @json(session('error')),
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
         });
     });
 </script>
@@ -166,6 +188,35 @@ $(document).ready(function() {
         },
         order: [[0, 'desc']]
     });
+
+    // Validación para campos de texto - solo letras y mayúsculas
+    $('.validacion-texto').on('input', function() {
+        let valor = $(this).val();
+        
+        // Eliminar números y caracteres especiales, mantener solo letras, espacios y acentos
+        let valorLimpio = valor.replace(/[^A-ZÁÉÍÓÚÑa-záéíóúñ\s]/g, '');
+        
+        // Convertir a mayúsculas
+        valorLimpio = valorLimpio.toUpperCase();
+        
+        // Actualizar el valor del campo
+        $(this).val(valorLimpio);
+    });
+
+    // Prevenir pegado de contenido inválido
+    $('.validacion-texto').on('paste', function(e) {
+        setTimeout(() => {
+            $(this).trigger('input');
+        }, 10);
+    });
 });
 </script>
+@endsection
+
+@section('css')
+<style>
+    .validacion-texto {
+        text-transform: uppercase;
+    }
+</style>
 @endsection
