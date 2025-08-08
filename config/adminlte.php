@@ -355,12 +355,12 @@ return [
                 ],
                 [
                     'text' => 'Roles y Permisos',
-                    'url' => '/asignar-permisos',
+                    'url' => 'admin/permisos',
                     'icon' => 'fas fa-user-shield',
                 ],
                 [
                     'text' => 'Bitácora',
-                    'url' => 'ver-bitacora',
+                    'url' => 'admin/bitacora',
                     'icon' => 'fas fa-book',
                 ],
             ],

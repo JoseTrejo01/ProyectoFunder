@@ -38,10 +38,10 @@
 <div class="modal fade" id="modalAsignarPermisos" tabindex="-1" aria-labelledby="modalAsignarPermisosLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form action="{{ route('asignar.permisos') }}" method="POST">
+      <form action="{{ route('permisos.asignar') }}" method="POST">
         @csrf
         <input type="hidden" name="Id_Rol" id="modal_Id_Rol">
-<input type="hidden" name="Id_Objeto" id="modal_Id_Objeto">
+        <input type="hidden" name="Id_Objeto" id="modal_Id_Objeto">
         <div class="modal-header">
           <h5 class="modal-title" id="modalAsignarPermisosLabel">Asignar Permisos</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>

@@ -152,6 +152,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/exportar-pdf', [ObjetoController::class, 'exportarPDF'])->name('objetos.exportar-pdf');
         });
 
+        // Permisos
+        Route::prefix('permisos')->group(function () {
+            Route::get('/', [PermisoController::class, 'showForm'])->name('permisos.index');
+            Route::post('/asignar', [PermisoController::class, 'asignarPermisos'])->name('permisos.asignar');
+        });
+
+        // Bitácora
+        Route::prefix('bitacora')->group(function () {
+            Route::get('/', [BitacoraController::class, 'verBitacora'])->name('bitacora.index');
+            Route::post('/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
+            Route::get('/exportar/pdf', [BitacoraController::class, 'exportarPDF'])->name('bitacora.exportar.pdf');
+        });
+
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
             Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
