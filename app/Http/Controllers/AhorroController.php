@@ -9,43 +9,60 @@ use App\Models\Objeto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class AhorroController extends Controller
 {
     /**
      * Vista principal de Ahorros: lista cajas y, si hay una seleccionada, sus ahorros.
      */
-    public function index(Request $request)
-    {
-        // Permisos
-        if (!Auth::check() || !Auth::user()->tienePermiso('Ahorros', 'Consultar')) {
-            return redirect()->back()->with('error', 'No tiene permisos para consultar ahorros');
-        }
-
-        // Bitácora
-        $objeto = Objeto::where('Objeto', 'Ahorros')->first();
-        if ($objeto && Auth::check()) {
-            EVENT_BITACORA(
-                Auth::user()->Id_Usuario,
-                $objeto->Id_Objeto,
-                'Ingreso',
-                'El usuario accedió a la gestión de ahorros'
-            );
-        }
-
-        $cajas = Organizacion::all();
-        $selectedCaja = $request->query('caja');
-
-        $ahorros = collect();
-        if ($selectedCaja) {
-            $ahorros = Ahorro::with('beneficiario')
-                ->where('Id_Organizacion', $selectedCaja)
-                ->orderByDesc('Fecha')
-                ->get();
-        }
-
-        return view('ahorros.index', compact('cajas', 'selectedCaja', 'ahorros'));
+  public function index(Request $request)
+{
+    // Permisos
+    if (!Auth::check() || !Auth::user()->tienePermiso('Ahorros', 'Consultar')) {
+        return redirect()->back()->with('error', 'No tiene permisos para consultar ahorros');
     }
+
+    // Bitácora
+    $objeto = Objeto::where('Objeto', 'Ahorros')->first();
+    if ($objeto && Auth::check()) {
+        EVENT_BITACORA(
+            Auth::user()->Id_Usuario,
+            $objeto->Id_Objeto,
+            'Ingreso',
+            'El usuario accedió a la gestión de ahorros'
+        );
+    }
+
+    $cajas = Organizacion::all();
+    $selectedCaja = $request->query('caja');
+
+    $query = Ahorro::with(['beneficiario', 'organizacion'])->orderByDesc('Fecha');
+
+    if ($selectedCaja) {
+        $query->where('Id_Organizacion', $selectedCaja);
+    }
+
+    $ahorros = $query->paginate(10);
+
+    return view('ahorros.index', compact('cajas', 'selectedCaja', 'ahorros'));
+}
+
+
+public function reportePDF()
+{
+    $ahorros = Ahorro::with('beneficiario', 'organizacion')->orderBy('Fecha', 'desc')->get();
+
+     $pdf = Pdf::loadView('ahorros.reporte_pdf', [
+    'ahorros' => $ahorros,
+    'pdf' => true, 
+])
+        ->setPaper('A4', 'landscape');
+    $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+    $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+    return $pdf->download('reporte_ahorros.pdf');
+}
+
+    
 
     /**
      * Formulario de creación.
@@ -111,7 +128,7 @@ class AhorroController extends Controller
         }
 
         return redirect()
-            ->route('ahorros.index', ['caja' => $request->Id_Organizacion])
+            ->route('ahorros.index', [])
             ->with('success', 'Ahorro registrado correctamente.');
     }
 
@@ -196,4 +213,107 @@ class AhorroController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function edit($id)
+{
+    if (!Auth::check() || !Auth::user()->tienePermiso('Ahorros', 'Actualizacion')) {
+        return redirect()->back()->with('error', 'No tiene permisos para editar ahorros');
+    }
+
+    $ahorro = Ahorro::findOrFail($id);
+    $cajas = Organizacion::all();
+    $beneficiarios = Beneficiario::where('Id_Organizacion', $ahorro->Id_Organizacion)->get();
+
+    return view('ahorros.edit', compact('ahorro', 'cajas', 'beneficiarios'));
+}
+
+/**
+ * Actualizar un ahorro existente.
+ */
+public function update(Request $request, $id)
+{
+    if (!Auth::check() || !Auth::user()->tienePermiso('Ahorros', 'Actualizacion')) {
+        return redirect()->back()->with('error', 'No tiene permisos para actualizar ahorros');
+    }
+
+    $ahorro = Ahorro::findOrFail($id);
+
+    $request->validate(
+        [
+            'Id_Organizacion' => 'required|exists:tbl_organizacion,Id_Organizacion',
+            'Id_Beneficiario' => 'required|exists:tbl_beneficiario,Id_Beneficiario',
+            'Monto'          => 'required|numeric|min:0.01',
+            'Fecha'          => 'required|date',
+        ],
+        [
+            'Id_Organizacion.required' => 'Seleccione una organización.',
+            'Id_Organizacion.exists'   => 'La organización no existe.',
+            'Id_Beneficiario.required' => 'Seleccione un beneficiario.',
+            'Id_Beneficiario.exists'   => 'El beneficiario no existe.',
+            'Monto.required'           => 'El campo monto es obligatorio.',
+            'Monto.numeric'            => 'El monto debe ser un número válido.',
+            'Monto.min'                => 'El monto debe ser mayor a cero.',
+            'Fecha.required'           => 'La fecha es obligatoria.',
+            'Fecha.date'               => 'La fecha no tiene un formato válido.',
+        ]
+    );
+
+    $ahorro->update([
+        'Id_Organizacion' => $request->Id_Organizacion,
+        'Id_Beneficiario' => $request->Id_Beneficiario,
+        'Monto'           => $request->Monto,
+        'Fecha'           => $request->Fecha,
+    ]);
+
+    // Bitácora
+    $objeto = Objeto::where('Objeto', 'Ahorros')->first();
+    if ($objeto && Auth::check()) {
+        $beneficiario = Beneficiario::find($request->Id_Beneficiario);
+        $nombre = $beneficiario?->Nombre_Beneficiario ?? 'N/D';
+        EVENT_BITACORA(
+            Auth::user()->Id_Usuario,
+            $objeto->Id_Objeto,
+            'Edición',
+            "Actualizó un ahorro (ID: {$ahorro->id}) a L.{$request->Monto} para {$nombre}"
+        );
+    }
+
+    return redirect()
+        ->route('ahorros.index', [])
+        ->with('success', 'Ahorro actualizado correctamente.');
+}
+
+/**
+ * Eliminar un ahorro existente.
+ */
+public function destroy($id)
+{
+    if (!Auth::check() || !Auth::user()->tienePermiso('Ahorros', 'Eliminacion')) {
+        return redirect()->back()->with('error', 'No tiene permisos para eliminar ahorros');
+    }
+
+    $ahorro = Ahorro::findOrFail($id);
+
+    // Guardar datos para bitácora antes de eliminar
+    $objeto = Objeto::where('Objeto', 'Ahorros')->first();
+    $beneficiario = Beneficiario::find($ahorro->Id_Beneficiario);
+    $nombre = $beneficiario?->Nombre_Beneficiario ?? 'N/D';
+    $monto = $ahorro->Monto;
+
+    $ahorro->delete();
+
+    if ($objeto && Auth::check()) {
+        EVENT_BITACORA(
+            Auth::user()->Id_Usuario,
+            $objeto->Id_Objeto,
+            'Eliminación',
+            "Eliminó un ahorro de L.{$monto} para {$nombre}"
+        );
+    }
+
+    return redirect()
+        ->route('ahorros.index', [])
+        ->with('success', 'Ahorro eliminado correctamente.');
+}
+
 }

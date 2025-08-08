@@ -10,7 +10,6 @@ class Ahorro extends Model
     use HasFactory;
 
     protected $table = 'tbl_ahorros';
-    protected $primaryKey = 'Id_Ahorro';
 
     protected $fillable = [
         'Id_Beneficiario',
@@ -19,6 +18,9 @@ class Ahorro extends Model
         'Fecha',
     ];
 
+      protected $casts = [
+        'Fecha' => 'datetime',
+    ];
     public function beneficiario()
     {
         return $this->belongsTo(Beneficiario::class, 'Id_Beneficiario', 'Id_Beneficiario');
