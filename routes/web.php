@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Controllers - Auth
 use App\Http\Controllers\Auth\RegisterController;
@@ -19,19 +21,25 @@ use App\Http\Controllers\Admin\ParametroController;
 use App\Http\Controllers\Admin\DatabaseController;
 use App\Http\Controllers\Admin\RolController;
 use App\Http\Controllers\Admin\ObjetoController;
-use App\Http\Controllers\Admin\ReporteController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Admin\ExportReportesController;
 
 // Controllers - Módulos
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SocioController;
+use App\Http\Controllers\ExportSociosPdfController;
 use App\Http\Controllers\AhorroController;
 use App\Http\Controllers\IndicadorGeneroController;
-use App\Http\Controllers\SocioController;
-use App\Http\Controllers\GeneroController;
-use App\Http\Controllers\CriterioController;
+use App\Http\Controllers\PrestamoController;
+use App\Http\Controllers\PagoController;
+use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\CapacitacionController;
 use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\ExportEvaluacionesController;
+use App\Http\Controllers\CriterioController;
 use App\Http\Controllers\EmprendimientoController;
 use App\Http\Controllers\OrganizacionController;
+use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\InformeFinancieroController;
 
 // Models
@@ -44,18 +52,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 /*
 |--------------------------------------------------------------------------
-| RUTA PÚBLICA
+| RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return auth()->check() ? redirect('/dashboard') : view('welcome');
-})->name('home');
+Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : view('welcome'))->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| RUTAS PÚBLICAS ADICIONALES
-|--------------------------------------------------------------------------
-*/
 Route::get('/informe-financiero', [InformeFinancieroController::class, 'mostrarInforme'])->name('informe.financiero.show');
 Route::get('/informe-financiero/export', [InformeFinancieroController::class, 'exportInformeFinancieroExcel'])->name('informe.financiero.export');
 Route::get('/informe-financiero/pdf', [InformeFinancieroController::class, 'exportInformeFinancieroPDF'])->name('informe.financiero.pdf');
@@ -75,16 +76,28 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
 
+    // Recuperación de contraseña con OTP
     Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('password/reset', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('otp.send');
-
     Route::get('password/verify-otp', [ForgotPasswordController::class, 'showOtpForm'])->name('otp.form');
     Route::post('password/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('otp.verify');
-
     Route::get('password/reset-password', [ResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
     Route::post('password/reset-password', [ResetPasswordController::class, 'reset'])->name('otp.reset.password');
-
     Route::get('password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('otp.resend');
+});
+
+/*
+|--------------------------------------------------------------------------
+| VERIFICACIÓN DE CORREO
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        Auth::logout();
+        return redirect()->route('login')->with('success', 'Correo verificado correctamente. Ya puedes iniciar sesión.');
+    })->middleware(['signed'])->name('verification.verify');
 });
 
 /*
@@ -93,12 +106,12 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard y logout
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::get('/dashboard/chart-data', [DashboardController::class, 'chartData'])
-        ->name('dashboard.chart-data');
+    Route::get('/dashboard/chart-data', [DashboardController::class, 'chartData'])->name('dashboard.chart-data');
 
+    // Logout
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // Cambio de contraseña
     Route::get('/cambiar-contraseña', [LoginController::class, 'showChangePasswordForm'])->name('password.change.form');
@@ -112,17 +125,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [ParametroController::class, 'destroy'])->name('parametros.destroy');
     });
 
-    // Admin
+    // Administración
     Route::prefix('admin')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except(['show']);
         Route::get('/usuarios/exportar/pdf', [UsuarioController::class, 'exportarPDF'])->name('usuarios.exportar.pdf');
 
-        // Base de datos
         Route::get('/database', [DatabaseController::class, 'index'])->name('admin.database');
         Route::post('/database/backup', [DatabaseController::class, 'backup'])->name('admin.database.backup');
         Route::post('/database/restore', [DatabaseController::class, 'restore'])->name('admin.database.restore');
 
-        // Roles
         Route::prefix('roles')->group(function () {
             Route::get('/', [RolController::class, 'index'])->name('roles.index');
             Route::post('/', [RolController::class, 'store'])->name('roles.store');
@@ -132,7 +143,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::get('/roles/exportar/pdf', [RolController::class, 'exportarPDF'])->name('roles.exportar.pdf');
 
-        // Objetos
         Route::prefix('objetos')->group(function () {
             Route::get('/', [ObjetoController::class, 'index'])->name('objetos.index');
             Route::post('/', [ObjetoController::class, 'store'])->name('objetos.store');
@@ -142,7 +152,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/exportar-pdf', [ObjetoController::class, 'exportarPDF'])->name('objetos.exportar-pdf');
         });
 
-        // Reportes
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
             Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
@@ -153,70 +162,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
-    // Permisos y bitácora
-    Route::get('/asignar-permisos', [PermisoController::class, 'showForm'])->name('asignar.permisos.form');
-    Route::post('/asignar-permisos', [PermisoController::class, 'asignarPermisos'])->name('asignar.permisos');
-    Route::get('/ver-bitacora', [BitacoraController::class, 'verBitacora'])->name('ver.bitacora');
-    Route::post('/ver-bitacora/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
-    Route::get('/bitacora/exportar/pdf', [BitacoraController::class, 'exportarPDF'])->name('bitacora.exportar.pdf');
-
-    // Evaluaciones
+    // Módulos
     Route::resource('criterio', CriterioController::class);
     Route::resource('evaluacion', EvaluacionController::class);
     Route::get('/evaluaciones/exportar-pdf', [EvaluacionController::class, 'exportPdf'])->name('evaluacion.exportarPDF');
 
-    // Usuarios (gestión directa, accesos rápidos)
-    Route::get('/admin/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
-    Route::post('/admin/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
-    Route::put('/admin/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-    Route::delete('/admin/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-
-    // Socios
     Route::resource('socios', SocioController::class)->except(['show']);
     Route::get('/socios/{id}/ficha', [SocioController::class, 'ficha'])->name('socios.ficha');
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
+    Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
+    Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
 
-    Route::get('/socios/export', function (Request $request) {
-        return Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx');
-    })->name('socios.export');
-
-    Route::get('/socios/export-pdf', function (Request $request) {
-        $query = Socio::query()->where('estado', 1);
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('Nombre_Beneficiario', 'like', "%{$request->search}%")
-                  ->orWhere('DNI', 'like', "%{$request->search}%")
-                  ->orWhere('Telefono', 'like', "%{$request->search}%");
-            });
-        }
-        if ($request->filled('genero')) $query->where('genero', $request->genero);
-        if ($request->filled('localidad')) $query->where('direccion', 'like', "%{$request->localidad}%");
-        if ($request->filled('tipo')) $query->where('Tipo_De_Socio', 'like', "%{$request->tipo}%");
-
-        return Pdf::loadView('socios.pdf', ['socios' => $query->get()])->download('socios.pdf');
-    })->name('socios.export-pdf');
-
-    // Ahorros
-    Route::get('/ahorros', [AhorroController::class, 'index'])->name('ahorros.index');
-    Route::get('/ahorros/create', [AhorroController::class, 'create'])->name('ahorros.create');
-    Route::post('/ahorros', [AhorroController::class, 'store'])->name('ahorros.store');
-    Route::get('/api/ahorros/caja/{id}/resumen', [AhorroController::class, 'resumenCaja'])->name('ahorros.resumen');
+    Route::resource('ahorros', AhorroController::class);
+    Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
+    Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
     Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
 
-    // Conteo de socios por organización
-    Route::get('/organizacion/{id}/socios', fn ($id) =>
-        response()->json([
-            'total_socios' => DB::table('tbl_beneficiario')
-                ->where('Id_Organizacion', $id)
-                ->where('Tipo_De_Socio', 'Socio')
-                ->count()
-        ])
-    )->name('organizacion.socios.count');
+    Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
+        'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
+    ]))->name('organizacion.socios.count');
 
-    // Indicadores de Género
-    Route::resource('indicadores-genero', IndicadorGeneroController::class);
-
-    // Emprendimientos y Organizaciones
+    Route::resource('genero', IndicadorGeneroController::class);
     Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
 
@@ -224,19 +190,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
     Route::get('/organizaciones/exportar/pdf', [OrganizacionController::class, 'exportarPDF'])->name('organizaciones.exportar.pdf');
 
-    // APIs adicionales de organizaciones/cajas
-    Route::get('/api/cajas/{id}/socios', function ($id) {
-        return Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')
-            ->where('Id_Organizacion', $id)
-            ->where('estado', 1)
-            ->get();
-    })->name('api.cajas.socios');
-
+    // APIs
+    Route::get('/api/cajas/{id}/socios', fn ($id) => Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')->where('Id_Organizacion', $id)->where('estado', 1)->get())->name('api.cajas.socios');
     Route::get('/api/cajas-rurales', [OrganizacionController::class, 'obtenerCajasConSocios'])->name('api.cajas.rurales');
 
-    // Tablero de género
-    Route::get('/genero', [GeneroController::class, 'index'])->name('genero.index');
-    Route::get('/genero/datos', [GeneroController::class, 'obtenerDatos'])->name('genero.datos');
+    // Préstamos y pagos
+    Route::get('/creditos', [PrestamoController::class, 'index'])->name('creditos');
+    Route::get('/creditos/pendientes', [PrestamoController::class, 'pendientes'])->name('creditos.pendientes');
+    Route::get('/creditos/reportes', [PrestamoController::class, 'reportes'])->name('creditos.reportes');
+    Route::get('/prestamos/crear', [PrestamoController::class, 'create'])->name('prestamos.create');
+    Route::post('/prestamos', [PrestamoController::class, 'store'])->name('prestamos.store');
+    Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
+    Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
+    Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
+
+    Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
+    Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
+    Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
+    Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
+
+    // Ubicación y capacitaciones
+    Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
+    Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');
+
+    Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
+    Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
+    Route::post('/capacitaciones/guardar', [CapacitacionController::class, 'store'])->name('capacitacion.store');
 });
 
 /*
