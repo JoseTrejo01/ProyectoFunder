@@ -191,7 +191,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
     Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
     Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
-
+    Route::get('ahorros/reporte/pdf', [AhorroController::class, 'reportePDF'])->name('ahorros.reportePDF');
     Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
         'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
     ]))->name('organizacion.socios.count');
