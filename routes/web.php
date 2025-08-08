@@ -172,6 +172,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/socios/{id}/reactivar', [SocioController::class, 'reactivar'])->name('socios.reactivar');
     Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
     Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
+    Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
 
     Route::resource('ahorros', AhorroController::class);
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
