@@ -63,15 +63,15 @@ class Organizacion extends Model
         return $this->hasMany(Prestamo::class, 'socio_id', 'Id_Organizacion');
     }
 
-    // Relación con Evaluaciones (si hay varias)
-    public function evaluaciones()
-    {
-        return $this->hasMany(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
-    }
+   public function evaluaciones()
+{
+    // una organización TIENE MUCHAS evaluaciones
+    return $this->hasMany(Evaluacion::class, 'organizacion_id', 'Id_Organizacion');
+}
 
-    // Relación con Evaluación (si solo hay una por organización)
-    public function evaluacion()
-    {
-        return $this->hasOne(Evaluacion::class, 'id_organizacion', 'Id_Organizacion');
-    }
+public function evaluacion()
+{
+    // si manejas “una evaluación por organización”
+    return $this->hasOne(Evaluacion::class, 'organizacion_id', 'Id_Organizacion');
+}
 }

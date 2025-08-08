@@ -62,6 +62,8 @@ class Evaluacion extends Model
     {
         return $this->belongsTo(Organizacion::class, 'organizacion_id', 'Id_Organizacion');
     }
+    
+
 
    public function getPorcentajeInstitucionalAttribute()
 {
