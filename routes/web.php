@@ -41,6 +41,7 @@ use App\Http\Controllers\EmprendimientoController;
 use App\Http\Controllers\OrganizacionController;
 use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\InformeFinancieroController;
+use App\Http\Controllers\ExportSociosController;
 
 // Models
 use App\Models\Socio;
@@ -235,6 +236,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
+
+Route::get('/socios/export', [ExportSociosController::class, 'export'])
+    ->name('socios.export');
 /*
 |--------------------------------------------------------------------------
 | FALLBACK
