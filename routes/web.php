@@ -230,6 +230,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
     Route::post('/capacitaciones/guardar', [CapacitacionController::class, 'store'])->name('capacitacion.store');
+
+    Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
+
 });
 
 /*

@@ -93,16 +93,12 @@
                         <input type="number" name="plazo_meses" class="form-control" value="{{ old('plazo_meses') }}" min="1" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="destino" class="form-label">Destino</label>
-                        <select name="destino" id="destino" class="form-control" required>
-                            <option value="">Seleccione una actividad</option>
-                            @if(old('destino'))
-                                <option selected value="{{ old('destino') }}">{{ old('destino') }}</option>
-                            @endif
-                        </select>
-                    </div>
-
+                                <div class="mb-3">
+                <label for="destino" class="form-label">Destino</label>
+                <select name="destino" id="destino" class="form-control" required>
+                    <option value="">Seleccione una actividad</option>
+                </select>
+            </div>
                     <div class="mb-3 text-end">
                         <button type="button" class="btn btn-primary" onclick="nextTab('finanzas')">Siguiente</button>
                     </div>
@@ -390,4 +386,35 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const beneficiarioId = {{ $prestamo->beneficiario_id ?? 'null' }}; // Cambia esto según tu variable real
+        const oldDestino = "{{ old('destino') }}";
+
+        if (beneficiarioId) {
+            fetch(`/ruta/para/obtener-actividades/${beneficiarioId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const selectDestino = document.getElementById('destino');
+                    selectDestino.innerHTML = '<option value="">Seleccione una actividad</option>';
+
+                    for (const [id, rubro] of Object.entries(data)) {
+                        const option = document.createElement('option');
+                        option.value = rubro;
+                        option.textContent = rubro;
+
+                        // Si old('destino') coincide, marcar como seleccionado
+                        if (rubro === oldDestino) {
+                            option.selected = true;
+                        }
+
+                        selectDestino.appendChild(option);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar actividades:', error);
+                });
+        }
+    });
+</script>
 @endsection
