@@ -851,7 +851,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 processing: 'Procesando...'
             },
             order: [[0, 'asc']], // Ordenar por nombre ascendente
-            pageLength: 10, // Mostrar 10 registros por página
+            pageLength: 50, // Mostrar 50 registros por página
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]], // Opciones de registros por página
             responsive: true, // Hacer la tabla responsive
             searching: false // Desactivar el buscador de DataTables
         });

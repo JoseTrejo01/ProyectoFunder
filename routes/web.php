@@ -187,6 +187,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
     Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
     Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
+    Route::get('/cargos/export', [SocioController::class, 'exportCargos'])->name('cargos.export');
+    Route::get('/cargos/export-pdf', [SocioController::class, 'exportCargosPdf'])->name('cargos.export-pdf');
 
     Route::resource('ahorros', AhorroController::class);
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
@@ -231,6 +233,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
     Route::post('/capacitaciones/guardar', [CapacitacionController::class, 'store'])->name('capacitacion.store');
+    Route::get('/capacitaciones/reporte', [CapacitacionController::class, 'getReporte'])->name('capacitaciones.reporte');
 
     Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
 
