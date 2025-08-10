@@ -10,6 +10,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Prestamo;
 
 class InformeFinancieroController extends Controller
 {
@@ -163,4 +164,27 @@ class InformeFinancieroController extends Controller
 
         return $query;
     }
+public function exportarListadoPrestamosPDF()
+{
+   $prestamos = \DB::table('tbl_prestamos')
+    ->select('id', 'nombre_caja_rural as socio', 'monto_solicitado', 'destino', 'estado', 'fecha_solicitud', 'tipo_credito')
+    ->get();
+
+    $pdf = Pdf::loadView('informes.listado_prestamos', compact('prestamos'))
+        ->setPaper('A4', 'portrait');
+
+    return $pdf->download('Listado_Prestamos.pdf');
+}
+
+public function exportarPagosPrestamoPDF($prestamoId)
+{
+  $prestamo = Prestamo::with('beneficiario')->findOrFail($prestamoId);
+    $pdf = Pdf::loadView('informes.pdf_pagos_prestamo', compact('prestamo'))
+              ->setPaper('A4', 'portrait');
+
+    return $pdf->download("pagos_prestamo_{$prestamoId}.pdf");
+}
+
+
+
 }

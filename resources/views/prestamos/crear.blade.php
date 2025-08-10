@@ -5,9 +5,11 @@
 
 @section('content_header')
     <h1>Registrar Solicitud de Préstamo</h1>
+    
 @stop
 
 @section('content')
+
 <div class="container d-flex justify-content-center">
     <div class="w-100" style="max-width: 700px;">
 
@@ -166,17 +168,52 @@
                         <label for="observaciones">Observaciones</label>
                         <textarea name="observaciones" class="form-control">{{ old('observaciones') }}</textarea>
                     </div>
-
-                    <div class="mb-3 text-end">
+                   <div class="mb-3 text-end">
                         <button type="button" class="btn btn-secondary me-2" onclick="nextTab('finanzas')">Atrás</button>
+                       <button type="button" class="btn btn-info" onclick="mostrarPlanTemporal()">Ver Plan Temporal</button>
                         <button type="submit" class="btn btn-success">Guardar Solicitud</button>
                     </div>
                 </div>
             </div>
         </form>
+                     <!-- Modal -->
+<div class="modal fade" id="planTemporalModal" tabindex="-1" aria-labelledby="planTemporalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Plan Temporal de Pago</h5>
+                <!-- Botón cerrar -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID Pago</th>
+                            <th>Fecha Programada</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPlanTemporal"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="imprimirPlanTemporal()">Imprimir</button>
+                <button type="button" class="btn btn-secondary" onclick="planTemporalModal.hide()">Cerrar</button>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+                </div>
 
     </div>
 </div>
+
 @endsection
 
 @section('js')
@@ -417,4 +454,53 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 </script>
+<script>
+    // Inicializa modal una sola vez
+    var planTemporalModal = new bootstrap.Modal(document.getElementById('planTemporalModal'));
+
+    function mostrarPlanTemporal() {
+        let monto = parseFloat(document.querySelector('[name="monto_solicitado"]').value) || 0;
+        let plazo = parseInt(document.querySelector('[name="plazo_meses"]').value) || 0;
+
+        if (monto <= 0 || plazo <= 0) {
+            alert("Debe ingresar monto y plazo válidos.");
+            return;
+        }
+
+        let tabla = document.getElementById('tablaPlanTemporal');
+        tabla.innerHTML = '';
+
+        let montoCuota = (monto / plazo).toFixed(2);
+        let fechaActual = new Date();
+
+        for (let i = 1; i <= plazo; i++) {
+            fechaActual.setMonth(fechaActual.getMonth() + 1);
+            let fechaStr = fechaActual.toISOString().split('T')[0];
+
+            tabla.innerHTML += `
+                <tr>
+                    <td>${i}</td>
+                    <td>${fechaStr}</td>
+                    <td>${parseFloat(montoCuota).toLocaleString('es-HN', {minimumFractionDigits: 2})}</td>
+                    <td>Pendiente</td>
+                    <td>Pago automático generado</td>
+                </tr>
+            `;
+        }
+
+        planTemporalModal.show();
+    }
+
+    function imprimirPlanTemporal() {
+        let contenido = document.getElementById('planTemporalModal').querySelector('.modal-body').innerHTML;
+        let ventana = window.open('', '', 'width=900,height=600');
+        ventana.document.write('<html><head><title>Plan Temporal</title></head><body>');
+        ventana.document.write(contenido);
+        ventana.document.write('</body></html>');
+        ventana.document.close();
+        ventana.print();
+    }
+</script>
+
 @endsection
+

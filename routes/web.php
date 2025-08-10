@@ -210,6 +210,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
     Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
 
+    Route::get('/prestamos/pdf', [InformeFinancieroController::class, 'exportarListadoPrestamosPDF'])->name('prestamos.pdf');
+  Route::get('/prestamos/{id}/pagos/pdf', [InformeFinancieroController::class, 'exportarPagosPrestamoPDF'])->name('prestamos.pagos.pdf');
+
+
+    
+
     // Ubicación y capacitaciones
     Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');
     Route::get('/aldeas/{id}', [UbicacionController::class, 'getAldeas'])->name('ubicacion.aldeas');

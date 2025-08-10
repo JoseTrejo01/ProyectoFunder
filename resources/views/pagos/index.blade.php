@@ -7,6 +7,10 @@
 @stop
 
 @section('content')
+<a href="{{ route('prestamos.pagos.pdf', $prestamo->id) }}" target="_blank" class="btn btn-danger mb-3">
+    Ver Pagos (PDF)
+</a>
+
     @if($prestamo->pagos->count())
         <table class="table table-striped">
             <thead>
@@ -38,11 +42,17 @@
                         </td>
                         <td>{{ $pago->observaciones }}</td>
                         <td>
-                            @if ($pago->estado !== 'pagado')
-                                <form action="{{ route('pagos.marcarPagado', $pago->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-primary">Marcar como pagado</button>
-                                </form>
+                           @if ($pago->estado !== 'pagado')
+                                @if ($pago->prestamo->estado === 'aprobado')
+                                    <form action="{{ route('pagos.marcarPagado', $pago->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-primary">Marcar como pagado</button>
+                                    </form>
+                                @else
+                                    <button class="btn btn-sm btn-warning" disabled title="El préstamo no está aprobado. No se puede marcar como pagado.">
+                                        Marcar como pagado
+                                    </button>
+                                @endif
                             @else
                                 <span class="text-muted">-</span>
                             @endif

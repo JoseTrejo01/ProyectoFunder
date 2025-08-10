@@ -24,8 +24,8 @@ class Beneficiario extends Model
 
     // Relaciones (si necesitas)
     // Ejemplo: Un beneficiario puede tener muchos préstamos
-    public function prestamos()
+     public function prestamos()
     {
-        return $this->hasMany(Prestamo::class, 'beneficiario_id');
+        return $this->hasMany(Prestamo::class, 'beneficiario_id', 'Id_Beneficiario');
     }
 }

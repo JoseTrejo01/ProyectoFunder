@@ -40,5 +40,8 @@ class Prestamo extends Model
     {
         return $this->hasMany(Pago::class, 'prestamo_id');
     }
-
+ public function beneficiario()
+    {
+        return $this->belongsTo(Beneficiario::class, 'beneficiario_id', 'Id_Beneficiario');
+    }
 }
