@@ -54,17 +54,20 @@
                     <td class="text-success font-weight-bold">
                         L. {{ number_format($ahorro->Monto, 2, '.', ',') }}
                     </td>
-                    <td>
-                        <a href="{{ route('ahorros.edit', $ahorro->id) }}" class="btn btn-sm btn-primary" title="Editar">
-                            <i class="fas fa-edit"></i>
+                   <td>
+                         <a href="{{ route('ahorros.edit', $ahorro->id) }}" class="btn btn-sm btn-primary" title="Editar">
+                        <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ route('ahorros.ficha', $ahorro->id) }}" class="btn btn-sm btn-dark mx-1" title="Ficha">
+                        <i class="fas fa-eye"></i>
                         </a>
                         <form action="{{ route('ahorros.destroy', $ahorro->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Confirma eliminar este ahorro?')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-sm btn-danger" title="Eliminar">
-                                <i class="fas fa-trash-alt"></i>
+                     @csrf
+                        @method('DELETE')
+                        <button class="btn btn-sm btn-danger" title="Eliminar">
+                             <i class="fas fa-trash-alt"></i>
                             </button>
-                        </form>
+                            </form>
                     </td>
                 </tr>
             @empty

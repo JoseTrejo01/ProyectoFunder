@@ -198,7 +198,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
         'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
     ]))->name('organizacion.socios.count');
-
+    
     Route::resource('genero', IndicadorGeneroController::class);
     Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
