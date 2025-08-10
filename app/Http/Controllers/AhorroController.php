@@ -344,11 +344,19 @@ public function destroy($id)
 //ficha de ahorro
 public function ficha($id)
 {
-    // Buscar el ahorro por ID con sus relaciones, por ejemplo beneficiario y organización
-    $ahorro = \App\Models\Ahorro::with('beneficiario', 'organizacion')->findOrFail($id);
+    // Buscar el ahorro con sus relaciones
+    $ahorro = Ahorro::with('beneficiario', 'organizacion')->findOrFail($id);
 
-    // Retornar la vista con los datos
-    return view('ahorros.ficha', compact('ahorro'));
+    // Evitar error si no hay beneficiario (definir 0 por defecto)
+    $idBeneficiario = $ahorro->Id_Beneficiario ?? null;
+    $totalAhorrosBeneficiario = 0;
+
+    if ($idBeneficiario) {
+        $totalAhorrosBeneficiario = Ahorro::where('Id_Beneficiario', $idBeneficiario)->sum('Monto');
+    }
+
+    // Pasar la variable a la vista
+    return view('ahorros.ficha', compact('ahorro', 'totalAhorrosBeneficiario'));
 }
 
 
