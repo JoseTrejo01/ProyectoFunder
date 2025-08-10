@@ -503,15 +503,15 @@ class SocioController extends Controller
             abort(403, 'No tienes permiso para exportar cargos directivos.');
         }
 
-        $query = Socio::select('Id_Organizacion')
-            ->groupBy('Id_Organizacion');
+        $query = Socio::select('tbl_beneficiario.Id_Organizacion')
+            ->groupBy('tbl_beneficiario.Id_Organizacion');
 
         // Aplicar filtro por departamento si existe
         if ($request->filled('departamento')) {
-            $query->join('organizacion as org', 'tbl_beneficiario.Id_Organizacion', '=', 'org.Id_Organizacion')
-                  ->join('aldea as a', 'org.Id_Aldea', '=', 'a.Id_Aldea')
-                  ->join('municipio as m', 'a.Id_Municipio', '=', 'm.Id_Municipio')
-                  ->join('departamento as d', 'm.Id_Departamento', '=', 'd.Id_Departamento')
+            $query->join('tbl_organizacion as org', 'tbl_beneficiario.Id_Organizacion', '=', 'org.Id_Organizacion')
+                  ->join('tbl_aldea as a', 'org.Id_Aldea', '=', 'a.Id_Aldea')
+                  ->join('tbl_municipio as m', 'a.Id_Municipio', '=', 'm.Id_Municipio')
+                  ->join('tbl_departamento as d', 'm.Id_Departamento', '=', 'd.Id_Departamento')
                   ->where('d.Nombre_Departamento', $request->departamento);
         }
 
@@ -731,15 +731,15 @@ class SocioController extends Controller
             abort(403, 'No tienes permiso para exportar cargos directivos.');
         }
 
-        $query = Socio::select('Id_Organizacion')
-            ->groupBy('Id_Organizacion');
+        $query = Socio::select('tbl_beneficiario.Id_Organizacion')
+            ->groupBy('tbl_beneficiario.Id_Organizacion');
 
         // Aplicar filtro por departamento si existe
         if ($request->filled('departamento')) {
-            $query->join('organizacion as org', 'tbl_beneficiario.Id_Organizacion', '=', 'org.Id_Organizacion')
-                  ->join('aldea as a', 'org.Id_Aldea', '=', 'a.Id_Aldea')
-                  ->join('municipio as m', 'a.Id_Municipio', '=', 'm.Id_Municipio')
-                  ->join('departamento as d', 'm.Id_Departamento', '=', 'd.Id_Departamento')
+            $query->join('tbl_organizacion as org', 'tbl_beneficiario.Id_Organizacion', '=', 'org.Id_Organizacion')
+                  ->join('tbl_aldea as a', 'org.Id_Aldea', '=', 'a.Id_Aldea')
+                  ->join('tbl_municipio as m', 'a.Id_Municipio', '=', 'm.Id_Municipio')
+                  ->join('tbl_departamento as d', 'm.Id_Departamento', '=', 'd.Id_Departamento')
                   ->where('d.Nombre_Departamento', $request->departamento);
         }
 
