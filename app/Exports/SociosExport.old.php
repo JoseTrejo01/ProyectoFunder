@@ -1,6 +1,6 @@
+<?php
 
-
-// namespace App\Exports;
+namespace App\Exports;
 
 use App\Models\Socio;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -21,12 +21,13 @@ class SociosExport implements FromCollection, WithHeadings
 
         if (!empty($this->filters['search'])) {
             $search = $this->filters['search'];
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('Nombre_Beneficiario', 'like', "%$search%")
                   ->orWhere('DNI', 'like', "%$search%")
                   ->orWhere('Telefono', 'like', "%$search%");
             });
         }
+
         if (!empty($this->filters['genero'])) {
             $query->where('genero', $this->filters['genero']);
         }
@@ -36,8 +37,7 @@ class SociosExport implements FromCollection, WithHeadings
         if (!empty($this->filters['tipo'])) {
             $query->where('Tipo_De_Socio', 'like', "%{$this->filters['tipo']}%");
         }
-
-                if (!empty($this->filters['departamento'])) {
+        if (!empty($this->filters['departamento'])) {
             $query->where('departamento', $this->filters['departamento']);
         }
         if (!empty($this->filters['estado_civil'])) {
@@ -53,33 +53,13 @@ class SociosExport implements FromCollection, WithHeadings
         return $query->get();
     }
 
-        public function headings(): array
+    public function headings(): array
     {
         return [
-            'ID',
-            'Id_Organizacion',
-            'Nombre',
-            'DNI',
-            'Tipo Cargo',
-            'Tipo Socio',
-            'Teléfono',
-            'Género',
-            'Fecha Nacimiento',
-            'Edad',
-            'Estado Civil',
-            'Nivel Educativo',
-            'Medio de Comunicación',
-            'Departamento',
-            'Municipio',
-            'Comunidad',
-            'Dirección',
-            'Actividad Económica',
-            'Actividad No Agrícola',
-            'Categoría',
-            'Estado',
-            'Creado',
-            'Actualizado'
+            'ID','Id_Organizacion','Nombre','DNI','Tipo Cargo','Tipo Socio','Teléfono',
+            'Género','Fecha Nacimiento','Edad','Estado Civil','Nivel Educativo',
+            'Medio de Comunicación','Departamento','Municipio','Comunidad','Dirección',
+            'Actividad Económica','Actividad No Agrícola','Categoría','Estado','Creado','Actualizado',
         ];
     }
-
 }

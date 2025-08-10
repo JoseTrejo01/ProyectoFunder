@@ -118,23 +118,23 @@
            placeholder="Edad" value="{{ request('edad') }}">
 </div>
 
-
         </div>
     </form>
     {{-- FIN BUSCADOR --}}
 
     {{-- TABLA SOCIOS --}}
-<table class="table table-bordered table-hover">
-    <thead style="background-color: #343a40; color: white;">
-        <tr>
-            <th>Nombre</th>
-            <th>Caja Rural</th>
-            <th>DNI</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
+    <div class="table-responsive">
+        <table id="tabla-socios" class="table table-bordered table-striped table-hover shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Caja Rural</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
         @forelse($socios as $socio)
             <tr>
                 <td>{{ $socio->Nombre_Beneficiario }}</td>
@@ -243,7 +243,7 @@
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label>Fecha de nacimiento</label>
-                  <input type="date" name="fecha_nacimiento" class="form-control"value="{{ old('fecha_nacimiento', \Carbon\Carbon::parse($socio->fecha_nacimiento)->format('Y-m-d')) }}">
+                  <input type="date" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento', \Carbon\Carbon::parse($socio->fecha_nacimiento)->format('Y-m-d')) }}">
                   </div>
                 <div class="col-md-6 mb-3">
                   <label>Edad</label>
@@ -305,7 +305,7 @@
 </div>
   <!-- Medio de Comunicación -->
   <div class="col-md-6 mb-3">
-<div class="form-group">
+    <div class="form-group">
       <label>Medio de Comunicación</label>
       <select name="medio_comunicacion" class="form-control">
         <option value="">Seleccione</option>
@@ -455,15 +455,12 @@
 </div>
  @empty
                 <tr>
-                    <td colspan="4" class="text-center">No hay socios registrados.</td>
+                    <td colspan="5" class="text-center">No hay socios registrados.</td>
                 </tr>
-
             @endforelse
-        </tbody>
-    </table>
-
-    {{-- PAGINACIÓN --}}
-    {{ $socios->withQueryString()->links() }}
+            </tbody>
+        </table>
+    </div>
 
 @stop
 @section('js')
@@ -833,6 +830,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         @endforeach
+    });
+
+    // Configuración de DataTable para la tabla de socios
+    $(document).ready(function() {
+        $('#tabla-socios').DataTable({
+            language: {
+                lengthMenu: 'Mostrar _MENU_ registros',
+                zeroRecords: 'No se encontraron resultados',
+                info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+                infoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 registros',
+                infoFiltered: '(filtrado de un total de _MAX_ registros)',
+                search: 'Buscar:',
+                paginate: {
+                    first: 'Primero',
+                    last: 'Último',
+                    next: 'Siguiente',
+                    previous: 'Anterior'
+                },
+                processing: 'Procesando...'
+            },
+            order: [[0, 'asc']], // Ordenar por nombre ascendente
+            pageLength: 50, // Mostrar 50 registros por página
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]], // Opciones de registros por página
+            responsive: true, // Hacer la tabla responsive
+            searching: false // Desactivar el buscador de DataTables
+        });
     });
 
 </script>

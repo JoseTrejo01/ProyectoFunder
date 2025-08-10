@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use App\Models\Socio;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 
@@ -58,7 +61,7 @@ class SocioController extends Controller
 }
 
 
-        $socios = $query->with(['actividades', 'organizacion'])->paginate(10);
+        $socios = $query->with(['actividades', 'organizacion'])->paginate(50); // Aumentado a 50 registros por página
 
         $objeto = \App\Models\Objeto::where('Objeto', 'Socios / Clientes')->first();
         if ($objeto && auth()->check()) {
@@ -73,9 +76,9 @@ class SocioController extends Controller
         // Lista de cargos directivos válidos para selects
         $cargosDirectivos = [
             'Presidente(a)',
-            'vicepresidente (a)',
-            'Tesorero (a)',
-            'Secretario (a)',
+            'vicepresidente(a)',
+            'Tesorero(a)',
+            'Secretario(a)',
             'Vocal I',
             'Vocal II',
             'Vocal III',
@@ -98,9 +101,9 @@ class SocioController extends Controller
         // Lista de cargos directivos válidos para selects
         $cargosDirectivos = [
             'Presidente(a)',
-            'vicepresidente (a)',
-            'Tesorero (a)',
-            'Secretario (a)',
+            'vicepresidente(a)',
+            'Tesorero(a)',
+            'Secretario(a)',
             'Vocal I',
             'Vocal II',
             'Vocal III',
@@ -322,17 +325,31 @@ class SocioController extends Controller
 
 
         // Vista de distribución de cargos por caja rural
-    public function cargosPorCaja()
+    public function cargosPorCaja(Request $request)
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Cargos Directivos', 'Consultar')) {
             abort(403, 'No tienes permiso para consultar cargos directivos.');
         }
-        $cajas = Socio::select('Id_Organizacion')
-            ->groupBy('Id_Organizacion')
-            ->get()
+
+        $query = Socio::select('tbl_beneficiario.Id_Organizacion')
+            ->groupBy('tbl_beneficiario.Id_Organizacion');
+
+        // Aplicar filtro por departamento si existe
+        if ($request->filled('departamento')) {
+            $query->join('tbl_organizacion as org', 'tbl_beneficiario.Id_Organizacion', '=', 'org.Id_Organizacion')
+                  ->join('tbl_aldea as a', 'org.Id_Aldea', '=', 'a.Id_Aldea')
+                  ->join('tbl_municipio as m', 'a.Id_Municipio', '=', 'm.Id_Municipio')
+                  ->join('tbl_departamento as d', 'm.Id_Departamento', '=', 'd.Id_Departamento')
+                  ->where('d.Nombre_Departamento', $request->departamento);
+        }
+
+        $cajas = $query->get()
             ->map(function($caja) {
-                $org = \App\Models\Organizacion::find($caja->Id_Organizacion);
+                $org = \App\Models\Organizacion::with(['aldea.municipio.departamento'])->find($caja->Id_Organizacion);
                 $caja->nombre_organizacion = $org ? $org->Nombre_Organizacion : '';
+                $caja->departamento = $org && $org->aldea && $org->aldea->municipio && $org->aldea->municipio->departamento 
+                    ? $org->aldea->municipio->departamento->Nombre_Departamento : 'N/D';
+                
                 $caja->presidente_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Presidente(a)')
                     ->where('genero', 'M')
@@ -365,6 +382,7 @@ class SocioController extends Controller
                     ->where('Tipo_Cargo', 'Secretario(a)')
                     ->where('genero', 'F')
                     ->exists();
+                
                 // Vocal I
                 $vocal1_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
                     ->where('Tipo_Cargo', 'Vocal I')
@@ -397,8 +415,60 @@ class SocioController extends Controller
                     ->where('genero', 'F')
                     ->exists();
                 $caja->vocal3 = $vocal3_h && $vocal3_m ? 'H/M' : ($vocal3_h ? 'H' : ($vocal3_m ? 'M' : ''));
+                
                 return $caja;
             });
+
+        // Lista de departamentos para el filtro
+        $departamentos = \App\Models\Departamento::orderBy('Nombre_Departamento')->pluck('Nombre_Departamento');
+
+        // Calcular resumen por departamentos (solo si no hay filtro aplicado)
+        $resumenDepartamentos = [];
+        if (!$request->filled('departamento')) {
+            $todasLasCajas = Socio::select('Id_Organizacion')
+                ->groupBy('Id_Organizacion')
+                ->get()
+                ->map(function($caja) {
+                    $org = \App\Models\Organizacion::with(['aldea.municipio.departamento'])->find($caja->Id_Organizacion);
+                    $caja->departamento = $org && $org->aldea && $org->aldea->municipio && $org->aldea->municipio->departamento 
+                        ? $org->aldea->municipio->departamento->Nombre_Departamento : 'N/D';
+                    
+                    $caja->tiene_presidente = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                        ->where('Tipo_Cargo', 'Presidente(a)')
+                        ->exists();
+                    $caja->tiene_vicepresidente = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                        ->where('Tipo_Cargo', 'vicepresidente(a)')
+                        ->exists();
+                    $caja->tiene_secretario = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                        ->where('Tipo_Cargo', 'Secretario(a)')
+                        ->exists();
+                    $caja->tiene_tesorero = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                        ->where('Tipo_Cargo', 'Tesorero(a)')
+                        ->exists();
+                    $caja->vocales = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                        ->whereIn('Tipo_Cargo', ['Vocal I', 'Vocal II', 'Vocal III'])
+                        ->count();
+                    
+                    return $caja;
+                });
+
+            foreach ($todasLasCajas->groupBy('departamento') as $dep => $cajasDep) {
+                $resumenDepartamentos[$dep] = [
+                    'total_cajas' => $cajasDep->count(),
+                    'presidentes' => $cajasDep->where('tiene_presidente', true)->count(),
+                    'vicepresidentes' => $cajasDep->where('tiene_vicepresidente', true)->count(),
+                    'secretarios' => $cajasDep->where('tiene_secretario', true)->count(),
+                    'tesoreros' => $cajasDep->where('tiene_tesorero', true)->count(),
+                    'vocales' => $cajasDep->sum('vocales'),
+                    'total_cargos' => $cajasDep->where('tiene_presidente', true)->count() +
+                                     $cajasDep->where('tiene_vicepresidente', true)->count() +
+                                     $cajasDep->where('tiene_secretario', true)->count() +
+                                     $cajasDep->where('tiene_tesorero', true)->count() +
+                                     $cajasDep->sum('vocales')
+                ];
+            }
+        }
+
         // Cálculo de participación por cargo y género
         $participacion = [
             'presidente' => [
@@ -422,7 +492,368 @@ class SocioController extends Controller
                 'M' => Socio::where('Tipo_Cargo', 'Presidente Consejo de Vigilancia')->where('genero', 'F')->count(),
             ],
         ];
-        return view('socios.cargos', compact('cajas', 'participacion'));
+        
+        return view('cargos_directivos.index', compact('cajas', 'participacion', 'departamentos', 'resumenDepartamentos'));
+    }
+
+    // Exportar cargos directivos a Excel
+    public function exportCargos(Request $request)
+    {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Cargos Directivos', 'Consultar')) {
+            abort(403, 'No tienes permiso para exportar cargos directivos.');
+        }
+
+        $query = Socio::select('Id_Organizacion')
+            ->groupBy('Id_Organizacion');
+
+        // Aplicar filtro por departamento si existe
+        if ($request->filled('departamento')) {
+            $query->join('organizacion as org', 'tbl_beneficiario.Id_Organizacion', '=', 'org.Id_Organizacion')
+                  ->join('aldea as a', 'org.Id_Aldea', '=', 'a.Id_Aldea')
+                  ->join('municipio as m', 'a.Id_Municipio', '=', 'm.Id_Municipio')
+                  ->join('departamento as d', 'm.Id_Departamento', '=', 'd.Id_Departamento')
+                  ->where('d.Nombre_Departamento', $request->departamento);
+        }
+
+        // Obtener datos (misma lógica que cargosPorCaja)
+        $cajas = $query->get()
+            ->map(function($caja) {
+                $org = \App\Models\Organizacion::with(['aldea.municipio.departamento'])->find($caja->Id_Organizacion);
+                $caja->nombre_organizacion = $org ? $org->Nombre_Organizacion : '';
+                $caja->departamento = $org && $org->aldea && $org->aldea->municipio && $org->aldea->municipio->departamento 
+                    ? $org->aldea->municipio->departamento->Nombre_Departamento : 'N/D';
+                
+                $caja->presidente_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Presidente(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->presidente_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Presidente(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vicepresidente_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'vicepresidente(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->vicepresidente_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'vicepresidente(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->tesorero_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Tesorero(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->tesorero_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Tesorero(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->secretario_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Secretario(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->secretario_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Secretario(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                
+                // Vocal I
+                $vocal1_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'M')
+                    ->exists();
+                $vocal1_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal1 = $vocal1_h && $vocal1_m ? 'H/M' : ($vocal1_h ? 'H' : ($vocal1_m ? 'M' : ''));
+
+                // Vocal II
+                $vocal2_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'M')
+                    ->exists();
+                $vocal2_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal2 = $vocal2_h && $vocal2_m ? 'H/M' : ($vocal2_h ? 'H' : ($vocal2_m ? 'M' : ''));
+
+                // Vocal III
+                $vocal3_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'M')
+                    ->exists();
+                $vocal3_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal3 = $vocal3_h && $vocal3_m ? 'H/M' : ($vocal3_h ? 'H' : ($vocal3_m ? 'M' : ''));
+                
+                return $caja;
+            });
+
+        // Crear Excel
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Encabezados
+        $titulo = 'FUNDER - Distribución de Cargos por Caja Rural';
+        if ($request->filled('departamento')) {
+            $titulo .= ' - ' . $request->departamento;
+        }
+        
+        $sheet->setCellValue('A1', $titulo);
+        $sheet->mergeCells('A1:J1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
+
+        $headers = [
+            'A3' => 'No.',
+            'B3' => 'Departamento',
+            'C3' => 'Nombre de la Caja Rural',
+            'D3' => 'Presidente(a)',
+            'E3' => 'Vicepresidente(a)',
+            'F3' => 'Secretario(a)',
+            'G3' => 'Tesorero(a)',
+            'H3' => 'Vocal I',
+            'I3' => 'Vocal II',
+            'J3' => 'Vocal III'
+        ];
+
+        foreach ($headers as $cell => $header) {
+            $sheet->setCellValue($cell, $header);
+            $sheet->getStyle($cell)->getFont()->setBold(true);
+        }
+
+        // Datos agrupados por departamento
+        $row = 4;
+        $count = 1;
+        $currentDep = '';
+        $cajasAgrupadas = $cajas->groupBy('departamento');
+        
+        foreach ($cajasAgrupadas as $departamento => $cajasDep) {
+            // Encabezado del departamento
+            if (!$request->filled('departamento')) {
+                $sheet->setCellValue('A' . $row, $departamento);
+                $sheet->mergeCells('A' . $row . ':J' . $row);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $sheet->getStyle('A' . $row)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+                $sheet->getStyle('A' . $row)->getFill()->getStartColor()->setARGB('FFE6E6E6');
+                $row++;
+            }
+            
+            foreach ($cajasDep as $caja) {
+                $sheet->setCellValue('A' . $row, $count++);
+                $sheet->setCellValue('B' . $row, $caja->departamento);
+                $sheet->setCellValue('C' . $row, $caja->nombre_organizacion);
+                
+                $presidente = '';
+                if ($caja->presidente_h && $caja->presidente_m) $presidente = 'H/M';
+                elseif ($caja->presidente_h) $presidente = 'H';
+                elseif ($caja->presidente_m) $presidente = 'M';
+                $sheet->setCellValue('D' . $row, $presidente);
+                
+                $vicepresidente = '';
+                if ($caja->vicepresidente_h && $caja->vicepresidente_m) $vicepresidente = 'H/M';
+                elseif ($caja->vicepresidente_h) $vicepresidente = 'H';
+                elseif ($caja->vicepresidente_m) $vicepresidente = 'M';
+                $sheet->setCellValue('E' . $row, $vicepresidente);
+                
+                $secretario = '';
+                if ($caja->secretario_h && $caja->secretario_m) $secretario = 'H/M';
+                elseif ($caja->secretario_h) $secretario = 'H';
+                elseif ($caja->secretario_m) $secretario = 'M';
+                $sheet->setCellValue('F' . $row, $secretario);
+                
+                $tesorero = '';
+                if ($caja->tesorero_h && $caja->tesorero_m) $tesorero = 'H/M';
+                elseif ($caja->tesorero_h) $tesorero = 'H';
+                elseif ($caja->tesorero_m) $tesorero = 'M';
+                $sheet->setCellValue('G' . $row, $tesorero);
+                
+                $sheet->setCellValue('H' . $row, $caja->vocal1 ?: '');
+                $sheet->setCellValue('I' . $row, $caja->vocal2 ?: '');
+                $sheet->setCellValue('J' . $row, $caja->vocal3 ?: '');
+                
+                $row++;
+            }
+            
+            // Agregar resumen del departamento si no hay filtro
+            if (!$request->filled('departamento')) {
+                $totalCajas = $cajasDep->count();
+                $presidentes = $cajasDep->filter(fn($c) => $c->presidente_h || $c->presidente_m)->count();
+                $vicepresidentes = $cajasDep->filter(fn($c) => $c->vicepresidente_h || $c->vicepresidente_m)->count();
+                $secretarios = $cajasDep->filter(fn($c) => $c->secretario_h || $c->secretario_m)->count();
+                $tesoreros = $cajasDep->filter(fn($c) => $c->tesorero_h || $c->tesorero_m)->count();
+                $vocales = $cajasDep->filter(fn($c) => $c->vocal1 || $c->vocal2 || $c->vocal3)->count();
+                
+                $sheet->setCellValue('B' . $row, 'TOTAL ' . $departamento . ':');
+                $sheet->setCellValue('C' . $row, $totalCajas . ' cajas');
+                $sheet->setCellValue('D' . $row, $presidentes);
+                $sheet->setCellValue('E' . $row, $vicepresidentes);
+                $sheet->setCellValue('F' . $row, $secretarios);
+                $sheet->setCellValue('G' . $row, $tesoreros);
+                $sheet->setCellValue('H' . $row, $vocales);
+                
+                $sheet->getStyle('B' . $row . ':H' . $row)->getFont()->setBold(true);
+                $row += 2; // Espacio adicional entre departamentos
+            }
+        }
+
+        // Ajustar ancho de columnas
+        foreach (range('A', 'J') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Bordes
+        $lastRow = $row - 1;
+        $sheet->getStyle('A3:J' . $lastRow)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'cargos_directivos';
+        if ($request->filled('departamento')) {
+            $fileName .= '_' . str_replace(' ', '_', $request->departamento);
+        }
+        $fileName .= '_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        return response()->stream(function() use ($writer) {
+            $writer->save('php://output');
+        }, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
+    }
+
+    // Exportar cargos directivos a PDF
+    public function exportCargosPdf(Request $request)
+    {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Cargos Directivos', 'Consultar')) {
+            abort(403, 'No tienes permiso para exportar cargos directivos.');
+        }
+
+        $query = Socio::select('Id_Organizacion')
+            ->groupBy('Id_Organizacion');
+
+        // Aplicar filtro por departamento si existe
+        if ($request->filled('departamento')) {
+            $query->join('organizacion as org', 'tbl_beneficiario.Id_Organizacion', '=', 'org.Id_Organizacion')
+                  ->join('aldea as a', 'org.Id_Aldea', '=', 'a.Id_Aldea')
+                  ->join('municipio as m', 'a.Id_Municipio', '=', 'm.Id_Municipio')
+                  ->join('departamento as d', 'm.Id_Departamento', '=', 'd.Id_Departamento')
+                  ->where('d.Nombre_Departamento', $request->departamento);
+        }
+
+        // Obtener datos (misma lógica que cargosPorCaja)
+        $cajas = $query->get()
+            ->map(function($caja) {
+                $org = \App\Models\Organizacion::with(['aldea.municipio.departamento'])->find($caja->Id_Organizacion);
+                $caja->nombre_organizacion = $org ? $org->Nombre_Organizacion : '';
+                $caja->departamento = $org && $org->aldea && $org->aldea->municipio && $org->aldea->municipio->departamento 
+                    ? $org->aldea->municipio->departamento->Nombre_Departamento : 'N/D';
+                
+                $caja->presidente_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Presidente(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->presidente_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Presidente(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vicepresidente_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'vicepresidente(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->vicepresidente_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'vicepresidente(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->tesorero_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Tesorero(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->tesorero_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Tesorero(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->secretario_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Secretario(a)')
+                    ->where('genero', 'M')
+                    ->exists();
+                $caja->secretario_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Secretario(a)')
+                    ->where('genero', 'F')
+                    ->exists();
+                
+                // Vocal I
+                $vocal1_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'M')
+                    ->exists();
+                $vocal1_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal I')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal1 = $vocal1_h && $vocal1_m ? 'H/M' : ($vocal1_h ? 'H' : ($vocal1_m ? 'M' : ''));
+
+                // Vocal II
+                $vocal2_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'M')
+                    ->exists();
+                $vocal2_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal II')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal2 = $vocal2_h && $vocal2_m ? 'H/M' : ($vocal2_h ? 'H' : ($vocal2_m ? 'M' : ''));
+
+                // Vocal III
+                $vocal3_h = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'M')
+                    ->exists();
+                $vocal3_m = Socio::where('Id_Organizacion', $caja->Id_Organizacion)
+                    ->where('Tipo_Cargo', 'Vocal III')
+                    ->where('genero', 'F')
+                    ->exists();
+                $caja->vocal3 = $vocal3_h && $vocal3_m ? 'H/M' : ($vocal3_h ? 'H' : ($vocal3_m ? 'M' : ''));
+                
+                return $caja;
+            });
+
+        // Calcular estadísticas por departamento
+        $resumenDepartamentos = [];
+        if (!$request->filled('departamento')) {
+            $cajasAgrupadas = $cajas->groupBy('departamento');
+            foreach ($cajasAgrupadas as $dep => $cajasDep) {
+                $resumenDepartamentos[$dep] = [
+                    'total_cajas' => $cajasDep->count(),
+                    'presidentes' => $cajasDep->filter(fn($c) => $c->presidente_h || $c->presidente_m)->count(),
+                    'vicepresidentes' => $cajasDep->filter(fn($c) => $c->vicepresidente_h || $c->vicepresidente_m)->count(),
+                    'secretarios' => $cajasDep->filter(fn($c) => $c->secretario_h || $c->secretario_m)->count(),
+                    'tesoreros' => $cajasDep->filter(fn($c) => $c->tesorero_h || $c->tesorero_m)->count(),
+                    'vocales' => $cajasDep->filter(fn($c) => $c->vocal1 || $c->vocal2 || $c->vocal3)->count()
+                ];
+            }
+        }
+
+        $data = [
+            'cajas' => $cajas,
+            'resumenDepartamentos' => $resumenDepartamentos,
+            'fecha' => date('d/m/Y'),
+            'titulo' => 'Distribución de Cargos por Caja Rural',
+            'filtro_departamento' => $request->departamento
+        ];
+
+        $pdf = PDF::loadView('cargos_directivos.pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+        
+        $fileName = 'cargos_directivos';
+        if ($request->filled('departamento')) {
+            $fileName .= '_' . str_replace(' ', '_', $request->departamento);
+        }
+        $fileName .= '_' . date('Y-m-d_H-i-s') . '.pdf';
+
+        return $pdf->download($fileName);
     }
 
 }

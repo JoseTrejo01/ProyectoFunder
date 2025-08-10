@@ -41,6 +41,7 @@ use App\Http\Controllers\EmprendimientoController;
 use App\Http\Controllers\OrganizacionController;
 use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\InformeFinancieroController;
+use App\Http\Controllers\ExportSociosController;
 
 // Models
 use App\Models\Socio;
@@ -152,6 +153,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/exportar-pdf', [ObjetoController::class, 'exportarPDF'])->name('objetos.exportar-pdf');
         });
 
+        // Permisos
+        Route::prefix('permisos')->group(function () {
+            Route::get('/', [PermisoController::class, 'showForm'])->name('permisos.index');
+            Route::post('/asignar', [PermisoController::class, 'asignarPermisos'])->name('permisos.asignar');
+        });
+
+        // Bitácora
+        Route::prefix('bitacora')->group(function () {
+            Route::get('/', [BitacoraController::class, 'verBitacora'])->name('bitacora.index');
+            Route::post('/borrar', [BitacoraController::class, 'borrarBitacora'])->name('bitacora.borrar');
+            Route::get('/exportar/pdf', [BitacoraController::class, 'exportarPDF'])->name('bitacora.exportar.pdf');
+        });
+
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReporteController::class, 'index'])->name('admin.reportes.index');
             Route::get('/cajas', [ReporteController::class, 'cajas'])->name('admin.reportes.cajas');
@@ -173,12 +187,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/socios/export', fn (Request $request) => Excel::download(new SociosExport($request->only('search', 'genero', 'localidad', 'tipo')), 'socios.xlsx'))->name('socios.export');
     Route::get('/socios/export-pdf', [ExportSociosPdfController::class, 'exportPdf'])->name('socios.export-pdf');
     Route::get('/socios/cargos', [SocioController::class, 'cargosPorCaja'])->name('socios.cargos');
+    Route::get('/cargos/export', [SocioController::class, 'exportCargos'])->name('cargos.export');
+    Route::get('/cargos/export-pdf', [SocioController::class, 'exportCargosPdf'])->name('cargos.export-pdf');
 
     Route::resource('ahorros', AhorroController::class);
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
     Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
     Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
-
+    Route::get('ahorros/reporte/pdf', [AhorroController::class, 'reportePDF'])->name('ahorros.reportePDF');
     Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
         'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
     ]))->name('organizacion.socios.count');
@@ -223,11 +239,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/capacitacion', [CapacitacionController::class, 'index'])->name('capacitacion.index');
     Route::post('/capacitacion/guardar', [CapacitacionController::class, 'guardar'])->name('capacitacion.guardar');
     Route::post('/capacitaciones/guardar', [CapacitacionController::class, 'store'])->name('capacitacion.store');
+    Route::get('/capacitaciones/reporte', [CapacitacionController::class, 'getReporte'])->name('capacitaciones.reporte');
 
     Route::get('/actividades/{id}', [PrestamoController::class, 'obtenerActividades']);
 
 });
 
+
+Route::get('/socios/export', [ExportSociosController::class, 'export'])
+    ->name('socios.export');
 /*
 |--------------------------------------------------------------------------
 | FALLBACK
