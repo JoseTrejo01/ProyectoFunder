@@ -198,7 +198,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
         'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
     ]))->name('organizacion.socios.count');
-
+    
     Route::resource('genero', IndicadorGeneroController::class);
     Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
@@ -225,6 +225,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/prestamos/{id}/pagos', [PagoController::class, 'store'])->name('pagos.store');
     Route::post('/pagos/{id}/marcar-pagado', [PagoController::class, 'marcarPagado'])->name('pagos.marcarPagado');
+
+    Route::get('/prestamos/pdf', [InformeFinancieroController::class, 'exportarListadoPrestamosPDF'])->name('prestamos.pdf');
+  Route::get('/prestamos/{id}/pagos/pdf', [InformeFinancieroController::class, 'exportarPagosPrestamoPDF'])->name('prestamos.pagos.pdf');
+
+
+    
 
     // Ubicación y capacitaciones
     Route::get('/municipios/{id}', [UbicacionController::class, 'getMunicipios'])->name('ubicacion.municipios');

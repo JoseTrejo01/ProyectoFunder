@@ -81,6 +81,9 @@ document.addEventListener('shown.bs.modal', function (event) {
             <a href="{{ url('informe-financiero/export', request()->query()) }}" class="btn btn-success ms-2">
                 <i class="fas fa-file-excel"></i> Exportar Excel
             </a>
+                      <a href="{{ route('informe.financiero.pdf') }}" class="btn btn-danger ms-2">
+    Exportar (PDF)
+</a>
         </div>
     </form>
 

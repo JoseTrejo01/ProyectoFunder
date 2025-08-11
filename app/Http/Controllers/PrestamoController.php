@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Organizacion;
 use App\Models\Prestamo;
+use PDF;
 use App\Models\Pago;
 use App\Models\Beneficiario;
 use Carbon\Carbon;
@@ -41,7 +42,13 @@ class PrestamoController extends Controller
 
         return view('prestamos.crear', compact('organizaciones', 'beneficiarios', 'porcentajesMora', 'departamentos'));
     }
+    public function descargarPDF()
+{
+    $prestamos = // obtener datos de la base de datos
 
+    $pdf = PDF::loadView('pdf.listado_prestamos', compact('prestamos'));
+    return $pdf->download('Listado_Prestamos.pdf');
+}
     public function index()
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Consultar')) {
@@ -60,6 +67,7 @@ class PrestamoController extends Controller
 
         $prestamos = Prestamo::with('organizacion')->get();
 
+        
         $prestamosPorMes = Prestamo::select(
             DB::raw('YEAR(fecha_solicitud) as anio'),
             DB::raw('MONTH(fecha_solicitud) as mes'),

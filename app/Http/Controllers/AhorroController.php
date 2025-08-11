@@ -15,7 +15,7 @@ class AhorroController extends Controller
     /**
      * Vista principal de Ahorros: lista cajas y, si hay una seleccionada, sus ahorros.
      */
-  public function index(Request $request)
+public function index(Request $request)
 {
     // Permisos
     if (!Auth::check() || !Auth::user()->tienePermiso('Ahorros', 'Consultar')) {
@@ -34,17 +34,42 @@ class AhorroController extends Controller
     }
 
     $cajas = Organizacion::all();
-    $selectedCaja = $request->query('caja');
 
+    // Obtener filtros desde la solicitud
+    $organizacionFiltro = $request->input('organizacion');
+    $beneficiarioFiltro = $request->input('beneficiario');
+    $tipoFiltro = $request->input('tipo');
+
+    // Construir consulta con relaciones
     $query = Ahorro::with(['beneficiario', 'organizacion'])->orderByDesc('Fecha');
 
-    if ($selectedCaja) {
-        $query->where('Id_Organizacion', $selectedCaja);
+    // Filtrar por organización (Id_Organizacion)
+    if (!empty($organizacionFiltro)) {
+        // Buscar organizaciones que contengan el texto (nombre)
+        $idsOrganizaciones = Organizacion::where('Nombre_Organizacion', 'like', "%{$organizacionFiltro}%")
+                                ->pluck('Id_Organizacion');
+        $query->whereIn('Id_Organizacion', $idsOrganizaciones);
+    }
+
+    // Filtrar por beneficiario (Nombre_Beneficiario)
+    if (!empty($beneficiarioFiltro)) {
+        // Buscar beneficiarios que contengan el texto (nombre)
+        $idsBeneficiarios = Beneficiario::where('Nombre_Beneficiario', 'like', "%{$beneficiarioFiltro}%")
+                                ->pluck('Id_Beneficiario');
+        $query->whereIn('Id_Beneficiario', $idsBeneficiarios);
+    }
+
+    // Filtrar por tipo (Socio o Cliente)
+    if (!empty($tipoFiltro)) {
+        // Buscar beneficiarios del tipo solicitado
+        $idsBeneficiariosTipo = Beneficiario::where('Tipo_De_Socio', $tipoFiltro)
+                                    ->pluck('Id_Beneficiario');
+        $query->whereIn('Id_Beneficiario', $idsBeneficiariosTipo);
     }
 
     $ahorros = $query->paginate(10);
 
-    return view('ahorros.index', compact('cajas', 'selectedCaja', 'ahorros'));
+    return view('ahorros.index', compact('cajas', 'ahorros'));
 }
 
 
@@ -315,5 +340,24 @@ public function destroy($id)
         ->route('ahorros.index', [])
         ->with('success', 'Ahorro eliminado correctamente.');
 }
+
+//ficha de ahorro
+public function ficha($id)
+{
+    // Buscar el ahorro con sus relaciones
+    $ahorro = Ahorro::with('beneficiario', 'organizacion')->findOrFail($id);
+
+    // Evitar error si no hay beneficiario (definir 0 por defecto)
+    $idBeneficiario = $ahorro->Id_Beneficiario ?? null;
+    $totalAhorrosBeneficiario = 0;
+
+    if ($idBeneficiario) {
+        $totalAhorrosBeneficiario = Ahorro::where('Id_Beneficiario', $idBeneficiario)->sum('Monto');
+    }
+
+    // Pasar la variable a la vista
+    return view('ahorros.ficha', compact('ahorro', 'totalAhorrosBeneficiario'));
+}
+
 
 }
