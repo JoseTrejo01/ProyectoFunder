@@ -1,40 +1,41 @@
+# 1️⃣ Imagen base PHP-FPM con extensiones necesarias
 FROM php:8.2-fpm
 
-# Instalar dependencias del sistema y extensiones PHP necesarias
+# 2️⃣ Instalar dependencias del sistema y extensiones PHP
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
     libonig-dev \
-    libzip-dev \
-    unzip \
-    git \
-    curl \
-    nodejs \
-    npm \
+    zip unzip git curl \
+    nginx \
+    nodejs npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo_mysql zip bcmath
+    && docker-php-ext-install gd pdo_mysql mbstring bcmath
 
-# Instalar Composer
+# 3️⃣ Instalar Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Establecer directorio de la aplicación
+# 4️⃣ Establecer directorio de la app
 WORKDIR /var/www/html
 
-# Copiar proyecto
+# 5️⃣ Copiar proyecto
 COPY . .
 
-# Instalar dependencias PHP
+# 6️⃣ Instalar dependencias PHP y Node
 RUN composer install --no-dev --optimize-autoloader
-
-# Instalar dependencias Node y compilar assets
 RUN npm install && npm run build
 
-# Generar APP_KEY si no existe
+# 7️⃣ Generar APP_KEY
 RUN php artisan key:generate --force
 
-# Exponer el puerto que define Railway
+# 8️⃣ Configurar Nginx
+RUN rm /etc/nginx/sites-enabled/default
+COPY ./nginx.conf /etc/nginx/sites-available/laravel.conf
+RUN ln -s /etc/nginx/sites-available/laravel.conf /etc/nginx/sites-enabled/
+
+# 9️⃣ Exponer el puerto
 EXPOSE 8080
 
-# Usar variable de entorno PORT de Railway para iniciar Laravel
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
+# 10️⃣ Start PHP-FPM y Nginx
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
