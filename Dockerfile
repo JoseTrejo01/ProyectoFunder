@@ -1,61 +1,40 @@
-# -----------------------------
-# Imagen base de PHP con FPM
-# -----------------------------
 FROM php:8.2-fpm
 
-# -----------------------------
-# Instalar dependencias del sistema y extensiones PHP
-# -----------------------------
+# Instalar dependencias del sistema y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
-    zip \
+    libonig-dev \
+    libzip-dev \
     unzip \
     git \
     curl \
     nodejs \
     npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo_mysql bcmath
+    && docker-php-ext-install gd pdo_mysql zip bcmath
 
-# -----------------------------
 # Instalar Composer
-# -----------------------------
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# -----------------------------
-# Directorio de trabajo
-# -----------------------------
+# Establecer directorio de la aplicación
 WORKDIR /var/www/html
 
-# -----------------------------
 # Copiar proyecto
-# -----------------------------
 COPY . .
 
-# -----------------------------
 # Instalar dependencias PHP
-# -----------------------------
 RUN composer install --no-dev --optimize-autoloader
 
-# -----------------------------
 # Instalar dependencias Node y compilar assets
-# -----------------------------
 RUN npm install && npm run build
 
-# -----------------------------
 # Generar APP_KEY si no existe
-# -----------------------------
 RUN php artisan key:generate --force
 
-# -----------------------------
-# Puerto dinámico para Railway
-# -----------------------------
-ENV PORT=${PORT}
-EXPOSE ${PORT}
+# Exponer el puerto que define Railway
+EXPOSE 8080
 
-# -----------------------------
-# Iniciar Laravel en el puerto dinámico
-# -----------------------------
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT}"]
+# Usar variable de entorno PORT de Railway para iniciar Laravel
+CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
