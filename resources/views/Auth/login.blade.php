@@ -1,5 +1,7 @@
 @extends('adminlte::auth.auth-page', ['auth_type' => 'login'])
 @section('adminlte_css_pre')
+@vite(['resources/css/app.css', 'resources/js/app.js'])
+
 <style>
     body {
         background: url('{{ asset('./images/funder2.png') }}') no-repeat center center fixed;
