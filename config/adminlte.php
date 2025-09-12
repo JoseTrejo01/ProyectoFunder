@@ -397,11 +397,6 @@ return [
         'icon' => 'fas fa-user-tie',
     ],
     [
-        'text' => 'Indicadores de Género',
-        'url'  => 'genero',
-        'icon' => 'fas fa-venus-mars',
-    ],
-    [
         'text' => 'Reportes',
         'icon' => 'fas fa-chart-bar',
         'submenu' => [

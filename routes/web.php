@@ -29,7 +29,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SocioController;
 use App\Http\Controllers\ExportSociosPdfController;
 use App\Http\Controllers\AhorroController;
-use App\Http\Controllers\IndicadorGeneroController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\UbicacionController;
@@ -39,7 +38,6 @@ use App\Http\Controllers\ExportEvaluacionesController;
 use App\Http\Controllers\CriterioController;
 use App\Http\Controllers\EmprendimientoController;
 use App\Http\Controllers\OrganizacionController;
-use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\InformeFinancieroController;
 use App\Http\Controllers\ExportSociosController;
 
@@ -199,7 +197,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
     ]))->name('organizacion.socios.count');
     
-    Route::resource('genero', IndicadorGeneroController::class);
     Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');
 
