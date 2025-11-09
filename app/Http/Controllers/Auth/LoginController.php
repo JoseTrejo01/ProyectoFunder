@@ -69,12 +69,7 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        // 7. Verificar si el correo fue confirmado
-        if (is_null($user->email_verified_at)) {
-            return back()->withErrors([
-                'Usuario' => 'Debes verificar tu correo electrónico antes de iniciar sesión.'
-            ])->withInput();
-        }
+      
 
         // Inicio de sesión exitoso
         Auth::login($user);
@@ -82,6 +77,8 @@ class LoginController extends Controller
 
         if ($user->Primer_Ingreso == 1) {
             $user->Primer_Ingreso = 0;
+            $user->save();
+            return redirect()->route('password.change');
         }
 
         $user->Intentos_Fallidos = 0;
