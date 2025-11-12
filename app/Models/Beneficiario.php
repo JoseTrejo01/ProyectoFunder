@@ -2,30 +2,35 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory; // ✅ Import correcto del trait
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Beneficiario extends Model
 {
-    // Si tu tabla no es "beneficiarios", sino "tbl_beneficiario":
+    use HasFactory;
+
     protected $table = 'tbl_beneficiario';
     protected $primaryKey = 'id_Beneficiario';
-    public $timestamps = false; 
-    // Si tu clave primaria no es "id", defínela (ejemplo: 'id_beneficiario')
-    // protected $primaryKey = 'id_beneficiario';
+    public $timestamps = false;
 
-    // Si no usas timestamps en la tabla, desactívalos:
-    // public $timestamps = false;
-
-    // Campos que puedes asignar masivamente
     protected $fillable = [
         'Nombre_Beneficiario',
-        // otros campos que tenga tu tabla
+        'Tipo_De_Socio',
+        'edad',
+        'Id_Organizacion',
+        // agrega otros campos que necesites
     ];
 
-    // Relaciones (si necesitas)
-    // Ejemplo: Un beneficiario puede tener muchos préstamos
-     public function prestamos()
+    // Relación con Ahorros
+    public function ahorros()
     {
-        return $this->hasMany(Prestamo::class, 'beneficiario_id', 'Id_Beneficiario');
+        return $this->hasMany(Ahorro::class, 'Id_Beneficiario', 'id_Beneficiario');
+    }
+
+    // Relación con Organización
+    public function organizacion()
+    {
+        return $this->belongsTo(Organizacion::class, 'Id_Organizacion', 'Id_Organizacion');
     }
 }
