@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;            // ← IMPORTANTE
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\PasswordHistory;                 // ← IMPORTANTE
+use Illuminate\Auth\Events\PasswordReset;      // ← NUEVO (para disparar el evento)
+                                              // EVENT_BITACORA es global; no requiere use
 
 class ResetPasswordController extends Controller
 {
@@ -128,14 +130,31 @@ class ResetPasswordController extends Controller
             ])->withInput();
         }
 
+        // ← NUEVO: Disparar evento estándar de Laravel para que el listener registre en bitácora
+        event(new PasswordReset($user));
+
+        // ← NUEVO: Registro inmediato y explícito en tu bitácora (además del listener)
+        EVENT_BITACORA(
+            $user->Id_Usuario,
+            'Usuarios',
+            'Actualización',
+            "El usuario {$user->Usuario} cambió su contraseña manualmente"
+        );
+
         // Limpiar variables del flujo OTP
         session()->forget(['otp_validated_user', 'otp_pending_user']);
 
-        // Autologin y redirección al dashboard
+        // === COMPORTAMIENTO ACTUAL: autologin y al dashboard ===
         Auth::login($user);
         $request->session()->regenerate();
 
         return redirect()->intended('/dashboard')
             ->with('status', 'Contraseña restablecida y sesión iniciada.');
+
+        /* 
+        // === OPCIONAL: si prefieres redirigir al login SIN iniciar sesión, usa esto en lugar de lo anterior ===
+        // session()->flash('status', 'Contraseña restablecida. Inicia sesión con tu nueva contraseña.');
+        // return redirect()->route('login');
+        */
     }
 }

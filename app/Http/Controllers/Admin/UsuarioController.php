@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Notifications\CredencialesUsuarioNuevo;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 class UsuarioController extends Controller
 {
     public function index()
@@ -36,23 +37,23 @@ class UsuarioController extends Controller
     }
 
     public function exportarPDF()
-{
-    if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
-        return view('errors.403', ['mensaje' => 'No tiene permiso para exportar usuarios']);
+    {
+        if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para exportar usuarios']);
+        }
+
+        $usuarios = User::with('rol')->orderBy('Id_Usuario', 'desc')->get();
+
+        $pdf = Pdf::loadView('admin.reportes.usuarios_pdf', [
+            'usuarios' => $usuarios,
+            'pdf' => true, 
+        ])->setPaper('a4', 'landscape');
+
+        $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
+        $pdf->getDomPDF()->set_option('isPhpEnabled', true);
+
+        return $pdf->download('reporte_usuarios.pdf');
     }
-
-    $usuarios = User::with('rol')->orderBy('Id_Usuario', 'desc')->get();
-
-  $pdf = Pdf::loadView('admin.reportes.usuarios_pdf', [
-    'usuarios' => $usuarios,
-    'pdf' => true, 
-])
-              ->setPaper('a4', 'landscape');
-       $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
-   $pdf->getDomPDF()->set_option('isPhpEnabled', true);
-
-    return $pdf->download('reporte_usuarios.pdf');
-}
     
     public function store(Request $request)
     {
@@ -84,18 +85,18 @@ class UsuarioController extends Controller
             ->value('Valor');
         $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
 
-        $password = bin2hex(random_bytes(4)); // genera 8 caracteres
+        $password = bin2hex(random_bytes(4)); // 8 caracteres
 
         $nuevoUsuario = User::create([
-            'Usuario' => strtoupper($request->Usuario),
-            'Nombre_Usuario' => strtoupper($request->Nombre_Usuario),
+            'Usuario'            => strtoupper($request->Usuario),
+            'Nombre_Usuario'     => strtoupper($request->Nombre_Usuario),
             'Correo_Electronico' => $request->Correo_Electronico,
-            'Id_Rol' => $request->Id_Rol,
-            'Primer_Ingreso' => 1,
-            'Contraseña' => Hash::make($password),
-            'Estado_Usuario' => 'NUEVO',
-            'Fecha_Creacion' => $fechaCreacion,
-            'Fecha_Vencimiento' => $fechaVencimiento,
+            'Id_Rol'             => $request->Id_Rol,
+            'Primer_Ingreso'     => 1,
+            'Contraseña'         => Hash::make($password),
+            'Estado_Usuario'     => 'NUEVO',
+            'Fecha_Creacion'     => $fechaCreacion,
+            'Fecha_Vencimiento'  => $fechaVencimiento,
         ]);
 
         $nuevoUsuario->notify(new CredencialesUsuarioNuevo($nuevoUsuario, $password));
@@ -120,10 +121,10 @@ class UsuarioController extends Controller
         }
 
         $request->validate([
-            'Nombre_Usuario' => 'required|string|max:100',
+            'Nombre_Usuario'     => 'required|string|max:100',
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
-            'Id_Rol' => 'required|integer|exists:tbl_ms_rol,Id_Rol',
-            'Estado_Usuario' => 'required|string',
+            'Id_Rol'             => 'required|integer|exists:tbl_ms_rol,Id_Rol',
+            'Estado_Usuario'     => 'required|string',
         ]);
 
         $usuario = User::findOrFail($id);
@@ -134,12 +135,12 @@ class UsuarioController extends Controller
         $fechaVencimiento = now()->copy()->addDays($diasVigencia);
 
         $usuario->update([
-            'Usuario' => $request->Usuario,
-            'Nombre_Usuario' => $request->Nombre_Usuario,
+            'Usuario'            => $request->Usuario,
+            'Nombre_Usuario'     => $request->Nombre_Usuario,
             'Correo_Electronico' => $request->Correo_Electronico,
-            'Id_Rol' => $request->Id_Rol,
-            'Estado_Usuario' => $request->Estado_Usuario,
-            'Fecha_Vencimiento' => $fechaVencimiento,
+            'Id_Rol'             => $request->Id_Rol,
+            'Estado_Usuario'     => $request->Estado_Usuario,
+            'Fecha_Vencimiento'  => $fechaVencimiento,
         ]);
 
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
@@ -175,5 +176,80 @@ class UsuarioController extends Controller
         }
 
         return back()->with('success', 'Usuario eliminado correctamente.');
+    }
+
+    // =========================
+    // NUEVOS MÉTODOS AGREGADOS
+    // =========================
+
+    public function bloquear($id)
+    {
+        // Usa 'Actualizacion' o crea una acción específica 'Bloqueo' en tu matriz de permisos
+        if (!auth()->user()->tienePermiso('Usuarios', 'Actualizacion')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para bloquear usuarios']);
+        }
+
+        $usuario = User::findOrFail($id);
+
+        // Evitar auto-bloqueo
+        if ((int) $usuario->Id_Usuario === (int) Auth::user()->Id_Usuario) {
+            return back()->with('error', 'No puedes bloquear tu propio usuario.');
+        }
+
+        // Evitar bloquear super admin (ajusta según tu lógica: Id_Rol, nombre de rol, etc.)
+        // Ejemplo: si tu super admin es Id_Rol = 1
+        if ((int) $usuario->Id_Rol === 1) {
+            return back()->with('error', 'No puedes bloquear al superadministrador.');
+        }
+
+        // Si ya está bloqueado, no hacer nada
+        if ($usuario->Estado_Usuario === 'BLOQUEADO') {
+            return back()->with('info', 'El usuario ya está bloqueado.');
+        }
+
+        $usuario->Estado_Usuario = 'BLOQUEADO';
+        $usuario->save();
+
+        $objeto = Objeto::where('Objeto', 'Usuarios')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Bloqueo',
+                "Se bloqueó al usuario {$usuario->Usuario}"
+            );
+        }
+
+        return back()->with('success', 'Usuario bloqueado.');
+    }
+
+    public function desbloquear($id)
+    {
+        if (!auth()->user()->tienePermiso('Usuarios', 'Actualizacion')) {
+            return view('errors.403', ['mensaje' => 'No tiene permiso para desbloquear usuarios']);
+        }
+
+        $usuario = User::findOrFail($id);
+
+        // Si ya está activo, no hacer nada
+        if ($usuario->Estado_Usuario === 'ACTIVO') {
+            return back()->with('info', 'El usuario ya está activo.');
+        }
+
+        $usuario->Estado_Usuario = 'ACTIVO';
+        $usuario->Intentos_Fallidos = 0; // opcional: limpia intentos si usas throttle propio
+        $usuario->save();
+
+        $objeto = Objeto::where('Objeto', 'Usuarios')->first();
+        if ($objeto && Auth::check()) {
+            EVENT_BITACORA(
+                Auth::user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Desbloqueo',
+                "Se desbloqueó al usuario {$usuario->Usuario}"
+            );
+        }
+
+        return back()->with('success', 'Usuario desbloqueado.');
     }
 }
