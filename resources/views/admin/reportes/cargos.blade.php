@@ -7,6 +7,50 @@
 @endsection
 
 @section('content')
+    @php
+        // 1. EXTRAER TODOS LOS CARGOS ÚNICOS DEL DATASET RECIBIDO
+        $cargosUnicos = [];
+        if (isset($cargosGeneroResumen)) {
+            foreach ($cargosGeneroResumen as $dep => $cargos) {
+                // $cargos es un array de cargos para un departamento: [ 'Nombre Cargo' => [ 'M' => 1, 'F' => 0 ] ]
+                foreach ($cargos as $cargoNombre => $generos) {
+                    if (!in_array($cargoNombre, $cargosUnicos)) {
+                        $cargosUnicos[] = $cargoNombre;
+                    }
+                }
+            }
+        }
+        // Ordenar los cargos alfabéticamente para una vista consistente
+        sort($cargosUnicos);
+        $cargosList = $cargosUnicos;
+
+        // 2. CALCULAR TOTALES POR GÉNERO Y CARGO (Usando la lista dinámica $cargosList)
+        $totales = [];
+        $porcentajes = [];
+        $totalGeneral = 0;
+
+        foreach ($cargosList as $cargo) {
+            $totales[$cargo]['M'] = 0; // Male / Hombre
+            $totales[$cargo]['F'] = 0; // Female / Mujer
+            
+            if (isset($cargosGeneroResumen)) {
+                foreach ($cargosGeneroResumen as $dep => $cargos) {
+                    $totales[$cargo]['M'] += $cargos[$cargo]['M'] ?? 0;
+                    $totales[$cargo]['F'] += $cargos[$cargo]['F'] ?? 0;
+                }
+            }
+            
+            $totalGeneral += $totales[$cargo]['M'] + $totales[$cargo]['F'];
+        }
+        
+        // Calcular porcentajes
+        foreach ($cargosList as $cargo) {
+            $totalCargo = $totales[$cargo]['M'] + $totales[$cargo]['F'];
+            $porcentajes[$cargo]['M'] = $totalCargo > 0 ? round(($totales[$cargo]['M'] / $totalCargo) * 100, 1) : 0;
+            $porcentajes[$cargo]['F'] = $totalCargo > 0 ? round(($totales[$cargo]['F'] / $totalCargo) * 100, 1) : 0;
+        }
+    @endphp
+
     <form method="GET" action="{{ route('admin.reportes.cargos') }}" class="mb-4" id="form-cargos-genero">
         <div class="form-group d-flex align-items-end gap-2" style="flex-wrap: wrap;">
             <div>
@@ -25,6 +69,7 @@
             </a>
         </div>
     </form>
+    
     <!-- Modal del gráfico -->
     <div class="modal fade" id="modalGraficoCargos" tabindex="-1" aria-labelledby="modalGraficoCargosLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -39,91 +84,59 @@
             </div>
         </div>
     </div>
+    
     <div class="table-responsive">
         <table id="tabla-cargos" class="table table-bordered table-striped table-hover shadow-sm">
             <thead>
                 <tr>
                     <th rowspan="2">Departamento</th>
-                    <th colspan="2">Presidente Consejo Admon</th>
-                    <th colspan="2">Secretario Consejo Admon</th>
-                    <th colspan="2">Tesorero Consejo Admon</th>
-                    <th colspan="2">Presidente Comité de Crédito</th>
-                    <th colspan="2">Presidente Consejo Vigilancia</th>
+                    
+                    {{-- CABECERAS DE CARGOS DINÁMICAS --}}
+                    @foreach($cargosList as $cargoNombre)
+                        <th colspan="2">{{ $cargoNombre }}</th>
+                    @endforeach
                 </tr>
                 <tr>
-                    <th>H</th>
-                    <th>M</th>
-                    <th>H</th>
-                    <th>M</th>
-                    <th>H</th>
-                    <th>M</th>
-                    <th>H</th>
-                    <th>M</th>
-                    <th>H</th>
-                    <th>M</th>
+                    {{-- CABECERAS DE GÉNERO DINÁMICAS --}}
+                    @foreach($cargosList as $cargoNombre)
+                        <th>H</th> {{-- Hombre --}}
+                        <th>M</th> {{-- Mujer --}}
+                    @endforeach
                 </tr>
             </thead>
             <tbody>
-                @if(isset($cargosGeneroResumen) && count($cargosGeneroResumen))
+                @if(isset($cargosGeneroResumen) && count($cargosGeneroResumen) > 0)
+                    {{-- FILAS DE DATOS POR DEPARTAMENTO --}}
                     @foreach($cargosGeneroResumen as $dep => $cargos)
                         <tr>
                             <td>{{ $dep }}</td>
-                            <td>{{ $cargos['Presidente Consejo Admon']['M'] ?? 0 }}</td>
-                            <td>{{ $cargos['Presidente Consejo Admon']['F'] ?? 0 }}</td>
-                            <td>{{ $cargos['Secretario Consejo Admon']['M'] ?? 0 }}</td>
-                            <td>{{ $cargos['Secretario Consejo Admon']['F'] ?? 0 }}</td>
-                            <td>{{ $cargos['Tesorero Consejo Admon']['M'] ?? 0 }}</td>
-                            <td>{{ $cargos['Tesorero Consejo Admon']['F'] ?? 0 }}</td>
-                            <td>{{ $cargos['Presidente Comité de Crédito']['M'] ?? 0 }}</td>
-                            <td>{{ $cargos['Presidente Comité de Crédito']['F'] ?? 0 }}</td>
-                            <td>{{ $cargos['Presidente Consejo Vigilancia']['M'] ?? 0 }}</td>
-                            <td>{{ $cargos['Presidente Consejo Vigilancia']['F'] ?? 0 }}</td>
+                            @foreach($cargosList as $cargoNombre)
+                                {{-- Asegúrate de que los cargos existan para ese departamento, si no, es 0 --}}
+                                <td>{{ $cargos[$cargoNombre]['M'] ?? 0 }}</td> {{-- Hombre --}}
+                                <td>{{ $cargos[$cargoNombre]['F'] ?? 0 }}</td> {{-- Mujer --}}
+                            @endforeach
                         </tr>
                     @endforeach
-            {{-- Fila de totales por género y cargo --}}
-            @php
-                $cargosList = [
-                    'Presidente Consejo Admon',
-                    'Secretario Consejo Admon',
-                    'Tesorero Consejo Admon',
-                    'Presidente Comité de Crédito',
-                    'Presidente Consejo Vigilancia',
-                ];
-                $totales = [];
-                $porcentajes = [];
-                $totalGeneral = 0;
-                foreach ($cargosList as $cargo) {
-                    $totales[$cargo]['M'] = 0;
-                    $totales[$cargo]['F'] = 0;
-                    foreach ($cargosGeneroResumen as $dep => $cargos) {
-                        $totales[$cargo]['M'] += $cargos[$cargo]['M'] ?? 0;
-                        $totales[$cargo]['F'] += $cargos[$cargo]['F'] ?? 0;
-                    }
-                    $totalGeneral += $totales[$cargo]['M'] + $totales[$cargo]['F'];
-                }
-                // Calcular porcentajes
-                foreach ($cargosList as $cargo) {
-                    $totalCargo = $totales[$cargo]['M'] + $totales[$cargo]['F'];
-                    $porcentajes[$cargo]['M'] = $totalCargo > 0 ? round(($totales[$cargo]['M'] / $totalCargo) * 100, 1) : 0;
-                    $porcentajes[$cargo]['F'] = $totalCargo > 0 ? round(($totales[$cargo]['F'] / $totalCargo) * 100, 1) : 0;
-                }
-            @endphp
-            <tr class="table-info fw-bold">
-                <td>Total</td>
-                @foreach($cargosList as $cargo)
-                    <td>{{ $totales[$cargo]['M'] }}</td>
-                    <td>{{ $totales[$cargo]['F'] }}</td>
-                @endforeach
-            </tr>
-            <tr class="table-warning fw-bold">
-                <td>% Participación</td>
-                @foreach($cargosList as $cargo)
-                    <td>{{ $porcentajes[$cargo]['M'] }}%</td>
-                    <td>{{ $porcentajes[$cargo]['F'] }}%</td>
-                @endforeach
-            </tr>
+                    
+                    {{-- FILA DE TOTALES --}}
+                    <tr class="table-info fw-bold">
+                        <td>Total</td>
+                        @foreach($cargosList as $cargo)
+                            <td>{{ $totales[$cargo]['M'] }}</td>
+                            <td>{{ $totales[$cargo]['F'] }}</td>
+                        @endforeach
+                    </tr>
+                    
+                    {{-- FILA DE PORCENTAJES --}}
+                    <tr class="table-warning fw-bold">
+                        <td>% Participación</td>
+                        @foreach($cargosList as $cargo)
+                            <td>{{ $porcentajes[$cargo]['M'] }}%</td>
+                            <td>{{ $porcentajes[$cargo]['F'] }}%</td>
+                        @endforeach
+                    </tr>
                 @else
-                    <tr><td colspan="11">No hay datos para mostrar.</td></tr>
+                    <tr><td colspan="{{ count($cargosList) * 2 + 1 }}">No hay datos para mostrar.</td></tr>
                 @endif
             </tbody>
         </table>
@@ -136,21 +149,24 @@
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Se usa la lista de cargos de Blade para la lógica de JavaScript
+    const cargosGeneroResumen = @json(isset($cargosGeneroResumen) ? $cargosGeneroResumen : []);
+    const cargosList = @json($cargosList ?? []); // Usamos la lista dinámica
 
-
-    // --- Chart.js para el modal: barras simples por departamento (total de cargos) ---
-    const cargosGeneroResumen = @json($cargosGeneroResumen);
     const departamentos = Object.keys(cargosGeneroResumen);
+    
     // Sumar todos los cargos y géneros por departamento
     const yValues = departamentos.map(dep => {
         let total = 0;
         if (cargosGeneroResumen[dep]) {
+            // Iterar sobre todos los cargos que existen en ese departamento
             Object.values(cargosGeneroResumen[dep]).forEach(cargo => {
                 total += (cargo['M'] || 0) + (cargo['F'] || 0);
             });
         }
         return total;
     });
+
     const barColors = [
         "#007bff", "#28a745", "#ffc107", "#dc3545", "#6f42c1", "#fd7e14", "#20c997", "#6610f2", "#e83e8c", "#17a2b8"
     ];

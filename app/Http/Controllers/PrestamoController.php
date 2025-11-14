@@ -42,13 +42,15 @@ class PrestamoController extends Controller
 
         return view('prestamos.crear', compact('organizaciones', 'beneficiarios', 'porcentajesMora', 'departamentos'));
     }
-    public function descargarPDF()
-{
-    $prestamos = // obtener datos de la base de datos
 
-    $pdf = PDF::loadView('pdf.listado_prestamos', compact('prestamos'));
-    return $pdf->download('Listado_Prestamos.pdf');
-}
+    public function descargarPDF()
+    {
+        $prestamos = Prestamo::all(); // Asegúrate de obtener los datos correctamente
+
+        $pdf = PDF::loadView('pdf.listado_prestamos', compact('prestamos'));
+        return $pdf->download('Listado_Prestamos.pdf');
+    }
+
     public function index()
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Consultar')) {
@@ -67,7 +69,6 @@ class PrestamoController extends Controller
 
         $prestamos = Prestamo::with('organizacion')->get();
 
-        
         $prestamosPorMes = Prestamo::select(
             DB::raw('YEAR(fecha_solicitud) as anio'),
             DB::raw('MONTH(fecha_solicitud) as mes'),
@@ -160,6 +161,57 @@ class PrestamoController extends Controller
         return view('prestamos.pending', compact('prestamos'));
     }
 
+    /**
+     * Función para actualizar los datos de un préstamo (Monto, Plazo, etc.)
+     * Esta función era la más importante que faltaba para registrar la modificación.
+     */
+    public function update(Request $request, $id)
+    {
+        if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Actualizacion')) {
+            abort(403, 'No tienes permiso para actualizar créditos.');
+        }
+
+        $prestamo = Prestamo::findOrFail($id);
+        
+        // 1. Validar solo los campos que pueden ser editados
+        $validated = $request->validate([
+            'monto_solicitado' => 'required|numeric',
+            'plazo_meses' => 'required|integer',
+            'destino' => 'required|string|max:255',
+            'tipo_credito' => 'required|string|max:255',
+            'observaciones' => 'nullable|string',
+            'estado' => 'required|string', // Se incluye si el estado se cambia desde la edición
+            // Agrega aquí el resto de campos que se pueden modificar
+        ]);
+
+        // 2. Guardar los valores anteriores del monto para la bitácora
+        $montoAnterior = $prestamo->monto_solicitado;
+
+        // 3. Aplicar los cambios y guardar
+        $prestamo->fill($validated);
+        $prestamo->save();
+
+        // 4. ⭐️ REGISTRO EN LA BITÁCORA
+        $objeto = \App\Models\Objeto::where('Objeto', 'Créditos')->first();
+        if ($objeto) {
+            $descripcion = 'El usuario modificó el crédito ID: ' . $id . '. Monto anterior: L. ' . $montoAnterior . ', Monto nuevo: L. ' . $prestamo->monto_solicitado . '.';
+            
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Actualización',
+                $descripcion
+            );
+        }
+        // ⭐️ FIN REGISTRO EN LA BITÁCORA
+
+        return redirect()->route('creditos')->with('success', 'Crédito ' . $id . ' actualizado correctamente.');
+    }
+
+    /**
+     * Función para aprobar un préstamo.
+     * MODIFICADA: Ahora incluye registro en Bitácora.
+     */
     public function aprobar($id)
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Actualizacion')) {
@@ -170,9 +222,25 @@ class PrestamoController extends Controller
         $prestamo->estado = 'aprobado';
         $prestamo->save();
 
+        // ⭐️ REGISTRO EN LA BITÁCORA
+        $objeto = \App\Models\Objeto::where('Objeto', 'Créditos')->first();
+        if ($objeto) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Actualización',
+                'El usuario aprobó el crédito ID: ' . $id . '. Estado: APROBADO.'
+            );
+        }
+        // ⭐️ FIN REGISTRO EN LA BITÁCORA
+
         return redirect()->route('creditos')->with('success', 'Solicitud aprobada.');
     }
 
+    /**
+     * Función para rechazar un préstamo.
+     * MODIFICADA: Ahora incluye registro en Bitácora.
+     */
     public function rechazar($id)
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Actualizacion')) {
@@ -183,9 +251,25 @@ class PrestamoController extends Controller
         $prestamo->estado = 'rechazado';
         $prestamo->save();
 
+        // ⭐️ REGISTRO EN LA BITÁCORA
+        $objeto = \App\Models\Objeto::where('Objeto', 'Créditos')->first();
+        if ($objeto) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Actualización',
+                'El usuario rechazó el crédito ID: ' . $id . '. Estado: RECHAZADO.'
+            );
+        }
+        // ⭐️ FIN REGISTRO EN LA BITÁCORA
+
         return redirect()->route('creditos')->with('success', 'Solicitud rechazada.');
     }
 
+    /**
+     * Función para desembolsar un préstamo.
+     * MODIFICADA: Ahora incluye registro en Bitácora.
+     */
     public function desembolsar($id)
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Créditos', 'Actualizacion')) {
@@ -208,9 +292,24 @@ class PrestamoController extends Controller
             'observaciones' => 'Desembolso inicial del préstamo',
         ]);
 
+        // ⭐️ REGISTRO EN LA BITÁCORA
+        $objeto = \App\Models\Objeto::where('Objeto', 'Créditos')->first();
+        if ($objeto) {
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario,
+                $objeto->Id_Objeto,
+                'Actualización',
+                'El usuario desembolsó el crédito ID: ' . $id . '. Estado: DESEMBOLSADO.'
+            );
+        }
+        // ⭐️ FIN REGISTRO EN LA BITÁCORA
+
         return redirect()->route('creditos')->with('success', 'Préstamo desembolsado y pago inicial registrado.');
     }
 
+    /**
+     * Función para guardar un nuevo préstamo.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([

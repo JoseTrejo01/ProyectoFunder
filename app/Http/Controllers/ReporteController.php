@@ -13,13 +13,12 @@ class ReporteController extends Controller
     public function cargos(Request $request)
     {
         $departamento = $request->input('departamento_cargos');
-        $cargosList = [
-            'Presidente Consejo Admon',
-            'Secretario Consejo Admon',
-            'Tesorero Consejo Admon',
-            'Presidente Comité de Crédito',
-            'Presidente Consejo Vigilancia',
-        ];
+        
+        // [MEJORA APLICADA]
+        // Se elimina la lista estática de cargos ($cargosList) y el filtro whereIn 
+        // para que la consulta traiga TODOS los cargos existentes en la base de datos.
+        // Esto hace que el reporte sea dinámico y muestre todos los tipos de cargos.
+        
         $query = DB::table('tbl_organizacion as o')
             ->join('tbl_beneficiario as b', 'o.Id_Organizacion', '=', 'b.Id_Organizacion')
             ->join('tbl_aldea as a', 'o.Id_Aldea', '=', 'a.Id_Aldea')
@@ -30,18 +29,23 @@ class ReporteController extends Controller
                 'b.Tipo_Cargo',
                 'b.genero',
                 DB::raw('COUNT(DISTINCT b.Id_Beneficiario) as total')
-            )
-            ->whereIn('b.Tipo_Cargo', $cargosList);
+            );
+            // Se eliminó el ->whereIn('b.Tipo_Cargo', $cargosList);
+
         if ($departamento) {
             $query->where('d.Nombre_Departamento', $departamento);
         }
+
         $rows = $query->groupBy('d.Nombre_Departamento', 'b.Tipo_Cargo', 'b.genero')->get();
+        
         // Armar resumen para la vista
         $cargosGeneroResumen = [];
         foreach ($rows as $row) {
             $cargosGeneroResumen[$row->departamento][$row->Tipo_Cargo][$row->genero] = $row->total;
         }
+
         $departamentos = DB::table('tbl_departamento')->pluck('Nombre_Departamento');
+        
         return view('admin.reportes.cargos', compact('cargosGeneroResumen', 'departamentos', 'departamento'));
     }
 
