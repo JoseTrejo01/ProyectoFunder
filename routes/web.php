@@ -189,6 +189,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cargos/export-pdf', [SocioController::class, 'exportCargosPdf'])->name('cargos.export-pdf');
 
     Route::resource('ahorros', AhorroController::class);
+    Route::get('/ahorros/resumen', [AhorroController::class, 'resumenGeneral'])->name('ahorros.resumen');
     Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
     Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
     Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
