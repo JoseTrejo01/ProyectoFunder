@@ -49,26 +49,16 @@ class UsuarioController extends Controller
 
         $pdf = Pdf::loadView('admin.reportes.usuarios_pdf', [
             'usuarios' => $usuarios,
-<<<<<<< HEAD
-            'pdf' => true, 
+            'pdf'      => true,
         ])->setPaper('a4', 'landscape');
-=======
-            'pdf' => true,
-        ])
-        ->setPaper('a4', 'landscape');
->>>>>>> origin/cambios-seguridad
 
         $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
         $pdf->getDomPDF()->set_option('isPhpEnabled', true);
 
         return $pdf->download('reporte_usuarios.pdf');
     }
-<<<<<<< HEAD
-    
-=======
 
     // Crear nuevo usuario
->>>>>>> origin/cambios-seguridad
     public function store(Request $request)
     {
         if (!auth()->user()->tienePermiso('Usuarios', 'Insercion')) {
@@ -136,12 +126,8 @@ class UsuarioController extends Controller
         }
 
         $request->validate([
-<<<<<<< HEAD
-            'Nombre_Usuario'     => 'required|string|max:100',
-=======
             'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
             'Nombre_Usuario' => 'required|string|max:100',
->>>>>>> origin/cambios-seguridad
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
             'Id_Rol'             => 'required|integer|exists:tbl_ms_rol,Id_Rol',
             'Estado_Usuario'     => 'required|string',
@@ -162,13 +148,8 @@ class UsuarioController extends Controller
         $fechaVencimiento = now()->copy()->addDays($diasVigencia);
 
         $usuario->update([
-<<<<<<< HEAD
-            'Usuario'            => $request->Usuario,
-            'Nombre_Usuario'     => $request->Nombre_Usuario,
-=======
-            'Usuario' => strtoupper($request->Usuario),
-            'Nombre_Usuario' => strtoupper($request->Nombre_Usuario),
->>>>>>> origin/cambios-seguridad
+            'Usuario'            => strtoupper($request->Usuario),
+            'Nombre_Usuario'     => strtoupper($request->Nombre_Usuario),
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol'             => $request->Id_Rol,
             'Estado_Usuario'     => $request->Estado_Usuario,
@@ -236,7 +217,6 @@ class UsuarioController extends Controller
         }
 
         // Evitar bloquear super admin (ajusta según tu lógica: Id_Rol, nombre de rol, etc.)
-        // Ejemplo: si tu super admin es Id_Rol = 1
         if ((int) $usuario->Id_Rol === 1) {
             return back()->with('error', 'No puedes bloquear al superadministrador.');
         }
