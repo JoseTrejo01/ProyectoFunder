@@ -74,17 +74,27 @@
                                 <div class="modal fade" id="modalEditarOrg{{ $org->Id_Organizacion }}" tabindex="-1" aria-labelledby="modalEditarOrgLabel{{ $org->Id_Organizacion }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
-                                            <form method="POST" action="{{ route('organizaciones.update', $org->Id_Organizacion) }}">
+                                            <form method="POST" action="{{ route('organizaciones.update', $org->Id_Organizacion) }}" data-form-id="{{ $org->Id_Organizacion }}">
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="modalEditarOrgLabel{{ $org->Id_Organizacion }}">Editar Organización</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                    <button type="button" class="btn-close btn-cerrar-modal" data-bs-dismiss="modal" data-modal-id="modalEditarOrg{{ $org->Id_Organizacion }}" aria-label="Cerrar"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="mb-3">
                                                         <label for="Nombre_Organizacion_{{ $org->Id_Organizacion }}" class="form-label">Nombre de la Organización</label>
-                                                        <input type="text" class="form-control" name="Nombre_Organizacion" id="Nombre_Organizacion_{{ $org->Id_Organizacion }}" value="{{ $org->Nombre_Organizacion }}" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
+                                                        <input 
+                                                            type="text" 
+                                                            class="form-control form-control-changed" 
+                                                            name="Nombre_Organizacion" 
+                                                            id="Nombre_Organizacion_{{ $org->Id_Organizacion }}" 
+                                                            value="{{ $org->Nombre_Organizacion }}" 
+                                                            maxlength="40" 
+                                                            pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" 
+                                                            title="Solo letras y espacios, máximo 40 caracteres" 
+                                                            required
+                                                        >
                                                     </div>
                                                     
                                                     <input type="hidden" name="departamento" value="{{ $org->aldea->municipio->Id_Departamento ?? '' }}">
@@ -92,7 +102,7 @@
                                                     <div class="row">
                                                         <div class="col-md-6 mb-3">
                                                             <label for="municipio_{{ $org->Id_Organizacion }}" class="form-label">Municipio</label>
-                                                            <select name="municipio" id="municipio_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                            <select name="municipio" id="municipio_{{ $org->Id_Organizacion }}" class="form-control form-control-changed" required>
                                                                 <option value="">Seleccione un municipio</option>
                                                                 @if($org->aldea && $org->aldea->municipio && isset($municipiosPorDepto[$org->aldea->municipio->Id_Departamento]))
                                                                     @foreach($municipiosPorDepto[$org->aldea->municipio->Id_Departamento] as $muni)
@@ -103,13 +113,23 @@
                                                         </div>
                                                         <div class="col-md-6 mb-3">
                                                             <label for="Nombre_Aldea_{{ $org->Id_Organizacion }}" class="form-label">Aldea</label>
-                                                            <input type="text" class="form-control" name="Nombre_Aldea" id="Nombre_Aldea_{{ $org->Id_Organizacion }}" value="{{ $org->aldea ? $org->aldea->Nombre_Aldea : '' }}" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
+                                                            <input 
+                                                                type="text" 
+                                                                class="form-control form-control-changed" 
+                                                                name="Nombre_Aldea" 
+                                                                id="Nombre_Aldea_{{ $org->Id_Organizacion }}" 
+                                                                value="{{ $org->aldea ? $org->aldea->Nombre_Aldea : '' }}" 
+                                                                maxlength="40" 
+                                                                pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" 
+                                                                title="Solo letras y espacios, máximo 40 caracteres" 
+                                                                required
+                                                            >
                                                         </div>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label for="Estado_Organizacion_{{ $org->Id_Organizacion }}" class="form-label">Estado</label>
-                                                        <select name="Estado_Organizacion" id="Estado_Organizacion_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                        <select name="Estado_Organizacion" id="Estado_Organizacion_{{ $org->Id_Organizacion }}" class="form-control form-control-changed" required>
                                                             <option value="ACTIVO" {{ $org->Estado_Organizacion == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
                                                             <option value="INACTIVO" {{ $org->Estado_Organizacion == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
                                                         </select>
@@ -129,7 +149,7 @@
                                                                 min="-90" max="90" 
                                                                 name="coordenada_y" 
                                                                 id="coordenada_y_edit_{{ $org->Id_Organizacion }}" 
-                                                                class="form-control" 
+                                                                class="form-control form-control-changed" 
                                                                 value="{{ $coordenadas[$org->aldea->municipio->Id_Municipio]->coordenada_y ?? '' }}" 
                                                                 required
                                                             >
@@ -142,7 +162,7 @@
                                                                 min="-180" max="180"
                                                                 name="coordenada_x" 
                                                                 id="coordenada_x_edit_{{ $org->Id_Organizacion }}" 
-                                                                class="form-control" 
+                                                                class="form-control form-control-changed" 
                                                                 value="{{ $coordenadas[$org->aldea->municipio->Id_Municipio]->coordenada_x ?? '' }}" 
                                                                 required
                                                             >
@@ -152,35 +172,35 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <label class="form-label">¿Tiene personería jurídica?</label>
-                                                            <select name="tiene_personeria_juridica" id="tiene_personeria_juridica_edit_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                            <select name="tiene_personeria_juridica" id="tiene_personeria_juridica_edit_{{ $org->Id_Organizacion }}" class="form-control form-control-changed" required>
                                                                 <option value="0" {{ !$org->tiene_personeria_juridica ? 'selected' : '' }}>No</option>
                                                                 <option value="1" {{ $org->tiene_personeria_juridica ? 'selected' : '' }}>Sí</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-md-6" id="fecha_personeria_juridica_div_edit_{{ $org->Id_Organizacion }}" style="display:{{ $org->tiene_personeria_juridica ? 'block' : 'none' }};">
                                                             <label for="fecha_personeria_juridica_edit_{{ $org->Id_Organizacion }}" class="form-label">Fecha de obtención</label>
-                                                            <input type="date" class="form-control" name="fecha_personeria_juridica" id="fecha_personeria_juridica_edit_{{ $org->Id_Organizacion }}" value="{{ $org->fecha_personeria_juridica }}">
+                                                            <input type="date" class="form-control form-control-changed" name="fecha_personeria_juridica" id="fecha_personeria_juridica_edit_{{ $org->Id_Organizacion }}" value="{{ $org->fecha_personeria_juridica }}">
                                                         </div>
                                                     </div>
                                                     
                                                     <div class="row mt-3">
                                                         <div class="col-md-6">
                                                             <label class="form-label">¿Tiene RTN?</label>
-                                                            <select name="tiene_rtn" id="tiene_rtn_edit_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                            <select name="tiene_rtn" id="tiene_rtn_edit_{{ $org->Id_Organizacion }}" class="form-control form-control-changed" required>
                                                                 <option value="0" {{ !$org->tiene_rtn ? 'selected' : '' }}>No</option>
                                                                 <option value="1" {{ $org->tiene_rtn ? 'selected' : '' }}>Sí</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-md-6" id="rtn_div_edit_{{ $org->Id_Organizacion }}" style="display:{{ $org->tiene_rtn ? 'block' : 'none' }};">
                                                             <label for="rtn_edit_{{ $org->Id_Organizacion }}" class="form-label">RTN</label>
-                                                            <input type="text" class="form-control" name="rtn" id="rtn_edit_{{ $org->Id_Organizacion }}" maxlength="20" value="{{ $org->rtn }}">
+                                                            <input type="text" class="form-control form-control-changed" name="rtn" id="rtn_edit_{{ $org->Id_Organizacion }}" maxlength="20" value="{{ $org->rtn }}">
                                                         </div>
                                                     </div>
 
                                                     <div class="row mt-3">
                                                         <div class="col-md-6">
                                                             <label class="form-label">¿Tiene cuenta bancaria?</label>
-                                                            <select name="tiene_cuenta_bancaria" id="tiene_cuenta_bancaria_edit_{{ $org->Id_Organizacion }}" class="form-control" required>
+                                                            <select name="tiene_cuenta_bancaria" id="tiene_cuenta_bancaria_edit_{{ $org->Id_Organizacion }}" class="form-control form-control-changed" required>
                                                                 <option value="0" {{ !$org->tiene_cuenta_bancaria ? 'selected' : '' }}>No</option>
                                                                 <option value="1" {{ $org->tiene_cuenta_bancaria ? 'selected' : '' }}>Sí</option>
                                                             </select>
@@ -189,7 +209,7 @@
 
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="button" class="btn btn-secondary btn-cerrar-modal" data-bs-dismiss="modal" data-modal-id="modalEditarOrg{{ $org->Id_Organizacion }}">Cancelar</button>
                                                     <button type="submit" class="btn btn-primary">Guardar cambios</button>
                                                 </div>
                                             </form>
@@ -221,22 +241,30 @@
 <div class="modal fade" id="modalRegistrarOrg" tabindex="-1" aria-labelledby="modalRegistrarOrgLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('organizaciones.store') }}" method="POST">
+            <form action="{{ route('organizaciones.store') }}" method="POST" data-form-id="registro">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalRegistrarOrgLabel">Registrar Organización</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-cerrar-modal" data-bs-dismiss="modal" data-modal-id="modalRegistrarOrg" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="Nombre_Organizacion" class="form-label">Nombre de la Organización</label>
-                        <input type="text" class="form-control" name="Nombre_Organizacion" id="Nombre_Organizacion" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
-
+                        <input 
+                            type="text" 
+                            class="form-control form-control-changed" 
+                            name="Nombre_Organizacion" 
+                            id="Nombre_Organizacion" 
+                            maxlength="40" 
+                            pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" 
+                            title="Solo letras y espacios, máximo 40 caracteres" 
+                            required
+                        >
                     </div>
                     
                     <div class="mb-3">
                         <label for="departamento" class="form-label">Departamento</label>
-                        <select name="departamento" id="departamento" class="form-control" required>
+                        <select name="departamento" id="departamento" class="form-control form-control-changed" required>
                             <option value="">Seleccione</option>
                             @foreach($departamentos as $depto)
                                 <option value="{{ $depto->Id_Departamento }}">{{ $depto->Nombre_Departamento }}</option>
@@ -245,14 +273,22 @@
                     </div>
                     <div class="mb-3">
                         <label for="municipio" class="form-label">Municipio</label>
-                        <select name="municipio" id="municipio" class="form-control" required>
+                        <select name="municipio" id="municipio" class="form-control form-control-changed" required>
                             <option value="">Seleccione un municipio</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="Nombre_Aldea" class="form-label">Aldea</label>
-                        <input type="text" class="form-control" name="Nombre_Aldea" id="Nombre_Aldea" maxlength="40" pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" title="Solo letras y espacios, máximo 40 caracteres" required>
-
+                        <input 
+                            type="text" 
+                            class="form-control form-control-changed" 
+                            name="Nombre_Aldea" 
+                            id="Nombre_Aldea" 
+                            maxlength="40" 
+                            pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,40}" 
+                            title="Solo letras y espacios, máximo 40 caracteres" 
+                            required
+                        >
                     </div>
                     <div class="mb-3">
                         <label for="map">Ubicación geográfica</label>
@@ -268,45 +304,45 @@
                                 max="90"
                                 name="coordenada_y"
                                 id="coordenada_y"
-                                class="form-control"
+                                class="form-control form-control-changed"
                                 required
                             >
                         </div>
                         <div class="col">
                             <label for="coordenada_x">Longitud</label>
-                            <input type="number" step="0.00000001" name="coordenada_x" id="coordenada_x" class="form-control" required>
+                            <input type="number" step="0.00000001" name="coordenada_x" id="coordenada_x" class="form-control form-control-changed" required>
                         </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label class="form-label">¿Tiene personería jurídica?</label>
-                            <select name="tiene_personeria_juridica" id="tiene_personeria_juridica" class="form-control" required>
+                            <select name="tiene_personeria_juridica" id="tiene_personeria_juridica" class="form-control form-control-changed" required>
                                 <option value="0">No</option>
                                 <option value="1">Sí</option>
                             </select>
                         </div>
                         <div class="col-md-6" id="fecha_personeria_juridica_div" style="display:none;">
                             <label for="fecha_personeria_juridica" class="form-label">Fecha de obtención</label>
-                            <input type="date" class="form-control" name="fecha_personeria_juridica" id="fecha_personeria_juridica">
+                            <input type="date" class="form-control form-control-changed" name="fecha_personeria_juridica" id="fecha_personeria_juridica">
                         </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label class="form-label">¿Tiene RTN?</label>
-                            <select name="tiene_rtn" id="tiene_rtn" class="form-control" required>
+                            <select name="tiene_rtn" id="tiene_rtn" class="form-control form-control-changed" required>
                                 <option value="0">No</option>
                                 <option value="1">Sí</option>
                             </select>
                         </div>
                         <div class="col-md-6" id="rtn_div" style="display:none;">
                             <label for="rtn" class="form-label">RTN</label>
-                            <input type="text" class="form-control" name="rtn" id="rtn" maxlength="20">
+                            <input type="text" class="form-control form-control-changed" name="rtn" id="rtn" maxlength="20">
                         </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label class="form-label">¿Tiene cuenta bancaria?</label>
-                            <select name="tiene_cuenta_bancaria" id="tiene_cuenta_bancaria" class="form-control" required>
+                            <select name="tiene_cuenta_bancaria" id="tiene_cuenta_bancaria" class="form-control form-control-changed" required>
                                 <option value="0">No</option>
                                 <option value="1">Sí</option>
                             </select>
@@ -314,7 +350,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary btn-cerrar-modal" data-bs-dismiss="modal" data-modal-id="modalRegistrarOrg">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Registrar</button>
                 </div>
             </form>
@@ -332,6 +368,133 @@
     const municipios = @json($municipiosPorDepto);
     const coordenadasPorMunicipio = @json($coordenadas);
     let maps = {}; // Objeto para guardar todas las instancias de mapas de edición
+    
+    // Objeto para rastrear si se ha interactuado con un formulario
+    let formChanged = {}; 
+
+    // ----------------------------------------------------------------------
+    // --- NUEVA LÓGICA: ADVERTENCIA AL CERRAR ---
+    // ----------------------------------------------------------------------
+    
+    /**
+     * Marca el formulario como modificado cuando se interactúa con un campo.
+     * Se aplica a cualquier input/select con la clase .form-control-changed
+     */
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('form-control-changed')) {
+            const form = e.target.closest('form');
+            if (form) {
+                const formId = form.getAttribute('data-form-id');
+                if (formId) {
+                    formChanged[formId] = true;
+                }
+            }
+        }
+    });
+
+    /**
+     * Muestra la advertencia si el formulario fue modificado y no ha sido enviado.
+     */
+    document.querySelectorAll('.btn-cerrar-modal').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const modalId = this.getAttribute('data-modal-id');
+            const formElement = document.getElementById(modalId)?.querySelector('form');
+            const formId = formElement ? formElement.getAttribute('data-form-id') : null;
+
+            if (formId && formChanged[formId]) {
+                e.preventDefault(); // Detener el cierre del modal por defecto
+
+                Swal.fire({
+                    title: '¿Desea descartar los cambios?',
+                    text: 'Ha realizado cambios sin guardar. ¿Desea cerrar el formulario?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, descartar',
+                    cancelButtonText: 'No, continuar editando'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Resetea el estado y cierra el modal
+                        formChanged[formId] = false;
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                        modal.hide();
+                    }
+                });
+            }
+        });
+    });
+
+    // Resetear el estado de cambios al abrir el modal (para los de edición)
+    document.querySelectorAll('.modal.fade').forEach(modal => {
+        const form = modal.querySelector('form');
+        if (form) {
+            const formId = form.getAttribute('data-form-id');
+            $(modal).on('show.bs.modal', function () {
+                // Si es un modal de edición, copiamos el estado inicial de los campos
+                // para una validación más precisa (aunque el rastreo simple de 'formChanged' es suficiente para la advertencia de cierre).
+                if (formId) {
+                    formChanged[formId] = false; // Asumimos no modificado al abrir
+                }
+            });
+
+            // Si el formulario se envía exitosamente, marcamos como no modificado
+            form.addEventListener('submit', function() {
+                if (formId) {
+                    formChanged[formId] = false;
+                }
+            });
+        }
+    });
+
+    // ----------------------------------------------------------------------
+    // --- LÓGICA DE VALIDACIÓN DE MAYÚSCULAS Y SOLO LETRAS ---
+    // ----------------------------------------------------------------------
+
+    /**
+     * Función para convertir el valor de un campo de texto a mayúsculas
+     */
+    function convertToUppercase(input) {
+        // Asegurar que solo se ingresen letras, espacios y caracteres del patrón
+        const sanitizedValue = input.value.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ\s]/g, '');
+        input.value = sanitizedValue.toUpperCase();
+    }
+
+    /**
+     * Función para aplicar la validación de mayúsculas a los campos de texto
+     * dentro de un modal específico.
+     */
+    function setupInputValidation(modalId) {
+        const isRegister = modalId === 'modalRegistrarOrg';
+        const orgId = isRegister ? '' : modalId.replace('modalEditarOrg', '');
+
+        // Obtener los IDs de los campos
+        const nombreOrgId = isRegister ? 'Nombre_Organizacion' : `Nombre_Organizacion_${orgId}`;
+        const nombreAldeaId = isRegister ? 'Nombre_Aldea' : `Nombre_Aldea_${orgId}`;
+
+        // Aplicar a Nombre de la Organización
+        const nombreOrgInput = document.getElementById(nombreOrgId);
+        if (nombreOrgInput) {
+            nombreOrgInput.addEventListener('input', function() {
+                convertToUppercase(this);
+            });
+        }
+        
+        // Aplicar a Nombre de la Aldea
+        const nombreAldeaInput = document.getElementById(nombreAldeaId);
+        if (nombreAldeaInput) {
+            nombreAldeaInput.addEventListener('input', function() {
+                convertToUppercase(this);
+            });
+        }
+    }
+
+    // Aplicar validación de mayúsculas y solo letras al modal de REGISTRO al cargar
+    setupInputValidation('modalRegistrarOrg');
+
+    // ----------------------------------------------------------------------
+    // --- LÓGICA DE SELECTORES Y MAPAS (CÓDIGO ANTERIOR) ---
+    // ----------------------------------------------------------------------
 
     // Manejador para cambio de departamento (solo en el modal de REGISTRO)
     document.getElementById('departamento').addEventListener('change', function () {
@@ -455,14 +618,11 @@
     
     // Función para inicializar el mapa en el modal de edición
     function initEditMap(orgId, lat, lng) {
-        // Si el mapa ya existe para este ID, lo destruimos para evitar errores de redibujado
         if (maps[orgId] && maps[orgId].map) {
             maps[orgId].map.remove();
         }
 
         const mapId = `map_edit_${orgId}`;
-        
-        // Coordenadas predeterminadas si no hay coordenadas válidas
         const defaultLat = lat || 14.634915;
         const defaultLng = lng || -87.849243;
         const defaultZoom = (lat && lng) ? 14 : 8;
@@ -523,6 +683,9 @@
                 
                 initEditMap(orgId, lat, lng);
                 
+                // Aplicar validación de mayúsculas y solo letras al modal de EDICIÓN
+                setupInputValidation(`modalEditarOrg${orgId}`);
+                
                 // Forzar el redibujado del mapa
                 setTimeout(() => {
                     if (maps[orgId] && maps[orgId].map) {
@@ -541,70 +704,87 @@
         }
     });
 
-    // Mostrar/ocultar campos según selección en registro (sin cambios, pero completo)
+    // Mostrar/ocultar campos según selección en registro y edición (lógica de visibilidad)
     document.addEventListener('DOMContentLoaded', function() {
-        const tienePersoneria = document.getElementById('tiene_personeria_juridica');
-        const fechaPersoneriaDiv = document.getElementById('fecha_personeria_juridica_div');
-        if (tienePersoneria) {
-            tienePersoneria.addEventListener('change', function() {
-                fechaPersoneriaDiv.style.display = this.value == '1' ? 'block' : 'none';
-            });
-        }
+        // Lógica para el modal de Registro
+        const setupRegisterFields = () => {
+            const tienePersoneria = document.getElementById('tiene_personeria_juridica');
+            const tieneRtn = document.getElementById('tiene_rtn');
+
+            if(tienePersoneria) {
+                const divPersoneria = document.getElementById('fecha_personeria_juridica_div');
+                const inputPersoneria = document.getElementById('fecha_personeria_juridica');
+                
+                const togglePersoneria = function() {
+                    if (this.value === '1') {
+                        divPersoneria.style.display = 'block';
+                        inputPersoneria.setAttribute('required', 'required');
+                    } else {
+                        divPersoneria.style.display = 'none';
+                        inputPersoneria.removeAttribute('required');
+                    }
+                };
+                tienePersoneria.addEventListener('change', togglePersoneria);
+                togglePersoneria.call(tienePersoneria); // Inicializar estado
+            }
+
+            if(tieneRtn) {
+                const divRtn = document.getElementById('rtn_div');
+                const inputRtn = document.getElementById('rtn');
+                
+                const toggleRtn = function() {
+                    if (this.value === '1') {
+                        divRtn.style.display = 'block';
+                        inputRtn.setAttribute('required', 'required');
+                    } else {
+                        divRtn.style.display = 'none';
+                        inputRtn.removeAttribute('required');
+                    }
+                };
+                tieneRtn.addEventListener('change', toggleRtn);
+                toggleRtn.call(tieneRtn); // Inicializar estado
+            }
+        };
         
-        const tieneRTN = document.getElementById('tiene_rtn');
-        const rtnDiv = document.getElementById('rtn_div');
-        if (tieneRTN) {
-            tieneRTN.addEventListener('change', function() {
-                rtnDiv.style.display = this.value == '1' ? 'block' : 'none';
-            });
-        }
-    });
-
-    // Mostrar/ocultar campos en formularios de edición (sin cambios, pero completo)
-    document.addEventListener('DOMContentLoaded', function() {
-        @foreach($organizaciones as $org)
-            const tienePersoneriaEdit{{ $org->Id_Organizacion }} = document.getElementById('tiene_personeria_juridica_edit_{{ $org->Id_Organizacion }}');
-            const fechaPersoneriaDivEdit{{ $org->Id_Organizacion }} = document.getElementById('fecha_personeria_juridica_div_edit_{{ $org->Id_Organizacion }}');
-            if(tienePersoneriaEdit{{ $org->Id_Organizacion }}){
-                tienePersoneriaEdit{{ $org->Id_Organizacion }}.addEventListener('change', function() {
-                    fechaPersoneriaDivEdit{{ $org->Id_Organizacion }}.style.display = this.value == '1' ? 'block' : 'none';
-                });
-            }
-            const tieneRTNEdit{{ $org->Id_Organizacion }} = document.getElementById('tiene_rtn_edit_{{ $org->Id_Organizacion }}');
-            const rtnDivEdit{{ $org->Id_Organizacion }} = document.getElementById('rtn_div_edit_{{ $org->Id_Organizacion }}');
-            if(tieneRTNEdit{{ $org->Id_Organizacion }}){
-                tieneRTNEdit{{ $org->Id_Organizacion }}.addEventListener('change', function() {
-                    rtnDivEdit{{ $org->Id_Organizacion }}.style.display = this.value == '1' ? 'block' : 'none';
-                });
-            }
-        @endforeach
-    });
-</script>
-<script>
-    // Evitar el ingreso de números en campos de texto (sin cambios, pero completo)
-    function bloquearNumeros(inputSelector) {
-        document.querySelectorAll(inputSelector).forEach(input => {
-            input.addEventListener('keypress', function(e) {
-                if (/\d/.test(e.key)) {
-                    e.preventDefault();
-                }
+        // Lógica para los modales de Edición
+        const setupEditFields = () => {
+            document.querySelectorAll('select[id^="tiene_personeria_juridica_edit_"]').forEach(select => {
+                const orgId = select.id.replace('tiene_personeria_juridica_edit_', '');
+                const div = document.getElementById(`fecha_personeria_juridica_div_edit_${orgId}`);
+                const input = document.getElementById(`fecha_personeria_juridica_edit_${orgId}`);
+                
+                const togglePersoneriaEdit = function() {
+                    if (this.value === '1') {
+                        div.style.display = 'block';
+                        input.setAttribute('required', 'required');
+                    } else {
+                        div.style.display = 'none';
+                        input.removeAttribute('required');
+                    }
+                };
+                select.addEventListener('change', togglePersoneriaEdit);
             });
 
-            // Limpiar números pegados con CTRL+V
-            input.addEventListener('input', function () {
-                this.value = this.value.replace(/[0-9]/g, '');
+            document.querySelectorAll('select[id^="tiene_rtn_edit_"]').forEach(select => {
+                const orgId = select.id.replace('tiene_rtn_edit_', '');
+                const div = document.getElementById(`rtn_div_edit_${orgId}`);
+                const input = document.getElementById(`rtn_edit_${orgId}`);
+                
+                const toggleRtnEdit = function() {
+                    if (this.value === '1') {
+                        div.style.display = 'block';
+                        input.setAttribute('required', 'required');
+                    } else {
+                        div.style.display = 'none';
+                        input.removeAttribute('required');
+                    }
+                };
+                select.addEventListener('change', toggleRtnEdit);
             });
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        bloquearNumeros('input[name="Nombre_Organizacion"]');
-        bloquearNumeros('input[name="Nombre_Aldea"]');
-        @foreach($organizaciones as $org)
-            bloquearNumeros('#Nombre_Organizacion_{{ $org->Id_Organizacion }}');
-            bloquearNumeros('#Nombre_Aldea_{{ $org->Id_Organizacion }}');
-        @endforeach
+        };
+        
+        setupRegisterFields();
+        setupEditFields();
     });
 </script>
-
 @endsection
