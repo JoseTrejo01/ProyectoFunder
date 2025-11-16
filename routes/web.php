@@ -254,3 +254,4 @@ Route::get('/socios/export', [ExportSociosController::class, 'export'])
 |--------------------------------------------------------------------------
 */
 Route::fallback(fn () => redirect()->route('home'));
+

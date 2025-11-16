@@ -6,105 +6,63 @@
     <h1>Estado Financiero por Departamento</h1>
 @endsection
 
-@section('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-let graficoFinancieroInstancia = null;
-document.addEventListener('shown.bs.modal', function (event) {
-    if (event.target.id === 'modalGraficoFinanciero' && !graficoFinancieroInstancia) {
-        const ctx = document.getElementById('graficoFinanciero').getContext('2d');
-        const data = {
-            labels: [
-                @foreach($resultados as $row)
-                    "{{ $row->departamento }}",
-                @endforeach
-            ],
-            datasets: [
-                {
-                    label: 'Total Monto Solicitado',
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    data: [
-                        @foreach($resultados as $row)
-                            {{ $row->total_monto_solicitado ?? 0 }},
-                        @endforeach
-                    ]
-                },
-                {
-                    label: 'Depósitos de Ahorro',
-                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1,
-                    data: [
-                        @foreach($resultados as $row)
-                            {{ $row->depositos_ahorro ?? 0 }},
-                        @endforeach
-                    ]
-                }
-            ]
-        };
-        graficoFinancieroInstancia = new Chart(ctx, {
-            type: 'bar',
-            data: data,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Estado Financiero por Departamento' }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-    }
-});
-</script>
-@endsection
-
 @section('content')
+
+    {{-- FILTROS --}}
     <form method="GET" action="{{ url('informe-financiero') }}" class="mb-4">
-        <div class="form-group d-flex align-items-end gap-2" style="flex-wrap: wrap;">
+        <div class="d-flex align-items-end gap-3 flex-wrap">
+
             <div>
                 <label for="departamento">Departamento</label>
-                <select name="departamento" id="departamento" class="form-control" style="width: 300px; display: inline-block;">
+                <select name="departamento" id="departamento" class="form-control" style="width: 300px;">
                     <option value="">-- Todos --</option>
                     @foreach($departamentos as $dep)
-                        <option value="{{ $dep }}" {{ (request('departamento') == $dep) ? 'selected' : '' }}>{{ $dep }}</option>
+                        <option value="{{ $dep }}" {{ request('departamento') == $dep ? 'selected' : '' }}>
+                            {{ $dep }}
+                        </option>
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary ms-2">Filtrar</button>
-            <button class="btn btn-info ms-2" type="button" data-bs-toggle="modal" data-bs-target="#modalGraficoFinanciero">Ver gráfico</button>
-            <a href="{{ url('informe-financiero/export', request()->query()) }}" class="btn btn-success ms-2">
+
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalGraficoFinanciero">
+                Ver gráfico
+            </button>
+
+            <a href="{{ url('informe-financiero/export', request()->query()) }}" class="btn btn-success">
                 <i class="fas fa-file-excel"></i> Exportar Excel
             </a>
-                      <a href="{{ route('informe.financiero.pdf') }}" class="btn btn-danger ms-2">
-    Exportar (PDF)
-</a>
+
+            <a href="{{ route('informe.financiero.pdf') }}" class="btn btn-danger">
+                Exportar PDF
+            </a>
+
         </div>
     </form>
 
-    <!-- Modal del gráfico -->
-    <div class="modal fade" id="modalGraficoFinanciero" tabindex="-1" aria-labelledby="modalGraficoFinancieroLabel" aria-hidden="true">
+    {{-- MODAL DEL GRÁFICO --}}
+    <div class="modal fade" id="modalGraficoFinanciero" tabindex="-1" aria-labelledby="modalGraficoLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalGraficoFinancieroLabel">Estado Financiero por Departamento</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title" id="modalGraficoLabel">Estado Financiero por Departamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <canvas id="graficoFinanciero" height="100"></canvas>
                 </div>
+
             </div>
         </div>
     </div>
 
+    {{-- TABLA --}}
     <div class="table-responsive">
         <table id="tabla-estado-financiero" class="table table-bordered table-striped table-hover shadow-sm">
-            <thead>
+            <thead class="table-dark">
                 <tr>
                     <th>Departamento</th>
                     <th>Total Monto Solicitado</th>
@@ -140,26 +98,39 @@ document.addEventListener('shown.bs.modal', function (event) {
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="13" class="text-center">No hay datos para mostrar.</td>
+                        <td colspan="13" class="text-center text-muted">No hay datos para mostrar.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+
 @endsection
 
+
+{{-- ===================== JAVASCRIPT ===================== --}}
 @section('js')
 @parent
+
+{{-- Bootstrap 5 & Chart.js --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{-- DataTables --}}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css" />
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
+
 <script>
 $(document).ready(function() {
+
+    // ACTIVAR DATATABLES
     $('#tabla-estado-financiero').DataTable({
         paging: true,
         pageLength: 10,
         lengthChange: true,
-        dom: 'lfrtip',
+        searching: false,
+        order: [[0, 'asc']],
         language: {
             lengthMenu: 'Mostrar _MENU_ registros',
             zeroRecords: 'No se encontraron resultados',
@@ -172,12 +143,59 @@ $(document).ready(function() {
                 last: 'Último',
                 next: 'Siguiente',
                 previous: 'Anterior'
-            },
-            processing: 'Procesando...'
+            }
+        }
+    });
+
+});
+
+// ==================== GRÁFICO ====================
+
+let graficoFinancieroInstancia = null;
+
+document.getElementById('modalGraficoFinanciero').addEventListener('shown.bs.modal', function () {
+
+    if (graficoFinancieroInstancia) return;
+
+    const ctx = document.getElementById('graficoFinanciero').getContext('2d');
+
+    graficoFinancieroInstancia = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [
+                @foreach($resultados as $row) "{{ $row->departamento }}", @endforeach
+            ],
+            datasets: [
+                {
+                    label: 'Total Monto Solicitado',
+                    backgroundColor: 'rgba(54,162,235,0.7)',
+                    borderColor: 'rgba(54,162,235,1)',
+                    borderWidth: 1,
+                    data: [
+                        @foreach($resultados as $row) {{ $row->total_monto_solicitado ?? 0 }}, @endforeach
+                    ]
+                },
+                {
+                    label: 'Depósitos de Ahorro',
+                    backgroundColor: 'rgba(255,99,132,0.7)',
+                    borderColor: 'rgba(255,99,132,1)',
+                    borderWidth: 1,
+                    data: [
+                        @foreach($resultados as $row) {{ $row->depositos_ahorro ?? 0 }}, @endforeach
+                    ]
+                }
+            ]
         },
-        order: [[0, 'asc']],
-        searching: false
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Estado Financiero por Departamento' }
+            },
+            scales: { y: { beginAtZero: true } }
+        }
     });
 });
+
 </script>
 @endsection
