@@ -5,7 +5,6 @@
 
 @section('content_header')
     <h1>Registrar Solicitud de Préstamo</h1>
-    
 @stop
 
 @section('content')
@@ -53,7 +52,7 @@
                                     {{ $org->Nombre_Organizacion }}
                                 </option>
                             @endforeach
-                        </select>   
+                        </select> 
                     </div>
 
                     <div class="mb-3">
@@ -95,12 +94,12 @@
                         <input type="number" name="plazo_meses" class="form-control" value="{{ old('plazo_meses') }}" min="1" required>
                     </div>
 
-                                <div class="mb-3">
-                <label for="destino" class="form-label">Destino</label>
-                <select name="destino" id="destino" class="form-control" required>
-                    <option value="">Seleccione una actividad</option>
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label for="destino" class="form-label">Destino</label>
+                        <select name="destino" id="destino" class="form-control" required>
+                            <option value="">Seleccione una actividad</option>
+                        </select>
+                    </div>
                     <div class="mb-3 text-end">
                         <button type="button" class="btn btn-primary" onclick="nextTab('finanzas')">Siguiente</button>
                     </div>
@@ -170,51 +169,49 @@
                     </div>
                    <div class="mb-3 text-end">
                         <button type="button" class="btn btn-secondary me-2" onclick="nextTab('finanzas')">Atrás</button>
-                       <button type="button" class="btn btn-info" onclick="mostrarPlanTemporal()">Ver Plan Temporal</button>
+                        <button type="button" class="btn btn-info" onclick="mostrarPlanTemporal()">Ver Plan Temporal</button>
                         <button type="submit" class="btn btn-success">Guardar Solicitud</button>
                     </div>
                 </div>
             </div>
         </form>
-                     <!-- Modal -->
-<div class="modal fade" id="planTemporalModal" tabindex="-1" aria-labelledby="planTemporalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Plan Temporal de Pago</h5>
-                <!-- Botón cerrar -->
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>ID Pago</th>
-                            <th>Fecha Programada</th>
-                            <th>Monto</th>
-                            <th>Estado</th>
-                            <th>Observaciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaPlanTemporal"></tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="imprimirPlanTemporal()">Imprimir</button>
-                <button type="button" class="btn btn-secondary" onclick="planTemporalModal.hide()">Cerrar</button>
-
-
+        
+        {{-- Modal Plan Temporal --}}
+        <div class="modal fade" id="planTemporalModal" tabindex="-1" aria-labelledby="planTemporalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Plan Temporal de Pago</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID Pago</th>
+                                    <th>Fecha Programada</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaPlanTemporal"></tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="imprimirPlanTemporal()">Imprimir</button>
+                        {{-- Se necesita definir 'planTemporalModal' fuera de la función --}}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-            </div>
-                </div>
-
-    </div>
-</div>
 
 @endsection
+
+---
 
 @section('js')
 <script>
@@ -239,6 +236,36 @@ function nextTab(id) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // -----------------------------------------------------------------
+    // 🛑 IMPLEMENTACIÓN DE INCIDENCIA: MANEJO DE CIERRE SIN GUARDAR 🛑
+    // -----------------------------------------------------------------
+    let formularioModificado = false;
+    const form = document.getElementById('prestamoForm');
+
+    // 1. Marca la bandera al detectar cualquier cambio en el formulario
+    form.addEventListener('input', function() {
+        if (!formularioModificado) {
+            formularioModificado = true;
+        }
+    });
+
+    // 2. Desactiva la bandera cuando el formulario se envía (guardar exitoso)
+    form.addEventListener('submit', function() {
+        // Esto previene que se muestre la advertencia al guardar y redirigir
+        formularioModificado = false;
+    });
+
+    // 3. Manejo del evento beforeunload (Cierre de ventana o navegación)
+    window.addEventListener('beforeunload', function(e) {
+        if (formularioModificado) {
+            e.preventDefault(); 
+            // El mensaje real es controlado por el navegador
+            e.returnValue = 'Hay datos no guardados. ¿Está seguro de que desea salir?'; 
+            return 'Hay datos no guardados. ¿Está seguro de que desea salir?';
+        }
+    });
+    // -----------------------------------------------------------------
+    
     // Autocompletar nombre de caja rural
     const socioSelect = document.getElementById('socio_id');
     const nombreCajaInput = document.getElementById('nombre_caja_rural');
@@ -286,45 +313,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (beneficiarioSelect.value) beneficiarioSelect.dispatchEvent(new Event('change'));
 
-    // Validaciones frontend
-    const form = document.getElementById('prestamoForm');
-form.addEventListener('submit', function (event) {
-    const inputs = form.querySelectorAll('input, select, textarea');
-    let formValid = true;
+    // Validaciones frontend (Enviadas por el usuario)
+    form.addEventListener('submit', function (event) {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        let formValid = true;
 
-    inputs.forEach(input => {
-        input.setCustomValidity(''); // limpiar mensajes previos
+        inputs.forEach(input => {
+            input.setCustomValidity(''); // limpiar mensajes previos
 
-        if (input.hasAttribute('required') && !input.value.trim()) {
-            input.setCustomValidity('Este campo es obligatorio.');
-            formValid = false;
-        }
-
-        if (input.type === 'number') {
-            const valor = parseFloat(input.value);
-            if (isNaN(valor)) {
-                input.setCustomValidity('Por favor, ingrese un número válido.');
-                formValid = false;
-            } else if (valor < 0) {
-                input.setCustomValidity('No se permiten valores negativos.');
+            if (input.hasAttribute('required') && !input.value.trim()) {
+                input.setCustomValidity('Este campo es obligatorio.');
                 formValid = false;
             }
-        }
 
-        if (input.tagName === 'SELECT' && input.hasAttribute('required') && !input.value) {
-            input.setCustomValidity('Por favor, seleccione una opción.');
-            formValid = false;
-        }
+            if (input.type === 'number') {
+                const valor = parseFloat(input.value);
+                if (isNaN(valor)) {
+                    input.setCustomValidity('Por favor, ingrese un número válido.');
+                    formValid = false;
+                } else if (valor < 0) {
+                    input.setCustomValidity('No se permiten valores negativos.');
+                    formValid = false;
+                }
+            }
 
-        if (!input.checkValidity()) {
-            input.reportValidity(); 
+            if (input.tagName === 'SELECT' && input.hasAttribute('required') && !input.value) {
+                input.setCustomValidity('Por favor, seleccione una opción.');
+                formValid = false;
+            }
+
+            if (!input.checkValidity()) {
+                input.reportValidity(); 
+            }
+        });
+
+        if (!formValid) {
+            event.preventDefault(); 
         }
     });
-
-    if (!formValid) {
-        event.preventDefault(); 
-    }
-});
 
 
     // Previene ingreso de negativos
@@ -347,9 +373,11 @@ form.addEventListener('submit', function (event) {
     }
 });
 </script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('formularioPrestamo');
+    // Corregí este ID. Estaba usando 'formularioPrestamo' en lugar de 'prestamoForm'.
+    const form = document.getElementById('prestamoForm'); 
 
     // Validación en tiempo real para campos tipo número
     form.querySelectorAll('input[type="number"]').forEach(input => {
@@ -378,7 +406,8 @@ document.addEventListener('DOMContentLoaded', function () {
     form.querySelectorAll('input[type="text"]').forEach(input => {
         input.addEventListener('keypress', function (event) {
             const tecla = event.key;
-            const regex = /^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,()/-]*$/;
+            // Permitimos letras, números, espacios y los caracteres especiales comunes para direcciones/nombres.
+            const regex = /^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ.,()/\-]*$/; 
 
             if (!regex.test(tecla)) {
                 event.preventDefault();
@@ -425,7 +454,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const beneficiarioId = {{ $prestamo->beneficiario_id ?? 'null' }}; // Cambia esto según tu variable real
+        // La lógica de precarga de actividades en la vista de edición/creación debe ser manejada
+        // por la sección previa si usas old('destino'). Mantenemos esta sección por si 
+        // tienes lógica específica de carga inicial aquí, aunque el bloque anterior ya la cubre.
+        const beneficiarioId = {{ $prestamo->beneficiario_id ?? 'null' }}; 
         const oldDestino = "{{ old('destino') }}";
 
         if (beneficiarioId) {
@@ -440,7 +472,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         option.value = rubro;
                         option.textContent = rubro;
 
-                        // Si old('destino') coincide, marcar como seleccionado
                         if (rubro === oldDestino) {
                             option.selected = true;
                         }
@@ -454,6 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 </script>
+
 <script>
     // Inicializa modal una sola vez
     var planTemporalModal = new bootstrap.Modal(document.getElementById('planTemporalModal'));
@@ -503,4 +535,3 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 @endsection
-

@@ -7,7 +7,7 @@
 @stop
 
 @section('content')
-    <form action="{{ route('emprendimientos.store') }}" method="POST">
+    <form id="emprendimientoForm" action="{{ route('emprendimientos.store') }}" method="POST">
         @csrf
 
         {{-- Selección de Organización --}}
@@ -90,8 +90,8 @@
                         @error('Comunidad') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
                     <div class="form-group text-right mt-4">
-    <button type="button" class="btn btn-primary" onclick="siguienteTab('socios')">Siguiente</button>
-</div>
+                        <button type="button" class="btn btn-primary" onclick="siguienteTab('socios')">Siguiente</button>
+                    </div>
                 </div>
 
                 {{-- Tab 2: Socios y Empleos --}}
@@ -126,9 +126,9 @@
                         </div>
                     </div>
                     <div class="form-group d-flex justify-content-between mt-4">
-    <button type="button" class="btn btn-secondary" onclick="anteriorTab('general')">Atrás</button>
-    <button type="button" class="btn btn-primary" onclick="siguienteTab('otros')">Siguiente</button>
-</div>
+                        <button type="button" class="btn btn-secondary" onclick="anteriorTab('general')">Atrás</button>
+                        <button type="button" class="btn btn-primary" onclick="siguienteTab('otros')">Siguiente</button>
+                    </div>
 
                 </div>
 
@@ -154,7 +154,8 @@
 
                     <div class="form-group text-right">
                         <button type="submit" class="btn btn-success">Guardar</button>
-                        <a href="{{ route('emprendimientos.index') }}" class="btn btn-secondary">Cancelar</a>
+                        {{-- Se agrega el ID para la Incidencia #33 --}}
+                        <a href="{{ route('emprendimientos.index') }}" class="btn btn-secondary" id="btnCancelar">Cancelar</a>
                     </div>
                 </div>
             </div>
@@ -172,8 +173,104 @@
 </style>
 @stop
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> {{-- Necesario para la Incidencia #33 --}}
+
 <script>
-    // Actualizar totales
+    const form = document.getElementById('emprendimientoForm');
+
+    // -----------------------------------------------------------------
+    // ✅ INCIDENCIA #33: MANEJO DE CIERRE SIN GUARDAR
+    // -----------------------------------------------------------------
+    let formularioModificado = false;
+
+    // 1. Marca la bandera al detectar cualquier cambio en el formulario
+    form.addEventListener('input', function() {
+        if (!formularioModificado) {
+            formularioModificado = true;
+        }
+    });
+
+    // 2. Desactiva la bandera cuando el formulario se envía (guardar exitoso)
+    form.addEventListener('submit', function() {
+        formularioModificado = false;
+    });
+
+    // 3. Manejo del evento beforeunload (Cierre de ventana o navegación)
+    window.addEventListener('beforeunload', function(e) {
+        if (formularioModificado) {
+            e.preventDefault(); 
+            e.returnValue = 'Hay datos no guardados. ¿Está seguro de que desea salir?'; 
+            return 'Hay datos no guardados. ¿Está seguro de que desea salir?';
+        }
+    });
+
+    // 4. Manejo del botón Cancelar
+    document.getElementById('btnCancelar').addEventListener('click', function(e) {
+        if (formularioModificado) {
+            e.preventDefault();
+            Swal.fire({
+                title: '¿Desea salir sin guardar?',
+                text: "Se perderán todos los datos ingresados.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, salir',
+                cancelButtonText: 'No, quedarme'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formularioModificado = false; // Desactiva la advertencia beforeunload
+                    window.location.href = this.href;
+                }
+            });
+        }
+    });
+    // -----------------------------------------------------------------
+
+
+    // ----------------------------------------------------------------------
+    // ✅ INCIDENCIA #1: VALIDACIÓN Y CONVERSIÓN A MAYÚSCULAS para .solo-texto
+    // El objetivo es: no permitir números, permitir tildes/ñ, y forzar MAYÚSCULAS.
+    // ----------------------------------------------------------------------
+    document.querySelectorAll('.solo-texto').forEach(input => {
+        // 1. Conversión a MAYÚSCULAS y limpieza de caracteres (para pegados)
+        input.addEventListener('input', function () {
+            let valor = this.value;
+            // Caracteres permitidos: letras (con/sin tilde), Ñ, espacios, puntos, comas, guiones, slash.
+            // Se quitaron los números (0-9) del regex de permitidos, y se agregó la limpieza.
+            const regexLimpieza = /[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-\/]/g;
+            
+            valor = valor.replace(regexLimpieza, ''); // Limpiar caracteres no permitidos
+            valor = valor.toUpperCase(); // Forzar mayúsculas
+            this.value = valor;
+        });
+
+        // 2. Bloquear la entrada de caracteres (incluyendo números) en keypress
+        input.addEventListener('keypress', function (e) {
+            const tecla = e.key;
+            // Permite solo letras, tildes, Ñ, y caracteres de puntuación comunes para texto/direcciones (espacio, ., ,, -, /)
+            const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,\-\/]$/; 
+
+            if (!regex.test(tecla)) {
+                e.preventDefault();
+            }
+        });
+    });
+    // ----------------------------------------------------------------------
+
+
+    // ----------------------------------------------------------------------
+    // 🔑 VALIDACIÓN ORIGINAL: Bloquear negativos en campos numéricos (.solo-numeros)
+    // ----------------------------------------------------------------------
+    document.querySelectorAll('.solo-numeros').forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            // Bloquea explícitamente el signo negativo (código original)
+            if (e.key === '-') e.preventDefault();
+        });
+    });
+    // ----------------------------------------------------------------------
+
+    // Actualizar totales (código original)
     function actualizarTotales() {
         const hombres = parseInt(document.querySelector('[name="Socios_Hombres"]').value || 0);
         const mujeres = parseInt(document.querySelector('[name="Socios_Mujeres"]').value || 0);
@@ -189,7 +286,7 @@
     });
     actualizarTotales();
 
-    // Mostrar formulario si hay organización
+    // Mostrar formulario si hay organización (código original)
     const organizacionSelect = document.getElementById('Id_Organizacion');
     const formContent = document.getElementById('form-content');
     function toggleFormContent() {
@@ -198,7 +295,7 @@
     toggleFormContent();
     organizacionSelect.addEventListener('change', toggleFormContent);
 
-    // Municipios
+    // Municipios (código original)
     document.getElementById('departamento').addEventListener('change', function () {
         const departamentoId = this.value;
         const municipioSelect = document.getElementById('municipio');
@@ -218,7 +315,7 @@
         }
     });
 
-    // Aldeas
+    // Aldeas (código original)
     document.getElementById('municipio').addEventListener('change', function () {
         const municipioId = this.value;
         const aldeaSelect = document.getElementById('aldea');
@@ -234,33 +331,17 @@
                 });
         }
     });
-
- // Bloquear números y caracteres especiales en campos de solo texto
-document.querySelectorAll('.solo-texto').forEach(input => {
-    input.addEventListener('keypress', function (e) {
-        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/;
-        if (!regex.test(e.key)) {
-            e.preventDefault();
-        }
-    });
-});
-
-
-    // Bloquear negativos en campos numéricos
-    document.querySelectorAll('.solo-numeros').forEach(input => {
-        input.addEventListener('keydown', function (e) {
-            if (e.key === '-') e.preventDefault();
-        });
-    });
-</script>
-<script>
+    
+    // Funciones de navegación (código original)
     function siguienteTab(id) {
         const actual = document.querySelector('.tab-pane.active');
         const inputs = actual.querySelectorAll('input, select, textarea');
         let valido = true;
 
         inputs.forEach(input => {
-            if (input.hasAttribute('required') && !input.value.trim()) {
+            // Usamos la validación nativa del navegador para mayor robustez
+             if (input.hasAttribute('required') && !input.checkValidity()) {
+                input.reportValidity(); // Muestra el mensaje de error nativo
                 input.classList.add('is-invalid');
                 valido = false;
             } else {
@@ -277,16 +358,16 @@ document.querySelectorAll('.solo-texto').forEach(input => {
             return;
         }
 
-        // Cambiar pestaña
-        document.querySelector(`[href="#${id}"]`).click();
+        // Cambiar pestaña usando Bootstrap
+        $(`#emprendimientoTabs a[href="#${id}"]`).tab('show');
     }
-  
+ 
     function anteriorTab(id) {
-        document.querySelector(`[href="#${id}"]`).click();
+        $(`#emprendimientoTabs a[href="#${id}"]`).tab('show');
     }
-  
+
+    // Exportar funciones para que sean accesibles desde el HTML
+    window.siguienteTab = siguienteTab;
+    window.anteriorTab = anteriorTab;
 </script>
-
-
 @stop
-

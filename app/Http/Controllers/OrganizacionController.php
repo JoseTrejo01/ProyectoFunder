@@ -116,6 +116,10 @@ class OrganizacionController extends Controller
         return view('organizaciones.edit', compact('organizacion', 'departamentos', 'municipiosPorDepto'));
     }
 
+    /**
+     * Función para inactivar una organización.
+     * MODIFICADA: Tipo de acción en bitácora cambiado a 'Eliminación'.
+     */
     public function destroy($id)
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Eliminacion')) {
@@ -128,12 +132,16 @@ class OrganizacionController extends Controller
 
         $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
         if ($objeto && auth()->check()) {
-            EVENT_BITACORA(auth()->user()->Id_Usuario, $objeto->Id_Objeto, 'Delete', 'Inactivó la organización: ' . $org->Nombre_Organizacion);
+            EVENT_BITACORA(auth()->user()->Id_Usuario, $objeto->Id_Objeto, 'Eliminación', 'Inactivó la organización: ' . $org->Nombre_Organizacion);
         }
 
         return redirect()->route('organizaciones.index')->with('success', 'Organización inactivada correctamente');
     }
 
+    /**
+     * Función para actualizar los datos de una organización.
+     * CORREGIDA: Incluye la actualización de coordenadas y la bitácora detallada.
+     */
     public function update(Request $request, $id)
     {
         if (!auth()->user() || !auth()->user()->tienePermiso('Organizaciones', 'Actualizacion')) {
@@ -145,6 +153,9 @@ class OrganizacionController extends Controller
             'departamento' => 'required|exists:tbl_departamento,Id_Departamento',
             'municipio' => 'required|exists:tbl_municipio,Id_Municipio',
             'Nombre_Aldea' => 'required|string|max:60',
+            // ⭐️ Se añaden validaciones para las coordenadas
+            'coordenada_x' => 'required|numeric', 
+            'coordenada_y' => 'required|numeric', 
             'Estado_Organizacion' => 'required|in:ACTIVO,INACTIVO',
             'tiene_personeria_juridica' => 'required|boolean',
             'fecha_personeria_juridica' => 'nullable|date|required_if:tiene_personeria_juridica,1',
@@ -154,12 +165,14 @@ class OrganizacionController extends Controller
         ]);
 
         $org = Organizacion::findOrFail($id);
+        $nombreOrgAnterior = $org->Nombre_Organizacion; // Guardamos el nombre anterior para la bitácora
 
         $aldea = Aldea::firstOrCreate([
             'Nombre_Aldea' => $request->Nombre_Aldea,
             'Id_Municipio' => $request->municipio,
         ]);
 
+        // 1. ACTUALIZACIÓN DE LA ORGANIZACIÓN
         $org->Id_Aldea = $aldea->Id_Aldea;
         $org->Nombre_Organizacion = $request->Nombre_Organizacion;
         $org->Estado_Organizacion = $request->Estado_Organizacion;
@@ -170,10 +183,31 @@ class OrganizacionController extends Controller
         $org->tiene_cuenta_bancaria = $request->tiene_cuenta_bancaria;
         $org->save();
 
+        // 2. ⭐️ ACTUALIZACIÓN DE COORDENADAS (Solución para la base de datos)
+        DB::table('tbl_coordenadas_municipio')->updateOrInsert(
+            [
+                'Id_Municipio' => $request->municipio,
+                'Id_Departamento' => $request->departamento
+            ],
+            [
+                'coordenada_x' => $request->coordenada_x,
+                'coordenada_y' => $request->coordenada_y
+            ]
+        );
+
+        // 3. ⭐️ REGISTRO EN LA BITÁCORA (Solución para la bitácora)
         $objeto = \App\Models\Objeto::where('Objeto', 'Organizaciones')->first();
         if ($objeto && auth()->check()) {
-            EVENT_BITACORA(auth()->user()->Id_Usuario, $objeto->Id_Objeto, 'Update', 'Actualizó la organización: ' . $org->Nombre_Organizacion);
+            $descripcion = 'Actualizó la organización ID: ' . $id . '. De "' . $nombreOrgAnterior . '" a "' . $org->Nombre_Organizacion . '". Estado: ' . $org->Estado_Organizacion . '.';
+            
+            EVENT_BITACORA(
+                auth()->user()->Id_Usuario, 
+                $objeto->Id_Objeto, 
+                'Actualización', 
+                $descripcion
+            );
         }
+        // ⭐️ FIN REGISTRO EN LA BITÁCORA
 
         return redirect()->route('organizaciones.index')->with('success', 'Organización actualizada correctamente');
     }
@@ -232,14 +266,14 @@ class OrganizacionController extends Controller
         }
 
         $organizaciones = Organizacion::where('Estado_Organizacion', 'ACTIVO')
-                                    ->with(['aldea.municipio.departamento'])
-                                    ->get();
+                                     ->with(['aldea.municipio.departamento'])
+                                     ->get();
 
         $pdf = Pdf::loadView('organizaciones.pdf', [
             'organizaciones' => $organizaciones,
             'pdf' => true, 
         ])
-                  ->setPaper('a4', 'landscape');
+             ->setPaper('a4', 'landscape');
         $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
         $pdf->getDomPDF()->set_option('isPhpEnabled', true);
 

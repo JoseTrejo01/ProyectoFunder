@@ -204,6 +204,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('organizaciones', OrganizacionController::class)->except(['show']);
     Route::get('/organizaciones/mapa', [OrganizacionController::class, 'vistaMapa'])->name('organizaciones.mapa');
     Route::get('/organizaciones/exportar/pdf', [OrganizacionController::class, 'exportarPDF'])->name('organizaciones.exportar.pdf');
+    Route::put('/organizaciones/{id}', [OrganizacionController::class, 'update'])->name('organizaciones.update');
 
     // APIs
     Route::get('/api/cajas/{id}/socios', fn ($id) => Socio::select('Id_Beneficiario', 'Nombre_Beneficiario as Nombre')->where('Id_Organizacion', $id)->where('estado', 1)->get())->name('api.cajas.socios');
@@ -218,6 +219,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/prestamos/{id}/aprobar', [PrestamoController::class, 'aprobar'])->name('prestamos.aprobar');
     Route::put('/prestamos/{id}/rechazar', [PrestamoController::class, 'rechazar'])->name('prestamos.rechazar');
     Route::post('/prestamos/{id}/desembolsar', [PrestamoController::class, 'desembolsar'])->name('prestamos.desembolsar');
+    Route::put('/creditos/{id}', [PrestamoController::class, 'update'])->name('creditos.update');
 
     Route::get('/prestamos/{id}/pagos', [PagoController::class, 'index'])->name('pagos.index');
     Route::get('/prestamos/{id}/pagos/crear', [PagoController::class, 'create'])->name('pagos.create');
