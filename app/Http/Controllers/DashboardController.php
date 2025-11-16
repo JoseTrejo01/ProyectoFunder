@@ -10,108 +10,112 @@ use App\Models\Objeto;
 
 class DashboardController extends Controller
 {
-public function chartData(Request $request)
-{
-    // Verificar permisos para consultar datos de gráficos
-    if (!auth()->user() || !auth()->user()->tienePermiso('Dashboard', 'Consultar')) {
-        return response()->json(['error' => 'No tiene permiso para consultar datos de gráficos'], 403);
-    }
-
-    // Registrar acceso a datos de gráficos en bitácora
-    $objeto = Objeto::where('Objeto', 'Dashboard')->first();
-    if ($objeto && Auth::check()) {
-        EVENT_BITACORA(
-            Auth::user()->Id_Usuario,
-            $objeto->Id_Objeto,
-            'Consultar',
-            'El usuario consultó datos de gráficos del dashboard'
-        );
-    }
-
-    // 1. Recibe módulos vía query (o usa los por defecto)
-    $modules = $request->query('modules', ['evaluacion', 'ahorro']);
-    $year    = now()->year;
-
-    // 2. Define tus módulos válidos
-    $allowed = [
-        'evaluacion' => [
-            'table'    => 'tbl_evaluacion',
-            'date_col' => 'created_at',
-            'label'    => 'Evaluaciones',
-        ],
-        'emprendimientos' => [
-            'table'    => 'tbl_emprendimiento',
-            'date_col' => 'created_at',
-            'label'    => 'Emprendimiento',
-        ],
-        'socios' => [
-            'table'    => 'tbl_beneficiario',
-            'date_col' => 'created_at',
-            'label'    => 'Socios',
-        ],
-        
-    ];
-
-    // 3. Prepara las etiquetas de mes
-    $labels = [];
-    for ($m = 1; $m <= 12; $m++) {
-      $labels = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-           'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    }
-
-    // 4. Construye los datasets, con CLAVE "data"
-    $datasets = [];
-    foreach ($modules as $module) {
-        if (!isset($allowed[$module])) {
-            continue;
-        }
-        $info = $allowed[$module];
-
-        // Cuenta registros mes a mes
-        $counts = \DB::table($info['table'])
-            ->selectRaw("MONTH({$info['date_col']}) as month, COUNT(*) as total")
-            ->whereYear($info['date_col'], $year)
-            ->groupBy('month')
-            ->pluck('total', 'month');
-
-        // Rellena array de 12 valores
-        $data = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $data[] = $counts->get($m, 0);
-        }
-
-       
-        $datasets[] = [
-            'label'   => $info['label'],
-            'data'    => $data,
-            'fill'    => false,
-            'tension' => 0.3,
-        ];
-    }
-
- 
-    return response()->json([
-        'labels'   => $labels,
-        'datasets'=> $datasets,
-    ]);
-}
-
-    public function index()
+    public function chartData(Request $request)
     {
-        // Verificar si el usuario está autenticado
-        if (!auth()->user()) {
-            return redirect()->route('login')->with('error', 'Debe iniciar sesión para acceder al dashboard');
+        // Verificar permisos para consultar datos de gráficos
+        if (!auth()->user() || !auth()->user()->tienePermiso('Dashboard', 'Consultar')) {
+            return response()->json(['error' => 'No tiene permiso para consultar datos de gráficos'], 403);
         }
-   
-        // Registrar acceso al dashboard en bitácora
+
+        // Registrar acceso a datos de gráficos en bitácora
         $objeto = Objeto::where('Objeto', 'Dashboard')->first();
         if ($objeto && Auth::check()) {
             EVENT_BITACORA(
                 Auth::user()->Id_Usuario,
                 $objeto->Id_Objeto,
-                'Ingreso',
-                'El usuario ingresó al dashboard principal'
+                'Consultar',
+                'El usuario consultó datos de gráficos del dashboard'
             );
+        }
+
+        // 1. Recibe módulos vía query (o usa los por defecto)
+        $modules = $request->query('modules', ['evaluacion', 'ahorro']);
+        $year    = now()->year;
+
+        // 2. Define tus módulos válidos
+        $allowed = [
+            'evaluacion' => [
+                'table'    => 'tbl_evaluacion',
+                'date_col' => 'created_at',
+                'label'    => 'Evaluaciones',
+            ],
+            'emprendimientos' => [
+                'table'    => 'tbl_emprendimiento',
+                'date_col' => 'created_at',
+                'label'    => 'Emprendimiento',
+            ],
+            'socios' => [
+                'table'    => 'tbl_beneficiario',
+                'date_col' => 'created_at',
+                'label'    => 'Socios',
+            ],
+        ];
+
+        // 3. Prepara las etiquetas de mes
+        $labels = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $labels = [
+                'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
+            ];
+        }
+
+        // 4. Construye los datasets, con CLAVE "data"
+        $datasets = [];
+        foreach ($modules as $module) {
+            if (!isset($allowed[$module])) {
+                continue;
+            }
+            $info = $allowed[$module];
+
+            // Cuenta registros mes a mes
+            $counts = \DB::table($info['table'])
+                ->selectRaw("MONTH({$info['date_col']}) as month, COUNT(*) as total")
+                ->whereYear($info['date_col'], $year)
+                ->groupBy('month')
+                ->pluck('total', 'month');
+
+            // Rellena array de 12 valores
+            $data = [];
+            for ($m = 1; $m <= 12; $m++) {
+                $data[] = $counts->get($m, 0);
+            }
+
+            $datasets[] = [
+                'label'   => $info['label'],
+                'data'    => $data,
+                'fill'    => false,
+                'tension' => 0.3,
+            ];
+        }
+
+        return response()->json([
+            'labels'   => $labels,
+            'datasets' => $datasets,
+        ]);
+    }
+
+    // ⬇⬇⬇ AQUÍ VA LA CORRECCIÓN ⬇⬇⬇
+    public function index(Request $request)
+    {
+        // Verificar si el usuario está autenticado
+        if (!auth()->user()) {
+            return redirect()->route('login')->with('error', 'Debe iniciar sesión para acceder al dashboard');
+        }
+
+        // Registrar acceso al dashboard en bitácora
+        $objeto = Objeto::where('Objeto', 'Dashboard')->first();
+        if ($objeto && Auth::check()) {
+
+            // 👉 Solo registrar ingreso si NO venimos del login inmediato
+            if (!$request->session()->pull('skip_dashboard_log', false)) {
+                EVENT_BITACORA(
+                    Auth::user()->Id_Usuario,
+                    $objeto->Id_Objeto,
+                    'Ingreso',
+                    'El usuario ingresó al dashboard principal'
+                );
+            }
         }
 
         // Importar el modelo Socio
@@ -137,8 +141,14 @@ public function chartData(Request $request)
                 'M' => \App\Models\Socio::where('Tipo_Cargo', 'Secretario(a)')->where('genero', 'F')->count(),
             ],
             'tesorero' => [
-                'H' => \App\Models\Socio::where('Tipo_Cargo', 'Tesorero(a)')->orWhere('Tipo_Cargo', 'Tesorero Consejo Admon')->where('genero', 'M')->count(),
-                'M' => \App\Models\Socio::where('Tipo_Cargo', 'Tesorero(a)')->orWhere('Tipo_Cargo', 'Tesorero Consejo Admon')->where('genero', 'F')->count(),
+                'H' => \App\Models\Socio::where(function ($q) {
+                    $q->where('Tipo_Cargo', 'Tesorero(a)')
+                      ->orWhere('Tipo_Cargo', 'Tesorero Consejo Admon');
+                })->where('genero', 'M')->count(),
+                'M' => \App\Models\Socio::where(function ($q) {
+                    $q->where('Tipo_Cargo', 'Tesorero(a)')
+                      ->orWhere('Tipo_Cargo', 'Tesorero Consejo Admon');
+                })->where('genero', 'F')->count(),
             ],
             'presidente_credito' => [
                 'H' => \App\Models\Socio::where('Tipo_Cargo', 'Presidente Comité de Crédito')->where('genero', 'M')->count(),
@@ -167,12 +177,12 @@ public function chartData(Request $request)
         ];
 
         return view('dashboard', [
-            'hombres' => $hombres,
-            'mujeres' => $mujeres,
-            'ninos' => $ninos,
-            'noSocios' => $noSocios,
-            'participacionCargos' => $participacionCargos,
-            'cargosDirectivos' => $cargosDirectivos,
+            'hombres'            => $hombres,
+            'mujeres'            => $mujeres,
+            'ninos'              => $ninos,
+            'noSocios'           => $noSocios,
+            'participacionCargos'=> $participacionCargos,
+            'cargosDirectivos'   => $cargosDirectivos,
         ]);
     }
 }

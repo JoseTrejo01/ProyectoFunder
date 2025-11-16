@@ -28,4 +28,11 @@ class Bitacora extends Model
     {
         return $this->belongsTo(Objeto::class, 'Id_Objeto', 'Id_Objeto');
     }
+    protected $casts = ['Fecha' => 'datetime'];
+    
+public function getFechaLocalAttribute()
+{
+    return optional($this->Fecha)->timezone(config('app.timezone'));
+}
+
 }
