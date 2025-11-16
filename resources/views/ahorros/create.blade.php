@@ -16,13 +16,13 @@
                     <label for="caja-select">Caja Rural</label>
                     <select id="caja-select" name="Id_Organizacion" class="form-control" required>
                         <option value="">-- Seleccione --</option>
-                        @foreach ($cajas as $caja)
-                            <option value="{{ $caja->Id_Organizacion }}" {{ (old('Id_Organizacion', $selectedCaja ?? '') == $caja->Id_Organizacion) ? 'selected' : '' }}>
-                                {{ $caja->Nombre_Organizacion }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                        @foreach ($organizaciones as $organizacion)
+            <option value="{{ $organizacion->Id_Organizacion }}" {{ (old('Id_Organizacion', $selectedCaja ?? '') == $organizacion->Id_Organizacion) ? 'selected' : '' }}>
+                {{ $organizacion->Nombre_Organizacion }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
                 <div class="form-group">
                     <label for="beneficiario-select">Beneficiario (Socio o Cliente)</label>

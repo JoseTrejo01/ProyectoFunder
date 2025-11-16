@@ -6,6 +6,11 @@
 <div class="d-flex justify-content-between align-items-center">
     <h1 class="mb-0">Gestión de Ahorros</h1>
     <div>
+        {{-- Nuevo botón para ir al resumen --}}
+        <a href="{{ route('ahorros.resumen') }}" class="btn btn-info mr-2">
+            <i class="fas fa-chart-bar"></i> Ver Resumen
+        </a>
+        
         <a href="{{ route('ahorros.create') }}" class="btn btn-success">
             <i class="fas fa-plus-circle"></i> Nuevo Ahorro
         </a>
@@ -54,18 +59,18 @@
                     <td class="text-success font-weight-bold">
                         L. {{ number_format($ahorro->Monto, 2, '.', ',') }}
                     </td>
-                   <td>
-                         <a href="{{ route('ahorros.edit', $ahorro->id) }}" class="btn btn-sm btn-primary" title="Editar">
+                    <td>
+                        <a href="{{ route('ahorros.edit', $ahorro->id) }}" class="btn btn-sm btn-primary" title="Editar">
                         <i class="fas fa-edit"></i>
                         </a>
                         <a href="{{ route('ahorros.ficha', $ahorro->id) }}" class="btn btn-sm btn-dark mx-1" title="Ficha">
                         <i class="fas fa-eye"></i>
                         </a>
                         <form action="{{ route('ahorros.destroy', $ahorro->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Confirma eliminar este ahorro?')">
-                     @csrf
+                        @csrf
                         @method('DELETE')
                         <button class="btn btn-sm btn-danger" title="Eliminar">
-                             <i class="fas fa-trash-alt"></i>
+                            <i class="fas fa-trash-alt"></i>
                             </button>
                             </form>
                     </td>

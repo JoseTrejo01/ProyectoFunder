@@ -8,12 +8,14 @@ use App\Models\Rol;
 use App\Models\Objeto;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Notifications\CredencialesUsuarioNuevo;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class UsuarioController extends Controller
 {
+    // Listar usuarios
     public function index()
     {
         if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
@@ -36,6 +38,7 @@ class UsuarioController extends Controller
         return view('admin.usuarios', compact('usuarios', 'roles'));
     }
 
+    // Exportar usuarios a PDF
     public function exportarPDF()
     {
         if (!auth()->user()->tienePermiso('Usuarios', 'Consultar')) {
@@ -46,15 +49,26 @@ class UsuarioController extends Controller
 
         $pdf = Pdf::loadView('admin.reportes.usuarios_pdf', [
             'usuarios' => $usuarios,
+<<<<<<< HEAD
             'pdf' => true, 
         ])->setPaper('a4', 'landscape');
+=======
+            'pdf' => true,
+        ])
+        ->setPaper('a4', 'landscape');
+>>>>>>> origin/cambios-seguridad
 
         $pdf->getDomPDF()->set_option('isHtml5ParserEnabled', true);
         $pdf->getDomPDF()->set_option('isPhpEnabled', true);
 
         return $pdf->download('reporte_usuarios.pdf');
     }
+<<<<<<< HEAD
     
+=======
+
+    // Crear nuevo usuario
+>>>>>>> origin/cambios-seguridad
     public function store(Request $request)
     {
         if (!auth()->user()->tienePermiso('Usuarios', 'Insercion')) {
@@ -80,7 +94,7 @@ class UsuarioController extends Controller
         ]);
 
         $fechaCreacion = now();
-        $diasVigencia = (int) \DB::table('tbl_parametros')
+        $diasVigencia = (int) DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
         $fechaVencimiento = $fechaCreacion->copy()->addDays($diasVigencia);
@@ -114,6 +128,7 @@ class UsuarioController extends Controller
         return back()->with('success', 'Usuario creado correctamente. Se enviaron las credenciales al correo.');
     }
 
+    // Actualizar usuario
     public function update(Request $request, $id)
     {
         if (!auth()->user()->tienePermiso('Usuarios', 'Actualizacion')) {
@@ -121,7 +136,12 @@ class UsuarioController extends Controller
         }
 
         $request->validate([
+<<<<<<< HEAD
             'Nombre_Usuario'     => 'required|string|max:100',
+=======
+            'Usuario' => 'required|string|max:60|unique:tbl_ms_usuario,Usuario,' . $id . ',Id_Usuario',
+            'Nombre_Usuario' => 'required|string|max:100',
+>>>>>>> origin/cambios-seguridad
             'Correo_Electronico' => 'required|email|max:60|unique:tbl_ms_usuario,Correo_Electronico,' . $id . ',Id_Usuario',
             'Id_Rol'             => 'required|integer|exists:tbl_ms_rol,Id_Rol',
             'Estado_Usuario'     => 'required|string',
@@ -129,14 +149,26 @@ class UsuarioController extends Controller
 
         $usuario = User::findOrFail($id);
 
-        $diasVigencia = (int) \DB::table('tbl_parametros')
+        // 🔐 PROTEGER SUPER ADMIN
+        if ($usuario->Es_Super_Admin == 1) {
+            if ($request->Id_Rol != $usuario->Id_Rol || $request->Estado_Usuario != $usuario->Estado_Usuario) {
+                return back()->with('error', 'No puedes modificar el rol o estado del Super Admin.');
+            }
+        }
+
+        $diasVigencia = (int) DB::table('tbl_parametros')
             ->where('Nombre_Parametro', 'ADMIN_DIAS_VIGENCIA')
             ->value('Valor');
         $fechaVencimiento = now()->copy()->addDays($diasVigencia);
 
         $usuario->update([
+<<<<<<< HEAD
             'Usuario'            => $request->Usuario,
             'Nombre_Usuario'     => $request->Nombre_Usuario,
+=======
+            'Usuario' => strtoupper($request->Usuario),
+            'Nombre_Usuario' => strtoupper($request->Nombre_Usuario),
+>>>>>>> origin/cambios-seguridad
             'Correo_Electronico' => $request->Correo_Electronico,
             'Id_Rol'             => $request->Id_Rol,
             'Estado_Usuario'     => $request->Estado_Usuario,
@@ -156,6 +188,7 @@ class UsuarioController extends Controller
         return back()->with('success', 'Usuario actualizado correctamente.');
     }
 
+    // Eliminar (inactivar) usuario
     public function destroy($id)
     {
         if (!auth()->user()->tienePermiso('Usuarios', 'Eliminacion')) {
@@ -163,6 +196,12 @@ class UsuarioController extends Controller
         }
 
         $usuario = User::findOrFail($id);
+
+        // 🔐 PROTEGER SUPER ADMIN
+        if ($usuario->Es_Super_Admin == 1) {
+            return back()->with('error', 'No puedes eliminar al Super Admin.');
+        }
+
         $usuario->update(['Estado_Usuario' => 'INACTIVO']);
 
         $objeto = Objeto::where('Objeto', 'Usuarios')->first();
