@@ -2,299 +2,274 @@
 
 @section('adminlte_css_pre')
 <style>
+
+    /* -------------------- FONDO -------------------- */
     body {
-        background-image: url('{{ asset('./images/funder2.png') }}');
+        position: relative;
+        min-height: 100vh;
+        background: url('{{ asset('images/funder2.png') }}') no-repeat center center fixed;
         background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 0;
+    }
+
+    /* -------------------- TARJETA -------------------- */
+    .login-card, .register-logo {
+        position: relative;
+        z-index: 2;
     }
 
     .login-card {
+        width: 100%;
+        max-width: 480px;
+        background-color: rgba(255,255,255,0.92);
         border-radius: 1.5rem;
-        box-shadow: 0 12px 40px rgba(91, 142, 62, 0.3);
-        animation: fadeInUp 0.8s ease forwards;
+        padding: 2rem;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+        animation: fadeInUp .8s ease forwards;
         opacity: 0;
-        transform: translateY(30px);
-    }
-
-    .form-animated-box {
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeInUp 1s ease-out 0.2s forwards;
+        transform: translateY(25px);
     }
 
     @keyframes fadeInUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    .login-box .card-header {
-        color: #2e7d32;
-        /* Verde oscuro agradable */
-        font-weight: bold;
-        text-align: center;
-    }
-
+    /* -------------------- LOGO -------------------- */
     .register-logo img {
-        max-width: 180px;
-        margin-bottom: 20px;
+        width: 160px;
+        max-width: 45vw;
+        margin-bottom: 12px;
+        filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
     }
 
-    .card {
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-        border: none;
-    }
-
-    .input-group .form-control {
-        border-radius: 8px 0 0 8px;
-    }
-
-    .input-group .input-group-text {
+    /* -------------------- INPUTS -------------------- */
+    .input-group-text {
         background-color: #eaf4ec;
         color: #3a5f3a;
-        border-radius: 0 8px 8px 0;
+        border-radius: 0 10px 10px 0;
     }
 
+    .form-control {
+        border-radius: 10px 0 0 10px;
+        border: 1px solid rgb(48,75,102);
+        padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 .2rem rgba(91,142,62,0.25);
+    }
+
+    #Usuario, #Nombre_Usuario {
+        text-transform: uppercase;
+    }
+
+    /* -------------------- BOTÓN -------------------- */
     .btn-primary {
         background-color: #5B8E3E !important;
-        /* verde principal */
         border-color: #5B8E3E !important;
-        color: white !important;
         border-radius: 0.75rem;
         font-weight: bold;
         font-size: 1.05rem;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        transition: .25s ease;
     }
 
     .btn-primary:hover {
-        background-color: #2e4b2e;
+        background-color: #2e4b2e !important;
+        transform: translateY(-2px);
     }
 
-    .text-primary {
-        color: #3a5f3a !important;
+    /* -------------------- RESPONSIVE -------------------- */
+
+    /* Celulares pequeños */
+    @media (max-width: 420px) {
+        .login-card {
+            padding: 1.3rem;
+            border-radius: 1rem;
+        }
+        .register-logo img {
+            width: 120px;
+        }
+        .form-control {
+            font-size: .9rem;
+            padding: .6rem .9rem;
+        }
+        .btn-primary {
+            font-size: .9rem;
+        }
     }
 
-    #Usuario,
-    #Nombre_Usuario {
-        text-transform: uppercase;
+    /* Tablets */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .login-card {
+            max-width: 520px;
+            padding: 2.3rem;
+        }
+        .register-logo img {
+            width: 190px;
+        }
     }
+
+    /* Monitores grandes */
+    @media (min-width: 1440px) {
+        .login-card {
+            max-width: 500px;
+        }
+    }
+
+    /* MODO OSCURO */
+    @media (prefers-color-scheme: dark) {
+        .login-card {
+            background-color: rgba(25,25,25,0.85);
+            color: #fff;
+        }
+        .form-control {
+            background: #222;
+            color: #fff;
+            border-color: #666;
+        }
+        .input-group-text {
+            background-color: #2ed473;
+            color: #000;
+        }
+    }
+
 </style>
 @stop
 
 @section('auth_header')
-<div class="register-logo">
+<div class="register-logo text-center">
     <img src="{{ asset('images/cropped-cropped-logo-funder-1.webp') }}" alt="Logo Funder">
 </div>
-<h4 class="text-center">{{ __('Registro') }}</h4>
+<h4 class="text-center fw-bold text-success">Registro</h4>
 @stop
 
 @section('auth_body')
 <form action="{{ route('register') }}" method="post">
     @csrf
 
-    <!-- Caja con animación -->
     <div class="form-animated-box">
 
         {{-- Usuario --}}
         <div class="input-group mb-3">
-            <input type="text" name="Usuario" id="Usuario" maxlength="30" class="form-control @error('Usuario') is-invalid @enderror"
-                value="{{ old('Usuario') }}" placeholder="Usuario" required autofocus>
-            <div class="input-group-append">
-                <div class="input-group-text"><span class="fas fa-user"></span></div>
-            </div>
-            @error('Usuario')
-                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-            @enderror
+            <input type="text" name="Usuario" id="Usuario" maxlength="30"
+                   class="form-control @error('Usuario') is-invalid @enderror"
+                   value="{{ old('Usuario') }}" placeholder="Usuario" required autofocus>
+            <div class="input-group-append"><div class="input-group-text"><span class="fas fa-user"></span></div></div>
+            @error('Usuario') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
         </div>
 
         {{-- Nombre --}}
         <div class="input-group mb-3">
-            <input type="text" name="Nombre_Usuario" id="Nombre_Usuario"
-                class="form-control @error('Nombre_Usuario') is-invalid @enderror" value="{{ old('Nombre_Usuario') }}"
-                placeholder="Nombre completo" required maxlength="40">
-            <div class="input-group-append">
-                <div class="input-group-text"><span class="fas fa-user-tag"></span></div>
-            </div>
-            @error('Nombre_Usuario')
-                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-            @enderror
+            <input type="text" name="Nombre_Usuario" id="Nombre_Usuario" maxlength="40"
+                   class="form-control @error('Nombre_Usuario') is-invalid @enderror"
+                   placeholder="Nombre completo" required>
+            <div class="input-group-append"><div class="input-group-text"><span class="fas fa-user-tag"></span></div></div>
         </div>
 
         {{-- Correo --}}
         <div class="input-group mb-3">
-            <input type="email" name="Correo_Electronico"
-                class="form-control @error('Correo_Electronico') is-invalid @enderror"
-                value="{{ old('Correo_Electronico') }}" placeholder="Correo Electrónico" required id="Correo_Electronico">
-            <div class="input-group-append">
-                <div class="input-group-text"><span class="fas fa-envelope"></span></div>
-            </div>
+            <input type="email" name="Correo_Electronico" id="Correo_Electronico"
+                   class="form-control @error('Correo_Electronico') is-invalid @enderror"
+                   placeholder="Correo Electrónico" required>
+            <div class="input-group-append"><div class="input-group-text"><span class="fas fa-envelope"></span></div></div>
+
             <div class="invalid-feedback d-none" id="correo-error-registro">
-                El correo debe ser de dominio gmail.com o hotmail.com
+                Solo se permiten correos gmail.com o hotmail.com
             </div>
-            @error('Correo_Electronico')
-                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-            @enderror
         </div>
-{{-- Contraseña --}}
-<div class="input-group mb-3">
-    <input type="password" name="Contraseña" id="Contraseña"
-        maxlength="8"
-        class="form-control @error('Contraseña') is-invalid @enderror" placeholder="Contraseña" required>
 
-    {{-- Ojito para mostrar/ocultar contraseña --}}
-    <div class="input-group-append">
-        <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
-            <span class="fas fa-eye" id="eyeIcon"></span>
+        {{-- Contraseña --}}
+        <div class="input-group mb-3">
+            <input type="password" name="Contraseña" id="Contraseña" maxlength="8"
+                   class="form-control @error('Contraseña') is-invalid @enderror"
+                   placeholder="Contraseña" required>
+
+            <div class="input-group-append">
+                <div class="input-group-text" id="togglePassword" style="cursor:pointer;">
+                    <span class="fas fa-eye" id="eyeIcon"></span>
+                </div>
+            </div>
         </div>
-    </div>
 
-    @error('Contraseña')
-        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-    @enderror
-</div>
+        {{-- Confirmar --}}
+        <div class="input-group mb-3">
+            <input type="password" name="Contraseña_confirmation" id="Contraseña_confirmation"
+                   maxlength="8" class="form-control" placeholder="Confirmar contraseña" required>
 
-{{-- Confirmar Contraseña --}}
-<div class="input-group mb-3">
-    <input type="password" name="Contraseña_confirmation" id="Contraseña_confirmation"
-        maxlength="8"
-        class="form-control @error('Contraseña_confirmation') is-invalid @enderror"
-        placeholder="Confirmar Contraseña" required>
-
-    {{-- Ojito para mostrar/ocultar confirmación --}}
-    <div class="input-group-append">
-        <div class="input-group-text" style="cursor: pointer;" id="togglePasswordConfirm">
-            <span class="fas fa-eye" id="eyeIconConfirm"></span>
+            <div class="input-group-append">
+                <div class="input-group-text" id="togglePasswordConfirm" style="cursor:pointer;">
+                    <span class="fas fa-eye" id="eyeIconConfirm"></span>
+                </div>
+            </div>
         </div>
-    </div>
-
-    @error('Contraseña_confirmation')
-        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-    @enderror
-</div>
-{{-- Script para manejar los ojitos --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('Contraseña');
-        const eyeIcon = document.getElementById('eyeIcon');
-
-        togglePassword.addEventListener('click', function () {
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-            eyeIcon.classList.toggle('fa-eye');
-            eyeIcon.classList.toggle('fa-eye-slash');
-        });
-
-        const togglePasswordConfirm = document.getElementById('togglePasswordConfirm');
-        const confirmInput = document.getElementById('Contraseña_confirmation');
-        const eyeIconConfirm = document.getElementById('eyeIconConfirm');
-
-        togglePasswordConfirm.addEventListener('click', function () {
-            const isPassword = confirmInput.type === 'password';
-            confirmInput.type = isPassword ? 'text' : 'password';
-            eyeIconConfirm.classList.toggle('fa-eye');
-            eyeIconConfirm.classList.toggle('fa-eye-slash');
-        });
-    });
-</script>
-
 
         {{-- Botón --}}
-        <div class="row">
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary btn-block">{{ __('Registrarse') }}</button>
-            </div>
-        </div>
+        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
 
-    </div> <!-- fin de caja animada -->
+    </div>
 </form>
 @stop
 
 @section('auth_footer')
 <div class="mt-3 text-center">
     <a href="{{ route('login') }}" class="text-primary">
-        <i class="fas fa-arrow-left"></i> {{ __('Ya tengo una cuenta') }}
+        <i class="fas fa-arrow-left"></i> ¿Ya tienes una cuenta?
     </a>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Bloquear clic derecho
-        document.getElementById('Usuario').addEventListener('contextmenu', e => e.preventDefault());
-        document.getElementById('Nombre_Usuario').addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('DOMContentLoaded', function () {
 
-        // Bloquear teclas rápidas (Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A)
-        document.getElementById('Usuario').addEventListener('keydown', e => {
-            if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
-                e.preventDefault();
-            }
+    /* -------------------- Ojitos -------------------- */
+    const toggle = (btnId, inputId, iconId) => {
+        document.getElementById(btnId).addEventListener('click', () => {
+            const input = document.getElementById(inputId);
+            const icon  = document.getElementById(iconId);
+            const isPass = input.type === "password";
+
+            input.type = isPass ? 'text' : 'password';
+            icon.classList.toggle('fa-eye-slash', isPass);
+            icon.classList.toggle('fa-eye', !isPass);
         });
-        document.getElementById('Nombre_Usuario').addEventListener('keydown', e => {
-            if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
-                e.preventDefault();
-            }
-        });
+    };
 
-        // Bloquear acciones de copiar, pegar, cortar o soltar
-        document.getElementById('Usuario').addEventListener('paste', e => e.preventDefault());
-        document.getElementById('Usuario').addEventListener('copy', e => e.preventDefault());
-        document.getElementById('Usuario').addEventListener('cut', e => e.preventDefault());
-        document.getElementById('Usuario').addEventListener('drop', e => e.preventDefault());
+    toggle('togglePassword','Contraseña','eyeIcon');
+    toggle('togglePasswordConfirm','Contraseña_confirmation','eyeIconConfirm');
 
-        document.getElementById('Nombre_Usuario').addEventListener('paste', e => e.preventDefault());
-        document.getElementById('Nombre_Usuario').addEventListener('copy', e => e.preventDefault());
-        document.getElementById('Nombre_Usuario').addEventListener('cut', e => e.preventDefault());
-        document.getElementById('Nombre_Usuario').addEventListener('drop', e => e.preventDefault());
+    /* -------------------- Validación de correo -------------------- */
+    const correo = document.getElementById('Correo_Electronico');
+    const error  = document.getElementById('correo-error-registro');
+    correo.addEventListener('input', () => {
+        let val = correo.value.toLowerCase();
+        let ok  = val.endsWith("@gmail.com") || val.endsWith("@hotmail.com");
 
-        // Bloquear caracteres especiales, pegar y cortar en Usuario y Nombre_Usuario
-        const campos = [
-            document.getElementById('Usuario'),
-            document.getElementById('Nombre_Usuario')
-        ];
-        campos.forEach(function(campo) {
-            if (campo) {
-                campo.addEventListener('keypress', function(e) {
-                    const regex = /^[A-Za-z0-9 ]+$/;
-                    if (!regex.test(e.key)) {
-                        e.preventDefault();
-                    }
-                });
-                campo.addEventListener('paste', e => e.preventDefault());
-                campo.addEventListener('copy', e => e.preventDefault());
-                campo.addEventListener('cut', e => e.preventDefault());
-                campo.addEventListener('drop', e => e.preventDefault());
-            }
-        });
-
-        // Validación de dominio de correo en auto registro
-        const correoRegistro = document.getElementById('Correo_Electronico');
-        const errorCorreoRegistro = document.getElementById('correo-error-registro');
-        const formRegistro = document.querySelector('form[action="{{ route('register') }}"]');
-        if (correoRegistro && errorCorreoRegistro && formRegistro) {
-            correoRegistro.addEventListener('input', function() {
-                const val = this.value.trim().toLowerCase();
-                if (val && !val.endsWith('@gmail.com') && !val.endsWith('@hotmail.com')) {
-                    correoRegistro.classList.add('is-invalid');
-                    errorCorreoRegistro.classList.remove('d-none');
-                } else {
-                    correoRegistro.classList.remove('is-invalid');
-                    errorCorreoRegistro.classList.add('d-none');
-                }
-            });
-            formRegistro.addEventListener('submit', function(e) {
-                const val = correoRegistro.value.trim().toLowerCase();
-                if (val && !val.endsWith('@gmail.com') && !val.endsWith('@hotmail.com')) {
-                    correoRegistro.classList.add('is-invalid');
-                    errorCorreoRegistro.classList.remove('d-none');
-                    correoRegistro.focus();
-                    e.preventDefault();
-                }
-            });
-        }
+        correo.classList.toggle("is-invalid", !ok);
+        error.classList.toggle("d-none", ok);
     });
-</script>
 
+    /* -------------------- Bloqueo copy/paste -------------------- */
+    ['Usuario','Nombre_Usuario'].forEach(id => {
+        const el = document.getElementById(id);
+        ['paste','copy','cut','drop','dragstart'].forEach(evt =>
+            el.addEventListener(evt, e => e.preventDefault())
+        );
+    });
+
+});
+</script>
 @stop

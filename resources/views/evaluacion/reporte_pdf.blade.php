@@ -10,163 +10,156 @@
         }
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10.5px;
+            font-size: 10px;
             margin: 0;
         }
-        .header {
+        table {
             width: 100%;
-            margin-bottom: 10px;
-        }
-        .left {
-            float: left;
-            font-size: 11px;
-        }
-        .center {
-            position: absolute;
-            width: 100%;
-            top: 30px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: bold;
-        }
-        .right {
-            float: right;
-        }
-        .right img {
-            height: 60px;
-        }
-        .clearfix::after {
-            content: "";
-            display: table;
-            clear: both;
         }
         .table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 10px;
         }
         .table th,
         .table td {
             border: 1px solid #000;
-            padding: 4px;
+            padding: 4px 3px;
             text-align: center;
-            vertical-align: middle;
         }
         .table th {
             background-color: #d9ead3;
             font-weight: bold;
         }
+        .header-table td {
+            padding-bottom: 5px;
+        }
     </style>
 </head>
 <body>
 
-<table width="100%" style="margin-bottom: 10px;">
+{{-- ENCABEZADO --}}
+<table class="header-table">
     <tr>
         <td style="text-align: left; font-size: 11px;">
             FECHA: {{ now()->format('Y/m/d') }}
         </td>
         <td style="text-align: center;">
-            <span style="font-weight: bold; font-size: 13px;">
-                FUNDER<br>
-                Reporte de Evaluaciones
-            </span>
+            <span style="font-size: 14px; font-weight: bold;">FUNDER</span><br>
+            <span style="font-size: 12px;">Reporte de Evaluaciones</span>
         </td>
         <td style="text-align: right;">
-            <img src="{{ public_path('images/cropped-cropped-logo-funder-1.webp') }}" alt="Funder Logo" style="height: 60px;">
+            <img src="{{ public_path('images/cropped-cropped-logo-funder-1.webp') }}" alt="Logo" height="55">
         </td>
     </tr>
 </table>
 
+{{-- TABLA PRINCIPAL --}}
 <table class="table">
     <thead>
         <tr>
             <th rowspan="2">No.</th>
             <th rowspan="2">Organización</th>
             <th rowspan="2">Departamento</th>
+
             <th colspan="4">Evaluación Inicial</th>
             <th colspan="4">Evaluación Actualizada</th>
-            <th rowspan="2">% de crecimiento</th>
+
+            <th rowspan="2">% Crecimiento</th>
         </tr>
         <tr>
-            <th>Desempeño Institucional</th>
-            <th>Desempeño Financiero</th>
-            <th>Calificación Total</th>
-            <th>Categoría</th>
+            <th>Inst.</th>
+            <th>Finan.</th>
+            <th>Total</th>
+            <th>Cat.</th>
 
-            <th>Desempeño Institucional</th>
-            <th>Desempeño Financiero</th>
-            <th>Calificación Total</th>
-            <th>Categoría</th>
+            <th>Inst.</th>
+            <th>Finan.</th>
+            <th>Total</th>
+            <th>Cat.</th>
         </tr>
     </thead>
+
     <tbody>
-        @foreach($actualizadas as $index => $evaAct)
-            @php
-                $evaIni = $evaluaciones->firstWhere('id_organizacion', $evaAct->id_organizacion);
-                $esActualizada = $evaIni && $evaIni->updated_at > $evaIni->created_at;
 
-                $instIni = $evaAct->desempeno_institucional;
-                $finIni = $evaAct->total_financiero;
-                $totalIni = (($instIni + $finIni) / (315 + 400)) * 100;
-                $catIni = match(true) {
-                    $totalIni >= 90 => 'A',
-                    $totalIni >= 71 => 'B',
-                    $totalIni >= 50 => 'C',
-                    default => 'D',
-                };
+    @foreach($actualizadas as $index => $evaAct)
 
-                $crecimiento = 0;
-                if ($evaIni && $esActualizada) {
-                    $instAct = $evaIni->desempeno_institucional;
-                    $finAct = $evaIni->total_financiero;
-                    $totalAct = (($instAct + $finAct) / (315 + 400)) * 100;
-                    $catAct = match(true) {
-                        $totalAct >= 90 => 'A',
-                        $totalAct >= 71 => 'B',
-                        $totalAct >= 50 => 'C',
-                        default => 'D',
-                    };
-                    $crecimiento = $totalAct - $totalIni;
-                }
-            @endphp
+        @php
+            // Buscar evaluación inicial
+            $evaIni = $evaluaciones->firstWhere('id_organizacion', $evaAct->id_organizacion);
+            $esActualizada = $evaIni && $evaIni->updated_at > $evaIni->created_at;
 
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $evaAct->organizacion->Nombre_Organizacion ?? 'Sin nombre' }}</td>
-                <td>{{ $evaAct->organizacion->aldea->municipio->departamento->Nombre_Departamento ?? 'No definido' }}</td>
+            // Helpers
+            $calcTotal = fn($inst, $fin) => round((($inst + $fin) / (315 + 400)) * 100, 2);
+            $calcCat = fn($t) =>
+                $t >= 90 ? 'A' :
+                ($t >= 71 ? 'B' :
+                ($t >= 50 ? 'C' : 'D'));
 
-                {{-- Evaluación Inicial --}}
-                <td>{{ round(($instIni / 315) * 100, 2) }}%</td>
-                <td>{{ round(($finIni / 400) * 100, 2) }}%</td>
-                <td>{{ round($totalIni, 2) }}%</td>
-                <td>{{ $catIni }}</td>
+            // Evaluación inicial
+            $instIni = $evaAct->desempeno_institucional;
+            $finIni = $evaAct->total_financiero;
+            $totalIni = $calcTotal($instIni, $finIni);
+            $catIni = $calcCat($totalIni);
 
-                {{-- Evaluación Actualizada --}}
-                @if ($evaIni && $esActualizada)
-                    <td>{{ round(($instAct / 315) * 100, 2) }}%</td>
-                    <td>{{ round(($finAct / 400) * 100, 2) }}%</td>
-                    <td>{{ round($totalAct, 2) }}%</td>
-                    <td>{{ $catAct }}</td>
-                    <td>{{ round($crecimiento, 2) }}%</td>
-                @else
-                    <td colspan="5" style="color: gray;">Sin datos</td>
-                @endif
-            </tr>
-        @endforeach
+            // Evaluación actual (si existe)
+            $instAct = $esActualizada ? $evaIni->desempeno_institucional : null;
+            $finAct = $esActualizada ? $evaIni->total_financiero : null;
+            $totalAct = $esActualizada ? $calcTotal($instAct, $finAct) : null;
+            $catAct = $esActualizada ? $calcCat($totalAct) : null;
+
+            // Crecimiento
+            $crecimiento = $esActualizada ? round($totalAct - $totalIni, 2) : 0;
+        @endphp
+
+        <tr>
+            {{-- Número --}}
+            <td>{{ $index + 1 }}</td>
+
+            {{-- Organización --}}
+            <td>{{ $evaAct->organizacion->Nombre_Organizacion ?? 'Sin nombre' }}</td>
+
+            {{-- Departamento --}}
+            <td>{{ $evaAct->organizacion->aldea->municipio->departamento->Nombre_Departamento ?? 'Sin dato' }}</td>
+
+            {{-- Inicial --}}
+            <td>{{ round(($instIni / 315) * 100, 2) }}%</td>
+            <td>{{ round(($finIni / 400) * 100, 2) }}%</td>
+            <td>{{ $totalIni }}%</td>
+            <td>{{ $catIni }}</td>
+
+            {{-- Actual --}}
+            @if($esActualizada)
+                <td>{{ round(($instAct / 315) * 100, 2) }}%</td>
+                <td>{{ round(($finAct / 400) * 100, 2) }}%</td>
+                <td>{{ $totalAct }}%</td>
+                <td>{{ $catAct }}</td>
+            @else
+                <td colspan="4" style="color: gray;">Sin datos</td>
+            @endif
+
+            {{-- Crecimiento --}}
+            <td>{{ $crecimiento }}%</td>
+        </tr>
+
+    @endforeach
+
     </tbody>
 </table>
 
-
-    @if (isset($pdf))
-        <script type="text/php">
-            if (isset($pdf)) {
-                $font = $fontMetrics->getFont("DejaVu Sans", "normal");
-                $size = 9;
-                $x = 720; // Posición X en horizontal para esquina derecha
-                $y = 575; // Posición Y en vertical (parte inferior de la página)
-                $pdf->page_text($x, $y, "Página {PAGE_NUM} de {PAGE_COUNT}", $font, $size);
-            }
-        </script>
-    @endif
+{{-- PIE DE PÁGINA --}}
+@if (isset($pdf))
+<script type="text/php">
+    if (isset($pdf)) {
+        $font = $fontMetrics->getFont("DejaVu Sans", "normal");
+        $pdf->page_text(
+            760, 570,
+            "Página {PAGE_NUM} de {PAGE_COUNT}",
+            $font, 9
+        );
+    }
+</script>
+@endif
 
 </body>
 </html>

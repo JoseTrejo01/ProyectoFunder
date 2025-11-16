@@ -17,6 +17,7 @@
             font-family: 'Segoe UI', sans-serif;
         }
 
+        /* Capa accesible */
         .overlay {
             min-height: 100vh;
             display: flex;
@@ -24,44 +25,54 @@
             justify-content: center;
             padding-left: 80px;
             text-align: left;
-            color: #1b4332;
+            color: #0D3B66; /* Azul oscuro legible */
+            background: rgba(255, 255, 255, 0.70);
+            backdrop-filter: blur(3px);
         }
 
         .logo-funder {
-            width: 200px;
-            margin-bottom: 20px;
+            width: 220px;
+            margin-bottom: 25px;
         }
 
         h3 {
             font-weight: 700;
-            font-size: 2.2rem;
-            margin-bottom: 10px;
+            font-size: 2.4rem;
+            margin-bottom: 12px;
+            color: #0D47A1; /* Azul FUNDER */
         }
 
         p.lead {
-            font-size: 1.2rem;
-            max-width: 500px;
-            margin-bottom: 25px;
+            font-size: 1.15rem;
+            max-width: 520px;
+            margin-bottom: 28px;
+            color: #333;
         }
 
-        .btn-primary {
-            background-color: #40916c;
+        /* Botón principal FUNDER */
+        .btn-funder-primary {
+            background-color: #0D47A1;
             border: none;
-            padding: 10px 25px;
+            padding: 12px 26px;
+            font-weight: 600;
+            color: white;
         }
 
-        .btn-primary:hover {
-            background-color: #2d6a4f;
+        .btn-funder-primary:hover {
+            background-color: #09316e;
         }
 
-        .btn-outline-primary {
-            color: #40916c;
-            border-color: #40916c;
-            padding: 10px 25px;
+        /* Botón secundario */
+        .btn-funder-outline {
+            color: #0D47A1;
+            border: 2px solid #0D47A1;
+            padding: 12px 26px;
+            font-weight: 600;
+            background: white;
         }
 
-        .btn-outline-primary:hover {
-            background-color: #40916c;
+        .btn-funder-outline:hover {
+            background-color: #0D47A1;
             color: #fff;
         }
 
@@ -69,21 +80,50 @@
             display: flex;
             gap: 20px;
         }
+
+        /* Accesibilidad */
+        .button-group a:focus {
+            outline: 3px solid #F9A825;
+            outline-offset: 3px;
+        }
+
+        @media(max-width: 768px) {
+            .overlay {
+                padding-left: 20px;
+                padding-right: 20px;
+                text-align: center;
+            }
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
     </style>
 </head>
-<body>
-    <div class="overlay">
-        <img src="{{ asset('images/cropped-cropped-logo-funder-1.webp') }}" alt="Logo FUNDER" class="logo-funder">
 
-        <h3>¡Bienvenido al Sistema!</h3>
-        <p class="lead">
-            Este sistema está diseñado para gestionar eficientemente las operaciones de las cajas rurales apoyadas por <strong>FUNDER</strong>.
+<body>
+    <div class="overlay" role="main" aria-label="Pantalla de bienvenida del sistema FUNDER">
+        
+        <img src="{{ asset('images/cropped-cropped-logo-funder-1.webp') }}"
+             alt="Logo institucional de FUNDER"
+             class="logo-funder">
+
+        <h3 id="bienvenida-titulo">¡Bienvenido al Sistema!</h3>
+
+        <p class="lead" aria-labelledby="bienvenida-titulo">
+            Este sistema está diseñado para gestionar eficientemente las operaciones de las cajas rurales apoyadas por 
+            <strong>FUNDER</strong>.
         </p>
 
-        <div class="button-group">
+        <div class="button-group" role="group" aria-label="Acciones principales de acceso">
             @guest
-                <a href="{{ route('login') }}" class="btn btn-primary">Iniciar Sesión</a>
-                <a href="{{ route('register') }}" class="btn btn-outline-primary">Registrarse</a>
+                <a href="{{ route('login') }}" class="btn btn-funder-primary" aria-label="Iniciar sesión en el sistema">
+                    Iniciar Sesión
+                </a>
+
+                <a href="{{ route('register') }}" class="btn btn-funder-outline" aria-label="Registrarse como usuario nuevo">
+                    Registrarse
+                </a>
             @endguest
         </div>
     </div>

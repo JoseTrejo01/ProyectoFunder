@@ -3,19 +3,131 @@
 @section('title', 'Capacitaciones')
 
 @section('content_header')
-    <h1>Registro de Capacitaciones</h1>
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <h1 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-chalkboard-teacher mr-2"></i> Registro de Capacitaciones
+        </h1>
+        <div class="mt-2 mt-md-0">
+            <a href="{{ route('reporte.exportCapacitacionesExcel') }}" class="btn btn-success shadow-sm">
+                <i class="fas fa-file-excel"></i> Exportar Excel
+            </a>
+        </div>
+    </div>
+@stop
+
+@section('css')
+    {{-- Select2 --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    {{-- Tema Bootstrap4 para Select2 (AdminLTE 3 usa Bootstrap 4) --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
+    <style>
+        /* Layout general */
+        .card {
+            border-radius: 1rem;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .nav-tabs .nav-link {
+            border-radius: 0;
+            font-weight: 600;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #5B8E3E;
+            color: #fff !important;
+            border-color: #5B8E3E;
+        }
+
+        .nav-tabs .nav-link i {
+            margin-right: .25rem;
+        }
+
+        /* Select2 */
+        .select2-container--bootstrap4 .select2-selection {
+            border-radius: 0.5rem !important;
+            min-height: 2.5rem;
+            border: 1px solid #3b3b3b !important;
+        }
+
+        .select2-container--bootstrap4 .select2-selection__rendered {
+            padding-left: .75rem;
+            color: #111 !important;
+            font-weight: 500;
+        }
+
+        .select2-container--bootstrap4 .select2-selection__arrow {
+            height: 100% !important;
+        }
+
+        .select2-container--bootstrap4 .select2-results__option--highlighted {
+            background-color: #0d6efd !important;
+            color: #fff !important;
+        }
+
+        /* Info-box accesibles */
+        .info-box {
+            border-radius: .75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .info-box .info-box-text {
+            font-size: .85rem;
+        }
+
+        .info-box .info-box-number {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        /* Tablas */
+        table.table {
+            font-size: 0.9rem;
+        }
+
+        thead.table-primary th,
+        thead.table-primary td {
+            color: #fff;
+            background-color: #1b263b !important;
+        }
+
+        thead.table-primary th i {
+            margin-right: .25rem;
+        }
+
+        .table thead th {
+            vertical-align: middle !important;
+        }
+
+        .badge-warning {
+            color: #856404;
+            background-color: #fff3cd;
+        }
+
+        /* Responsivo */
+        @media (max-width: 767.98px) {
+            .info-box .info-box-text {
+                font-size: .75rem;
+            }
+            .info-box .info-box-number {
+                font-size: .9rem;
+            }
+            .nav-tabs .nav-link {
+                font-size: .85rem;
+                padding: .35rem .5rem;
+            }
+            .card-header h5, .card-header h6 {
+                font-size: 1rem;
+            }
+        }
+    </style>
 @stop
 
 @section('content')
 <div class="container-fluid">
-    {{-- BOTONES DE EXPORTACIÓN --}}
-    <div class="mb-3 d-flex justify-content-end">
-        <a href="{{ route('reporte.exportCapacitacionesExcel') }}" class="btn btn-success">
-            <i class="fas fa-file-excel"></i> Exportar Excel
-        </a>
-    </div>
 
-    {{-- MENSAJES DE ÉXITO Y ERROR --}}
+    {{-- MENSAJES DE ÉXITO Y ERROR (SweetAlert2) --}}
     @if(session('success'))
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
@@ -48,45 +160,81 @@
 
     {{-- PESTAÑAS (TABS) --}}
     <div class="card">
-        <div class="card-header p-0">
+        <div class="card-header p-0 border-bottom-0">
             <ul class="nav nav-tabs" id="capacitacionesTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="formulario-tab" data-toggle="tab" data-target="#formulario" type="button" role="tab" aria-controls="formulario" aria-selected="true">
+                    <button class="nav-link active"
+                            id="formulario-tab"
+                            data-toggle="tab"
+                            data-target="#formulario"
+                            type="button"
+                            role="tab"
+                            aria-controls="formulario"
+                            aria-selected="true">
                         <i class="fas fa-plus-circle"></i> Registrar Capacitación
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="modulos-tab" data-toggle="tab" data-target="#modulos" type="button" role="tab" aria-controls="modulos" aria-selected="false">
+                    <button class="nav-link"
+                            id="modulos-tab"
+                            data-toggle="tab"
+                            data-target="#modulos"
+                            type="button"
+                            role="tab"
+                            aria-controls="modulos"
+                            aria-selected="false">
                         <i class="fas fa-book"></i> Módulos y Temas
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="reporte-tab" data-toggle="tab" data-target="#reporte" type="button" role="tab" aria-controls="reporte" aria-selected="false">
+                    <button class="nav-link"
+                            id="reporte-tab"
+                            data-toggle="tab"
+                            data-target="#reporte"
+                            type="button"
+                            role="tab"
+                            aria-controls="reporte"
+                            aria-selected="false">
                         <i class="fas fa-chart-bar"></i> Reporte de Capacitaciones
                     </button>
                 </li>
             </ul>
         </div>
+
         <div class="card-body">
             <div class="tab-content" id="capacitacionesTabsContent">
-                {{-- PESTAÑA INFORMACIÓN BÁSICA --}}
-                <div class="tab-pane fade show active" id="formulario" role="tabpanel" aria-labelledby="formulario-tab">
-                    <div class="row">
+
+                {{-- ================== PESTAÑA INFORMACIÓN BÁSICA ================== --}}
+                <div class="tab-pane fade show active"
+                     id="formulario"
+                     role="tabpanel"
+                     aria-labelledby="formulario-tab">
+                    <div class="row mb-3">
                         <div class="col-12">
-                            <h5><i class="fas fa-info-circle"></i> Información Básica de la Capacitación</h5>
-                            <p class="text-muted">Complete los datos generales de la capacitación antes de seleccionar los módulos y temas</p>
+                            <h5 class="fw-bold">
+                                <i class="fas fa-info-circle"></i> Información Básica de la Capacitación
+                            </h5>
+                            <p class="text-muted mb-2">
+                                Complete los datos generales de la capacitación antes de seleccionar los módulos y temas.
+                            </p>
                         </div>
                     </div>
 
                     <form action="{{ route('capacitacion.store') }}" method="POST" id="capacitacionForm">
                         @csrf
+
                         <div class="row">
+                            {{-- Caja Rural --}}
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="Id_Organizacion" class="form-label">
+                                    <label for="Id_Organizacion" class="form-label fw-semibold">
                                         <i class="fas fa-building"></i> Caja Rural
                                     </label>
-                                    <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
+                                    <select name="Id_Organizacion"
+                                            id="Id_Organizacion"
+                                            class="form-control"
+                                            required
+                                            aria-required="true">
                                         <option value="">Seleccione una caja rural</option>
                                         @foreach($organizaciones as $org)
                                             <option value="{{ $org->Id_Organizacion }}">{{ $org->Nombre_Organizacion }}</option>
@@ -94,60 +242,89 @@
                                     </select>
                                 </div>
                             </div>
+
+                            {{-- Fecha --}}
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="Fecha" class="form-label">
+                                    <label for="Fecha" class="form-label fw-semibold">
                                         <i class="fas fa-calendar"></i> Fecha de Capacitación
                                     </label>
-                                    <input type="date" name="Fecha" id="Fecha" class="form-control" required>
+                                    <input type="date"
+                                           name="Fecha"
+                                           id="Fecha"
+                                           class="form-control"
+                                           required
+                                           aria-required="true">
                                 </div>
                             </div>
                         </div>
 
+                        {{-- Beneficiarios --}}
                         <div class="mb-4">
-                            <label for="beneficiarios" class="form-label">
+                            <label for="beneficiarios" class="form-label fw-semibold">
                                 <i class="fas fa-users"></i> Beneficiarios Participantes
                             </label>
-                            <select name="beneficiarios[]" id="beneficiarios" class="form-control" multiple required style="min-height: 150px;">
-                                {{-- Se llenará dinámicamente según la caja rural seleccionada --}}
+                            <select name="beneficiarios[]"
+                                    id="beneficiarios"
+                                    class="form-control"
+                                    multiple
+                                    required
+                                    aria-required="true"
+                                    aria-describedby="beneficiariosHelp">
+                                {{-- Se llenará dinámicamente según la caja rural --}}
                             </select>
-                            <small class="text-muted">Mantenga presionado Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples beneficiarios</small>
+                            <small id="beneficiariosHelp" class="text-muted">
+                                Puede seleccionar múltiples beneficiarios utilizando Ctrl (Windows) o Cmd (Mac), o clic individual si está en móvil.
+                            </small>
                         </div>
 
-                        {{-- Información de resumen --}}
-                        <div class="card bg-light">
+                        {{-- Resumen informativo --}}
+                        <div class="card bg-light border-0">
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="info-box bg-info">
-                                            <span class="info-box-icon"><i class="fas fa-building"></i></span>
+
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <div class="info-box bg-info text-white">
+                                            <span class="info-box-icon">
+                                                <i class="fas fa-building"></i>
+                                            </span>
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Caja Rural</span>
                                                 <span class="info-box-number" id="info-caja">No seleccionada</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="info-box bg-success">
-                                            <span class="info-box-icon"><i class="fas fa-users"></i></span>
+
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <div class="info-box bg-success text-white">
+                                            <span class="info-box-icon">
+                                                <i class="fas fa-users"></i>
+                                            </span>
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Beneficiarios</span>
                                                 <span class="info-box-number" id="info-beneficiarios">0</span>
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="col-md-4">
                                         <div class="info-box bg-warning">
-                                            <span class="info-box-icon"><i class="fas fa-calendar"></i></span>
+                                            <span class="info-box-icon">
+                                                <i class="fas fa-calendar"></i>
+                                            </span>
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Fecha</span>
                                                 <span class="info-box-number" id="info-fecha">No seleccionada</span>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
+
                                 <div class="text-center mt-3">
-                                    <button type="button" class="btn btn-primary" onclick="irAModulos()">
+                                    <button type="button"
+                                            class="btn btn-primary btn-lg px-4"
+                                            onclick="irAModulos()">
                                         <i class="fas fa-arrow-right"></i> Continuar a Módulos y Temas
                                     </button>
                                 </div>
@@ -156,78 +333,108 @@
                     </form>
                 </div>
 
-                {{-- PESTAÑA MÓDULOS Y TEMAS --}}
-                <div class="tab-pane fade" id="modulos" role="tabpanel" aria-labelledby="modulos-tab">
-                    <div class="row">
+                {{-- ================== PESTAÑA MÓDULOS Y TEMAS ================== --}}
+                <div class="tab-pane fade"
+                     id="modulos"
+                     role="tabpanel"
+                     aria-labelledby="modulos-tab">
+
+                    <div class="row mb-3">
                         <div class="col-12">
-                            <h5><i class="fas fa-book"></i> Selección de Módulos y Temas</h5>
-                            <p class="text-muted">Marque los temas que cada beneficiario recibió en esta capacitación</p>
+                            <h5 class="fw-bold">
+                                <i class="fas fa-book"></i> Selección de Módulos y Temas
+                            </h5>
+                            <p class="text-muted">
+                                Marque los temas que cada beneficiario recibió en esta capacitación.
+                            </p>
                         </div>
                     </div>
 
-                    {{-- Información de la capacitación seleccionada --}}
-                    <div class="alert alert-info" id="info-capacitacion" style="display: none;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong><i class="fas fa-info-circle"></i> Capacitación:</strong>
-                                <span id="resumen-info"></span>
+                    {{-- Información resumen --}}
+                    <div class="alert alert-info d-none" id="info-capacitacion" role="status">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                            <div class="mb-2 mb-md-0">
+                                <strong><i class="fas fa-info-circle"></i> Capacitación: </strong>
+                                <span id="resumen-info">Información incompleta</span>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="volverAInformacion()">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    onclick="volverAInformacion()">
                                 <i class="fas fa-edit"></i> Modificar Información
                             </button>
                         </div>
                     </div>
 
+                    {{-- Mensaje inicial --}}
                     <div id="contenido-modulos">
-                        <div class="alert alert-warning">
+                        <div class="alert alert-warning mb-0">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Complete primero la información básica:</strong> Debe seleccionar la caja rural, beneficiarios y fecha en la pestaña anterior antes de continuar.
+                            <strong>Complete primero la información básica:</strong>
+                            seleccione Caja Rural, Beneficiarios y Fecha en la pestaña anterior.
                         </div>
                     </div>
 
-                    {{-- Aquí se cargará dinámicamente el contenido de módulos --}}
+                    {{-- Contenido dinámico de módulos --}}
                     <div id="modulos-dinamicos" style="display: none;">
                         @php
                             $modulosUnicos = collect($modulos)->unique('Nombre_Modulo')->values();
                         @endphp
-                        
-                        {{-- Pestañas de módulos --}}
+
+                        {{-- Tabs de módulos --}}
                         <ul class="nav nav-tabs nav-tabs-bordered mb-3" id="moduloTabs" role="tablist">
                             @foreach($modulosUnicos as $idx => $modulo)
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link {{ $idx === 0 ? 'active' : '' }}" id="tabModulo{{ $modulo->Id_Modulo }}" data-toggle="tab" data-target="#modulo{{ $modulo->Id_Modulo }}" type="button" role="tab" aria-controls="modulo{{ $modulo->Id_Modulo }}" aria-selected="{{ $idx === 0 ? 'true' : 'false' }}">
+                                    <button class="nav-link {{ $idx === 0 ? 'active' : '' }}"
+                                            id="tabModulo{{ $modulo->Id_Modulo }}"
+                                            data-toggle="tab"
+                                            data-target="#modulo{{ $modulo->Id_Modulo }}"
+                                            type="button"
+                                            role="tab"
+                                            aria-controls="modulo{{ $modulo->Id_Modulo }}"
+                                            aria-selected="{{ $idx === 0 ? 'true' : 'false' }}">
                                         <i class="fas fa-book-open"></i> {{ $modulo->Nombre_Modulo }}
                                     </button>
                                 </li>
                             @endforeach
                         </ul>
-                        
+
+                        {{-- Contenido de cada módulo --}}
                         <div class="tab-content" id="moduloTabsContent">
                             @foreach($modulosUnicos as $idx => $modulo)
-                                <div class="tab-pane fade {{ $idx === 0 ? 'show active' : '' }}" id="modulo{{ $modulo->Id_Modulo }}" role="tabpanel" aria-labelledby="tabModulo{{ $modulo->Id_Modulo }}">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h6><i class="fas fa-book-open"></i> {{ $modulo->Nombre_Modulo }}</h6>
-                                        <div>
-                                            <button type="button" class="btn btn-sm btn-outline-success" onclick="seleccionarTodosModulo({{ $modulo->Id_Modulo }})">
+                                <div class="tab-pane fade {{ $idx === 0 ? 'show active' : '' }}"
+                                     id="modulo{{ $modulo->Id_Modulo }}"
+                                     role="tabpanel"
+                                     aria-labelledby="tabModulo{{ $modulo->Id_Modulo }}">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+                                        <h6 class="mb-2 mb-md-0 fw-bold">
+                                            <i class="fas fa-book-open"></i> {{ $modulo->Nombre_Modulo }}
+                                        </h6>
+                                        <div class="btn-group" role="group" aria-label="Acciones rápidas módulo">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-success"
+                                                    onclick="seleccionarTodosModulo({{ $modulo->Id_Modulo }})">
                                                 <i class="fas fa-check-double"></i> Seleccionar Todos
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deseleccionarTodosModulo({{ $modulo->Id_Modulo }})">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    onclick="deseleccionarTodosModulo({{ $modulo->Id_Modulo }})">
                                                 <i class="fas fa-times"></i> Deseleccionar Todos
                                             </button>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="table-responsive">
-                                        <table class="table table-striped table-hover table-bordered" id="tabla-capacitacion-{{ $modulo->Id_Modulo }}">
+                                        <table class="table table-striped table-hover table-bordered"
+                                               id="tabla-capacitacion-{{ $modulo->Id_Modulo }}">
                                             <thead class="table-primary">
                                                 <tr>
-                                                    <th style="width: 50%;">
+                                                    <th scope="col" style="width: 40%;">
                                                         <i class="fas fa-bookmark"></i> Tema
                                                     </th>
-                                                    <th style="width: 10%;">
+                                                    <th scope="col" style="width: 10%;" class="text-center">
                                                         <i class="fas fa-check-circle"></i> Todos
                                                     </th>
-                                                    <th style="width: 40%;">
+                                                    <th scope="col" style="width: 50%;">
                                                         <i class="fas fa-users"></i> Beneficiarios
                                                     </th>
                                                 </tr>
@@ -237,10 +444,13 @@
                                                     <tr data-tema-id="{{ $tema->Id_Tema }}">
                                                         <td class="align-middle fw-semibold">{{ $tema->Nombre_Tema }}</td>
                                                         <td class="text-center align-middle">
-                                                            <input type="checkbox" class="form-check-input tema-todos" onchange="toggleTema({{ $tema->Id_Tema }}, this.checked)">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input tema-todos"
+                                                                   onchange="toggleTema({{ $tema->Id_Tema }}, this.checked)"
+                                                                   aria-label="Seleccionar todos los beneficiarios para el tema {{ $tema->Nombre_Tema }}">
                                                         </td>
                                                         <td class="beneficiarios-checkboxes align-middle">
-                                                            {{-- Los checkboxes se llenan por JS --}}
+                                                            {{-- Checkboxes generados por JS --}}
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -252,35 +462,53 @@
                         </div>
 
                         <div class="mt-4 text-center">
-                            <button type="button" class="btn btn-success btn-lg" onclick="enviarCapacitacion()">
+                            <button type="button"
+                                    class="btn btn-success btn-lg px-4"
+                                    onclick="enviarCapacitacion()">
                                 <i class="fas fa-save"></i> Guardar Capacitación
                             </button>
-                            <button type="button" class="btn btn-secondary btn-lg ms-2" onclick="volverAInformacion()">
+                            <button type="button"
+                                    class="btn btn-secondary btn-lg px-4 ml-md-2 mt-2 mt-md-0"
+                                    onclick="volverAInformacion()">
                                 <i class="fas fa-arrow-left"></i> Volver a Información
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {{-- PESTAÑA REPORTE --}}
-                <div class="tab-pane fade" id="reporte" role="tabpanel" aria-labelledby="reporte-tab">
-                    <div class="row">
+                {{-- ================== PESTAÑA REPORTE ================== --}}
+                <div class="tab-pane fade"
+                     id="reporte"
+                     role="tabpanel"
+                     aria-labelledby="reporte-tab">
+
+                    <div class="row mb-3">
                         <div class="col-12">
-                            <h5><i class="fas fa-chart-bar"></i> Reporte de Capacitaciones por Socio</h5>
-                            <p class="text-muted">Consulte los módulos recibidos por cada socio en las capacitaciones registradas</p>
+                            <h5 class="fw-bold">
+                                <i class="fas fa-chart-bar"></i> Reporte de Capacitaciones por Socio
+                            </h5>
+                            <p class="text-muted">
+                                Consulte los módulos recibidos por cada socio en las capacitaciones registradas.
+                            </p>
                         </div>
                     </div>
 
-                    {{-- Filtros del reporte --}}
+                    {{-- Filtros --}}
                     <div class="card mb-3">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-filter"></i> Filtros de Búsqueda</h6>
+                            <h6 class="mb-0 fw-bold">
+                                <i class="fas fa-filter"></i> Filtros de Búsqueda
+                            </h6>
                         </div>
                         <div class="card-body">
-                            <div class="row">
+                            <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label for="filtro_reporte_organizacion" class="form-label">Caja Rural</label>
-                                    <select id="filtro_reporte_organizacion" class="form-control">
+                                    <label for="filtro_reporte_organizacion" class="form-label fw-semibold">
+                                        <i class="fas fa-building"></i> Caja Rural
+                                    </label>
+                                    <select id="filtro_reporte_organizacion"
+                                            class="form-control"
+                                            aria-label="Filtrar por Caja Rural">
                                         <option value="">Todas las cajas rurales</option>
                                         @foreach($organizaciones as $org)
                                             <option value="{{ $org->Id_Organizacion }}">{{ $org->Nombre_Organizacion }}</option>
@@ -288,15 +516,27 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="filtro_reporte_fecha_inicio" class="form-label">Fecha Inicio</label>
-                                    <input type="date" id="filtro_reporte_fecha_inicio" class="form-control">
+                                    <label for="filtro_reporte_fecha_inicio" class="form-label fw-semibold">
+                                        <i class="fas fa-calendar-day"></i> Fecha Inicio
+                                    </label>
+                                    <input type="date"
+                                           id="filtro_reporte_fecha_inicio"
+                                           class="form-control"
+                                           aria-label="Fecha inicio del filtro">
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="filtro_reporte_fecha_fin" class="form-label">Fecha Fin</label>
-                                    <input type="date" id="filtro_reporte_fecha_fin" class="form-control">
+                                    <label for="filtro_reporte_fecha_fin" class="form-label fw-semibold">
+                                        <i class="fas fa-calendar-day"></i> Fecha Fin
+                                    </label>
+                                    <input type="date"
+                                           id="filtro_reporte_fecha_fin"
+                                           class="form-control"
+                                           aria-label="Fecha fin del filtro">
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
-                                    <button type="button" class="btn btn-primary w-100" onclick="cargarReporte()">
+                                    <button type="button"
+                                            class="btn btn-primary w-100"
+                                            onclick="cargarReporte()">
                                         <i class="fas fa-search"></i> Buscar
                                     </button>
                                 </div>
@@ -304,34 +544,36 @@
                         </div>
                     </div>
 
-                    {{-- Tabla de reporte --}}
+                    {{-- Tabla reporte --}}
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-table"></i> Reporte de Capacitaciones</h6>
+                            <h6 class="mb-0 fw-bold">
+                                <i class="fas fa-table"></i> Reporte de Capacitaciones
+                            </h6>
                         </div>
                         <div class="card-body">
-                            <div id="loading-reporte" class="text-center" style="display: none;">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="sr-only">Cargando...</span>
-                                </div>
-                                <p class="mt-2">Generando reporte...</p>
+
+                            <div id="loading-reporte" class="text-center my-3" style="display: none;">
+                                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                                <p class="mt-2 mb-0">Generando reporte...</p>
                             </div>
 
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover table-bordered" id="tabla-reporte">
                                     <thead class="table-primary">
                                         <tr>
-                                            <th><i class="fas fa-building"></i> Caja Rural</th>
-                                            <th><i class="fas fa-user"></i> Socio/Beneficiario</th>
-                                            <th><i class="fas fa-calendar"></i> Fechas de Capacitación</th>
-                                            <th><i class="fas fa-book"></i> Módulos Recibidos</th>
-                                            <th><i class="fas fa-bookmark"></i> Total Temas</th>
+                                            <th scope="col"><i class="fas fa-building"></i> Caja Rural</th>
+                                            <th scope="col"><i class="fas fa-user"></i> Socio / Beneficiario</th>
+                                            <th scope="col"><i class="fas fa-calendar"></i> Fechas de Capacitación</th>
+                                            <th scope="col"><i class="fas fa-book"></i> Módulos Recibidos</th>
+                                            <th scope="col" class="text-center"><i class="fas fa-bookmark"></i> Total Temas</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody-reporte">
                                         <tr>
                                             <td colspan="5" class="text-center text-muted">
-                                                <i class="fas fa-info-circle"></i> Haga clic en "Generar Reporte" para cargar los datos
+                                                <i class="fas fa-info-circle"></i>
+                                                Haga clic en <strong>Buscar</strong> para cargar los datos.
                                             </td>
                                         </tr>
                                     </tbody>
@@ -339,145 +581,119 @@
                             </div>
 
                             {{-- Paginación --}}
-                            <div id="paginacion-reporte" class="d-flex justify-content-between align-items-center mt-3" style="display: none;">
-                                <div>
+                            <div id="paginacion-reporte"
+                                 class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-3"
+                                 style="display: none;">
+                                <div class="mb-2 mb-md-0">
                                     <span class="text-muted" id="info-registros"></span>
                                 </div>
                                 <nav aria-label="Paginación del reporte">
                                     <ul class="pagination pagination-sm mb-0" id="pagination-controls">
-                                        <!-- Los controles de paginación se cargarán aquí -->
+                                        {{-- Se llena por JS --}}
                                     </ul>
                                 </nav>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                </div> {{-- Fin pestaña reporte --}}
 
             </div>
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('js')
+    {{-- jQuery ya viene con AdminLTE --}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    // Obtener datos de beneficiarios del controlador
+    // ================== DATOS DESDE EL SERVIDOR ==================
     let beneficiariosPorOrg = @json($beneficiariosPorOrg);
-    
-    console.log('=== DEBUG NUEVA IMPLEMENTACIÓN ===');
-    console.log('Datos recibidos del servidor:', beneficiariosPorOrg);
-    console.log('Tipo de datos:', typeof beneficiariosPorOrg);
-    console.log('Claves disponibles:', Object.keys(beneficiariosPorOrg || {}));
-    
-    // Función simplificada para cargar beneficiarios
+
+    // ================== SELECT2 INIT ==================
+    function initSelect2() {
+        $('#Id_Organizacion').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: 'Seleccione una caja rural',
+            allowClear: true
+        });
+
+        $('#beneficiarios').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: 'Seleccione beneficiarios',
+            allowClear: true
+        });
+
+        $('#filtro_reporte_organizacion').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: 'Todas las cajas rurales',
+            allowClear: true
+        });
+    }
+
+    // ================== CARGA DE BENEFICIARIOS POR CAJA ==================
     function cargarBeneficiariosSimplificado(organizacionId) {
-        console.log('>>> Iniciando carga de beneficiarios para org:', organizacionId);
-        
         const $selectBeneficiarios = $('#beneficiarios');
-        $selectBeneficiarios.empty();
-        
+        $selectBeneficiarios.empty().trigger('change');
+
         if (!organizacionId) {
             $selectBeneficiarios.append('<option value="">Primero seleccione una caja rural</option>');
+            $selectBeneficiarios.trigger('change');
             return;
         }
-        
-        // Buscar beneficiarios con diferentes métodos de acceso
+
         let beneficiarios = null;
-        
-        // Método 1: Clave como string
+
         if (beneficiariosPorOrg[organizacionId.toString()]) {
             beneficiarios = beneficiariosPorOrg[organizacionId.toString()];
-            console.log('Encontrados con clave string');
-        }
-        // Método 2: Clave como número
-        else if (beneficiariosPorOrg[parseInt(organizacionId)]) {
+        } else if (beneficiariosPorOrg[parseInt(organizacionId)]) {
             beneficiarios = beneficiariosPorOrg[parseInt(organizacionId)];
-            console.log('Encontrados con clave numérica');
-        }
-        // Método 3: Búsqueda manual
-        else {
-            console.log('Búsqueda manual en todas las claves...');
+        } else {
             for (let key in beneficiariosPorOrg) {
-                console.log(`Comparando: "${key}" == "${organizacionId}"`);
                 if (key == organizacionId) {
                     beneficiarios = beneficiariosPorOrg[key];
-                    console.log('Encontrado con búsqueda manual');
                     break;
                 }
             }
         }
-        
-        console.log('Beneficiarios encontrados:', beneficiarios);
-        
+
         if (!beneficiarios || !Array.isArray(beneficiarios) || beneficiarios.length === 0) {
-            console.log('No hay beneficiarios disponibles');
             $selectBeneficiarios.append('<option value="">No hay beneficiarios disponibles</option>');
-            
-            // Mostrar alerta solo si no hay beneficiarios
-            if (organizacionId) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Sin beneficiarios',
-                    text: 'Esta caja rural no tiene beneficiarios registrados.',
-                    confirmButtonColor: '#3085d6'
-                });
-            }
+            $selectBeneficiarios.trigger('change');
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Sin beneficiarios',
+                text: 'Esta caja rural no tiene beneficiarios registrados.',
+                confirmButtonColor: '#3085d6'
+            });
+
             return;
         }
-        
-        // Agregar opción por defecto
+
         $selectBeneficiarios.append('<option value="">Seleccione beneficiarios</option>');
-        
-        // Cargar beneficiarios
-        beneficiarios.forEach(function(beneficiario) {
-            console.log('Agregando beneficiario:', beneficiario.Nombre_Beneficiario);
+        beneficiarios.forEach(function(b) {
             $selectBeneficiarios.append(
-                `<option value="${beneficiario.Id_Beneficiario}">${beneficiario.Nombre_Beneficiario}</option>`
+                `<option value="${b.Id_Beneficiario}">${b.Nombre_Beneficiario}</option>`
             );
         });
-        
-        console.log(`>>> Carga completada: ${beneficiarios.length} beneficiarios`);
+        $selectBeneficiarios.trigger('change');
     }
 
-    $(document).ready(function() {
-        console.log('=== INICIALIZACIÓN DOCUMENT READY ===');
-        
-        // Evento cambio organización
-        $('#Id_Organizacion').on('change', function() {
-            const organizacionId = $(this).val();
-            const organizacionNombre = $(this).find('option:selected').text();
-            $('#info-caja').text(organizacionNombre !== 'Seleccione una caja rural' ? organizacionNombre : 'No seleccionada');
-            cargarBeneficiariosSimplificado(organizacionId);
-            updateInfoDisplays();
-        });
-        
-        // Otros eventos
-        $('#beneficiarios').on('change', updateInfoDisplays);
-        $('#Fecha').on('change', updateInfoDisplays);
-        
-        // Tabs persistencia
-        $('button[data-toggle="tab"]').on('shown.bs.tab', e => localStorage.setItem('activeCapacitacionTab', e.target.id));
-        let activeTab = localStorage.getItem('activeCapacitacionTab');
-        if (activeTab && $('#' + activeTab).length) { $('#' + activeTab).tab('show'); }
-        
-        // Carga inicial
-        const orgInicial = $('#Id_Organizacion').val();
-        if (orgInicial) cargarBeneficiariosSimplificado(orgInicial);
-        updateInfoDisplays();
-        console.log('=== INICIALIZACIÓN COMPLETADA ===');
-    });
-
+    // ================== INFO RESUMEN ==================
     function updateInfoDisplays() {
-        // Actualizar contador de beneficiarios
-        let beneficiariosCount = $('#beneficiarios option:selected').length;
+        let beneficiariosCount = ($('#beneficiarios').val() || []).length;
         $('#info-beneficiarios').text(beneficiariosCount);
-        
-        // Actualizar fecha
+
         let fecha = $('#Fecha').val();
         $('#info-fecha').text(fecha || 'No seleccionada');
-        
-        // Actualizar resumen en la segunda pestaña
+
         updateResumenCapacitacion();
     }
 
@@ -485,222 +701,166 @@
         let $caja = $('#Id_Organizacion');
         let $beneficiarios = $('#beneficiarios');
         let fecha = $('#Fecha').val();
-        
+
         if ($caja.val() && $beneficiarios.val() && $beneficiarios.val().length > 0 && fecha) {
             let cajaText = $caja.find('option:selected').text();
             let beneficiariosCount = $beneficiarios.val().length;
-            
-            $('#resumen-info').html(`<strong>${cajaText}</strong> - ${beneficiariosCount} beneficiarios - ${fecha}`);
+
+            $('#resumen-info').html(
+                `<strong>${cajaText}</strong> &mdash; ${beneficiariosCount} beneficiario(s) &mdash; ${fecha}`
+            );
         } else {
             $('#resumen-info').html('Información incompleta');
         }
     }
 
-    // Función para ir a la pestaña de módulos
+    // ================== NAVEGACIÓN ENTRE TABS ==================
     function irAModulos() {
         let caja = $('#Id_Organizacion').val();
         let beneficiarios = $('#beneficiarios').val();
         let fecha = $('#Fecha').val();
-        
-        console.log('Validando para ir a módulos:', { caja, beneficiarios, fecha });
-        
+
         if (!caja || !beneficiarios || beneficiarios.length === 0 || !fecha) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Información incompleta',
-                text: 'Por favor complete todos los campos antes de continuar.',
+                text: 'Por favor complete Caja Rural, Beneficiarios y Fecha antes de continuar.',
                 confirmButtonColor: '#f39c12'
             });
             return;
         }
 
-        // Cambiar a la pestaña de módulos
         $('#modulos-tab').tab('show');
-        
-        // Mostrar información de la capacitación
-        $('#info-capacitacion').show();
-        
-        // Ocultar mensaje de advertencia y mostrar módulos
+        $('#info-capacitacion').removeClass('d-none');
         $('#contenido-modulos .alert-warning').hide();
         $('#modulos-dinamicos').show();
-        
-        // Llenar los checkboxes de beneficiarios en cada tema
+
         llenarCheckboxesBeneficiarios();
     }
 
-    // Función para volver a la pestaña de información
     function volverAInformacion() {
         $('#formulario-tab').tab('show');
     }
 
-    // Función para llenar los checkboxes de beneficiarios en cada tema
+    // ================== CHECKBOXES POR TEMA Y BENEFICIARIO ==================
     function llenarCheckboxesBeneficiarios() {
-        console.log('Llenando checkboxes de beneficiarios...');
-        
-        let beneficiariosSeleccionados = $('#beneficiarios').val();
-        if (!beneficiariosSeleccionados || beneficiariosSeleccionados.length === 0) {
-            console.log('No hay beneficiarios seleccionados');
+        let beneficiariosSeleccionados = $('#beneficiarios').val() || [];
+        if (beneficiariosSeleccionados.length === 0) {
             return;
         }
-        
-        // Limpiar todas las celdas de beneficiarios
+
         $('.beneficiarios-checkboxes').empty();
-        
-        // Para cada fila de tema
+
         $('tr[data-tema-id]').each(function() {
             let temaId = $(this).data('tema-id');
             let celda = $(this).find('.beneficiarios-checkboxes');
-            
-            // Obtener el ID del módulo desde la tabla padre
             let moduloId = $(this).closest('.tab-pane').attr('id').replace('modulo', '');
-            
-            // Crear checkboxes para cada beneficiario seleccionado
+
             beneficiariosSeleccionados.forEach(function(idBeneficiario) {
                 let nombreBeneficiario = $(`#beneficiarios option[value="${idBeneficiario}"]`).text();
-                
-                let checkbox = `
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input beneficiario-checkbox" 
-                               type="checkbox" 
+
+                let checkboxHtml = `
+                    <div class="form-check form-check-inline mb-1">
+                        <input class="form-check-input beneficiario-checkbox"
+                               type="checkbox"
                                id="beneficiario_${idBeneficiario}_modulo_${moduloId}_tema_${temaId}"
                                name="recibio[${idBeneficiario}][${moduloId}][${temaId}]"
                                value="1"
                                data-beneficiario="${idBeneficiario}"
                                data-modulo="${moduloId}"
                                data-tema="${temaId}">
-                        <label class="form-check-label small" for="beneficiario_${idBeneficiario}_modulo_${moduloId}_tema_${temaId}">
+                        <label class="form-check-label small"
+                               for="beneficiario_${idBeneficiario}_modulo_${moduloId}_tema_${temaId}">
                             ${nombreBeneficiario}
                         </label>
                     </div>
                 `;
-                
-                celda.append(checkbox);
+                celda.append(checkboxHtml);
             });
         });
-        
-        console.log('Checkboxes de beneficiarios creados');
     }
 
-    // Función para seleccionar todos los temas de un módulo
     function seleccionarTodosModulo(idModulo) {
         $(`#modulo${idModulo} .beneficiario-checkbox`).prop('checked', true);
         $(`#modulo${idModulo} .tema-todos`).prop('checked', true);
     }
 
-    // Función para deseleccionar todos los temas de un módulo
     function deseleccionarTodosModulo(idModulo) {
         $(`#modulo${idModulo} .beneficiario-checkbox`).prop('checked', false);
         $(`#modulo${idModulo} .tema-todos`).prop('checked', false);
     }
 
-    // Función para togglear todos los beneficiarios de un tema
     function toggleTema(idTema, checked) {
         $(`.beneficiario-checkbox[data-tema="${idTema}"]`).prop('checked', checked);
     }
 
-    // Función para actualizar checkboxes
-    function actualizarCheckboxes() {
-        // Esta función se mantiene para compatibilidad
-        console.log('Actualizando checkboxes...');
-    }
-
-    // Función para enviar la capacitación
+    // ================== ENVÍO DE CAPACITACIÓN (AJAX) ==================
     function enviarCapacitacion() {
-        console.log('Preparando envío de capacitación...');
-        
-        // Validar que hay información básica
         let caja = $('#Id_Organizacion').val();
         let beneficiarios = $('#beneficiarios').val();
         let fecha = $('#Fecha').val();
-        
+
         if (!caja || !beneficiarios || beneficiarios.length === 0 || !fecha) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Información incompleta',
-                text: 'Por favor complete la información básica antes de guardar.',
+                text: 'Complete la información básica antes de guardar.',
                 confirmButtonColor: '#f39c12'
             });
             return;
         }
-        
-        // Crear FormData
+
         let formData = new FormData();
-        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        formData.append('_token', '{{ csrf_token() }}');
         formData.append('Id_Organizacion', caja);
         formData.append('Fecha', fecha);
-        
-        // Recopilar checkboxes marcados - FORMATO CORRECTO
+
         let temasSeleccionados = 0;
         $('.beneficiario-checkbox:checked').each(function() {
             let beneficiarioId = $(this).data('beneficiario');
             let moduloId = $(this).data('modulo');
             let temaId = $(this).data('tema');
-            
-            // Formato: recibio[beneficiario][modulo][tema] = 1
+
             let fieldName = `recibio[${beneficiarioId}][${moduloId}][${temaId}]`;
             formData.append(fieldName, '1');
             temasSeleccionados++;
-            
-            console.log(`Agregando: ${fieldName} = 1`);
         });
-        
-        console.log('Total temas seleccionados:', temasSeleccionados);
-        
+
         if (temasSeleccionados === 0) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Sin temas seleccionados',
-                text: 'Por favor seleccione al menos un tema para un beneficiario.',
+                text: 'Seleccione al menos un tema para algún beneficiario.',
                 confirmButtonColor: '#f39c12'
             });
             return;
         }
-        
-        // Mostrar loading
+
         Swal.fire({
             title: 'Guardando capacitación...',
             allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            didOpen: () => Swal.showLoading()
         });
-        
-        // Debug: Mostrar todos los datos que se envían
-        console.log('Datos a enviar:');
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
-        }
-        
-        // Enviar via AJAX
+
         $.ajax({
             url: "{{ route('capacitacion.store') }}",
             method: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
-                console.log('Capacitación guardada exitosamente');
-                
+            success: function() {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
                     text: 'Capacitación registrada correctamente.',
                     confirmButtonColor: '#28a745'
-                }).then(function() {
-                    // Recargar página para limpiar formulario
-                    location.reload();
-                });
+                }).then(() => location.reload());
             },
             error: function(xhr) {
-                console.error('Error al guardar capacitación:', xhr);
-                
                 let errorMessage = 'Hubo un error al registrar la capacitación.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
-                } else if (xhr.responseText) {
-                    console.log('Response text:', xhr.responseText);
                 }
-                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -711,86 +871,74 @@
         });
     }
 
-    // ========== FUNCIONES PARA REPORTE DE CAPACITACIONES ==========
-    
-    // Función para cargar reporte
+    // ================== REPORTE DE CAPACITACIONES ==================
     function cargarReporte() {
-        console.log('Cargando reporte de capacitaciones...');
-        
-        // Mostrar loading
         $('#loading-reporte').show();
-        $('#tbody-reporte').html('<tr><td colspan="5" class="text-center"><i class="fas fa-spinner fa-spin"></i> Generando reporte...</td></tr>');
+        $('#tbody-reporte').html(`
+            <tr>
+                <td colspan="5" class="text-center">
+                    <i class="fas fa-spinner fa-spin"></i> Generando reporte...
+                </td>
+            </tr>
+        `);
         $('#paginacion-reporte').hide();
-        
-        // Obtener filtros
+
         let filtros = {
             organizacion: $('#filtro_reporte_organizacion').val(),
             fecha_inicio: $('#filtro_reporte_fecha_inicio').val(),
             fecha_fin: $('#filtro_reporte_fecha_fin').val(),
-            page: 1 // Siempre empezar en la página 1 cuando se hace una nueva búsqueda
+            page: 1
         };
-        
-        console.log('Filtros del reporte:', filtros);
-        
-        // Llamada AJAX
+
         $.ajax({
             url: "{{ route('capacitaciones.reporte') }}",
             method: 'GET',
             data: filtros,
             success: function(response) {
                 $('#loading-reporte').hide();
-                
+
                 if (response.success && response.data.length > 0) {
                     cargarTablaReporte(response.data, response.pagination);
                 } else {
                     $('#tbody-reporte').html(`
                         <tr>
                             <td colspan="5" class="text-center text-muted">
-                                <i class="fas fa-search"></i> No se encontraron datos con los filtros aplicados
+                                <i class="fas fa-search"></i> No se encontraron datos con los filtros aplicados.
                             </td>
                         </tr>
                     `);
                     $('#paginacion-reporte').hide();
                 }
             },
-            error: function(xhr) {
+            error: function() {
                 $('#loading-reporte').hide();
-                console.error('Error cargando reporte:', xhr);
-                
                 $('#tbody-reporte').html(`
                     <tr>
                         <td colspan="5" class="text-center text-danger">
-                            <i class="fas fa-exclamation-triangle"></i> Error al cargar el reporte
+                            <i class="fas fa-exclamation-triangle"></i> Error al cargar el reporte.
                         </td>
                     </tr>
                 `);
-                
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'No se pudo cargar el reporte de capacitaciones',
+                    text: 'No se pudo cargar el reporte de capacitaciones.',
                     confirmButtonColor: '#dc3545'
                 });
             }
         });
     }
-    
-    // Función para cargar datos en la tabla de reporte
+
     function cargarTablaReporte(datos, pagination) {
-        console.log('Cargando', datos.length, 'registros en la tabla de reporte');
-        
         let html = '';
         datos.forEach(function(item) {
             let fechasHtml = item.fechas.map(fecha => {
                 return `<span class="badge badge-info mr-1">${new Date(fecha).toLocaleDateString('es-ES')}</span>`;
             }).join('');
-            
-            // Convertir nombres de módulos a formato "Módulo I", "Módulo II", etc.
-            let modulosHtml = item.modulos.map(modulo => {
-                let numeroModulo = convertirANumeroRomano(modulo);
-                return `<span class="mr-2">${numeroModulo}</span>`;
-            }).join('');
-            
+
+            let modulosHtml = item.modulos.map(m => convertirANumeroRomano(m)).join(' ');
+
             html += `
                 <tr>
                     <td class="align-middle">
@@ -799,30 +947,23 @@
                     <td class="align-middle">
                         <i class="fas fa-user text-info"></i> ${item.beneficiario}
                     </td>
-                    <td class="align-middle">
-                        ${fechasHtml}
-                    </td>
-                    <td class="align-middle">
-                        ${modulosHtml}
-                    </td>
+                    <td class="align-middle">${fechasHtml}</td>
+                    <td class="align-middle">${modulosHtml}</td>
                     <td class="text-center align-middle">
                         <span class="badge badge-warning">${item.total_temas}</span>
                     </td>
                 </tr>
             `;
         });
-        
+
         $('#tbody-reporte').html(html);
-        
-        // Mostrar información de paginación si existe
+
         if (pagination) {
             mostrarPaginacionReporte(pagination);
         }
     }
-    
-    // Función para convertir nombres de módulos a números romanos
+
     function convertirANumeroRomano(nombreModulo) {
-        // Mapeo básico para números romanos
         const numerosRomanos = {
             'MODULO I': 'Módulo I',
             'MODULO II': 'Módulo II', 
@@ -835,128 +976,146 @@
             'MODULO IX': 'Módulo IX',
             'MODULO X': 'Módulo X'
         };
-        
-        // Convertir a mayúsculas para la búsqueda
-        let nombreUpper = nombreModulo.toUpperCase();
-        
-        // Si encontramos una coincidencia exacta, devolverla
-        if (numerosRomanos[nombreUpper]) {
-            return numerosRomanos[nombreUpper];
-        }
-        
-        // Si contiene "MODULO" seguido de un número, convertirlo
-        if (nombreUpper.includes('MODULO')) {
-            // Extraer el número si está presente
-            let match = nombreUpper.match(/MODULO\s*(\d+)/);
+
+        let upper = nombreModulo.toUpperCase();
+        if (numerosRomanos[upper]) return numerosRomanos[upper];
+
+        if (upper.includes('MODULO')) {
+            let match = upper.match(/MODULO\s*(\d+)/);
             if (match) {
                 let numero = parseInt(match[1]);
                 return `Módulo ${convertirAromano(numero)}`;
             }
         }
-        
-        // Si no se puede convertir, devolver el original
         return nombreModulo;
     }
-    
-    // Función auxiliar para convertir números a romanos
+
     function convertirAromano(num) {
         const valores = [10, 9, 5, 4, 1];
         const simbolos = ['X', 'IX', 'V', 'IV', 'I'];
         let resultado = '';
-        
+
         for (let i = 0; i < valores.length; i++) {
             while (num >= valores[i]) {
                 resultado += simbolos[i];
                 num -= valores[i];
             }
         }
-        
         return resultado;
     }
-    
-    // Función para mostrar controles de paginación
+
     function mostrarPaginacionReporte(pagination) {
         let desde = ((pagination.current_page - 1) * pagination.per_page) + 1;
         let hasta = Math.min(pagination.current_page * pagination.per_page, pagination.total);
-        
+
         $('#info-registros').text(`Mostrando ${desde} a ${hasta} de ${pagination.total} registros`);
-        
+
         let paginationHtml = '';
-        
-        // Botón anterior
+
         if (pagination.current_page > 1) {
             paginationHtml += `
                 <li class="page-item">
-                    <a class="page-link" href="#" onclick="cargarPaginaReporte(${pagination.current_page - 1})">
+                    <a class="page-link" href="#" onclick="cargarPaginaReporte(${pagination.current_page - 1}); return false;">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 </li>
             `;
         }
-        
-        // Números de página
+
         let startPage = Math.max(1, pagination.current_page - 2);
         let endPage = Math.min(pagination.last_page, pagination.current_page + 2);
-        
+
         for (let i = startPage; i <= endPage; i++) {
             paginationHtml += `
                 <li class="page-item ${i === pagination.current_page ? 'active' : ''}">
-                    <a class="page-link" href="#" onclick="cargarPaginaReporte(${i})">${i}</a>
+                    <a class="page-link" href="#" onclick="cargarPaginaReporte(${i}); return false;">${i}</a>
                 </li>
             `;
         }
-        
-        // Botón siguiente
+
         if (pagination.current_page < pagination.last_page) {
             paginationHtml += `
                 <li class="page-item">
-                    <a class="page-link" href="#" onclick="cargarPaginaReporte(${pagination.current_page + 1})">
+                    <a class="page-link" href="#" onclick="cargarPaginaReporte(${pagination.current_page + 1}); return false;">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
             `;
         }
-        
+
         $('#pagination-controls').html(paginationHtml);
         $('#paginacion-reporte').show();
     }
-    
-    // Función para cargar una página específica
+
     function cargarPaginaReporte(page) {
+        $('#loading-reporte').show();
+        $('#tbody-reporte').html(`
+            <tr>
+                <td colspan="5" class="text-center">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando página...
+                </td>
+            </tr>
+        `);
+
         let filtros = {
             organizacion: $('#filtro_reporte_organizacion').val(),
             fecha_inicio: $('#filtro_reporte_fecha_inicio').val(),
             fecha_fin: $('#filtro_reporte_fecha_fin').val(),
             page: page
         };
-        
-        $('#loading-reporte').show();
-        $('#tbody-reporte').html('<tr><td colspan="5" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando página...</td></tr>');
-        
+
         $.ajax({
             url: "{{ route('capacitaciones.reporte') }}",
             method: 'GET',
             data: filtros,
             success: function(response) {
                 $('#loading-reporte').hide();
-                
                 if (response.success && response.data.length > 0) {
                     cargarTablaReporte(response.data, response.pagination);
                 }
             },
-            error: function(xhr) {
+            error: function() {
                 $('#loading-reporte').hide();
-                console.error('Error cargando página:', xhr);
-                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'No se pudo cargar la página solicitada',
+                    text: 'No se pudo cargar la página solicitada.',
                     confirmButtonColor: '#dc3545'
                 });
             }
         });
     }
 
+    // ================== INIT DOCUMENT ==================
+    $(document).ready(function() {
+        initSelect2();
+
+        $('#Id_Organizacion').on('change', function() {
+            const id = $(this).val();
+            const texto = $(this).find('option:selected').text();
+            $('#info-caja').text(id ? texto : 'No seleccionada');
+            cargarBeneficiariosSimplificado(id);
+            updateInfoDisplays();
+        });
+
+        $('#beneficiarios').on('change', updateInfoDisplays);
+        $('#Fecha').on('change', updateInfoDisplays);
+
+        // Persistencia de pestaña activa
+        $('button[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            localStorage.setItem('activeCapacitacionTab', e.target.id);
+        });
+        const activeTab = localStorage.getItem('activeCapacitacionTab');
+        if (activeTab && $('#' + activeTab).length) {
+            $('#' + activeTab).tab('show');
+        }
+
+        // Carga inicial si ya hay org seleccionada
+        const orgInicial = $('#Id_Organizacion').val();
+        if (orgInicial) {
+            cargarBeneficiariosSimplificado(orgInicial);
+        }
+        updateInfoDisplays();
+    });
 </script>
 @endsection

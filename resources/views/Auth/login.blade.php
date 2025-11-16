@@ -1,245 +1,277 @@
 @extends('adminlte::auth.auth-page', ['auth_type' => 'login'])
+
 @section('adminlte_css_pre')
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 <style>
+    /* -------------------- FONDO + BLUR -------------------- */
     body {
-        background: url('{{ asset('./images/funder2.png') }}') no-repeat center center fixed;
+        position: relative;
+        min-height: 100vh;
+        background: url('{{ asset('images/funder2.png') }}') no-repeat center center fixed;
         background-size: cover;
         font-family: 'Segoe UI', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 0;
     }
 
+    /* -------------------- TARJETA LOGIN -------------------- */
+    .login-card, .login-logo { position: relative; z-index: 2; }
 
     .login-card {
-        background-color: rgba(248, 243, 243, 0.97);
+        width: 100%;
+        max-width: 420px;
+        background-color: rgba(255,255,255,0.92);
         border-radius: 1.5rem;
-
-        box-shadow: 0 12px 40px rgba(91, 142, 62, 0.3);
-        animation: fadeInUp 0.8s ease forwards;
+        padding: 2rem;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+        animation: fadeInUp .8s ease forwards;
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(25px);
     }
 
-    @keyframes fadeInUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-10px);} 40%,80%{transform:translateX(10px);} }
+
+    .shake { animation: shake .4s ease; }
 
     .login-logo img {
-        width: 120px;
+        width: 110px;
+        max-width: 40vw;
         margin-bottom: 10px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        animation: fadeInLogo 1s ease;
     }
 
-    #Usuario {
-        text-transform: uppercase;
+    @keyframes fadeInLogo {
+        from { opacity: 0; transform: scale(0.9); }
+        to   { opacity: 1; transform: scale(1); }
     }
+
+    /* -------------------- INPUTS -------------------- */
+    #Usuario { text-transform: uppercase; }
 
     .input-group-text {
-        background-color: rgb(0, 0, 0);
-        color: rgb(0, 0, 0);
+        background-color: #000;
+        color: #fff;
         border: none;
         border-radius: 0.5rem 0 0 0.5rem;
     }
 
     .form-control {
-        border: 1px solidrgb(48, 75, 102);
+        border: 1px solid rgb(48,75,102);
         border-radius: 0 0.5rem 0.5rem 0;
         padding: 0.75rem 1rem;
         font-size: 1rem;
-        transition: all 0.2s ease-in-out;
+        transition: border-color .2s, background .2s;
     }
 
     .form-control:focus {
-        border-color: rgb(0, 0, 0);
-        box-shadow: 0 0 0 0.2rem rgba(162, 201, 78, 0.25);
+        border-color: #000;
+        box-shadow: 0 0 0 .2rem rgba(91,142,62,0.25);
     }
 
+    .valid-input { border-color: #2ecc71 !important; background: #eafaf1; }
+    .invalid-input { border-color: #e74c3c !important; background: #fdecea; }
+
+    #capsWarning {
+        font-size: .85rem;
+        color: #e74c3c;
+        margin-top: 5px;
+        display: none;
+    }
+
+    /* -------------------- BOTONES -------------------- */
     .btn-primary {
         background-color: #5B8E3E !important;
-        /* verde principal */
         border-color: #5B8E3E !important;
-        color: white !important;
-        border-radius: 0.75rem;
+        border-radius: .75rem;
         font-weight: bold;
-        font-size: 1.05rem;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        transition: .2s ease;
     }
 
     .btn-primary:hover {
-        background-color: rgb(46, 212, 115);
+        background-color: #2ed473 !important;
         transform: translateY(-2px);
     }
 
-    .btn-primary:active {
-        background-color: #2D6A4F !important;
-        /* verde oscuro */
-        border-color: #2D6A4F !important;
-        transform: translateY(-2px);
-        color: white !important;
+    /* -------------------- RESPONSIVE -------------------- */
+
+    /* Móviles muy pequeños */
+    @media (max-width: 380px) {
+        .login-card {
+            padding: 1.4rem;
+            border-radius: 1rem;
+        }
+        .login-logo img {
+            width: 85px;
+        }
+        .form-control {
+            font-size: 0.9rem;
+            padding: 0.65rem;
+        }
+        .btn-primary {
+            font-size: 0.9rem;
+        }
     }
 
-    a:focus {
-        color: #1B4332 !important;
-        text-decoration: underline;
+    /* Tablets */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .login-card {
+            max-width: 480px;
+            padding: 2.3rem;
+        }
+        .login-logo img {
+            width: 130px;
+        }
     }
 
-    .text-primary {
-        color: #5B8E3E !important;
+    /* Monitores grandes */
+    @media (min-width: 1400px) {
+        .login-card {
+            max-width: 450px;
+        }
     }
 
-    a {
-        color: rgb(0, 0, 0);
-        text-decoration: none;
-        transition: color 0.2s ease, text-decoration 0.2s ease;
-    }
-
-    a:hover {
-        color: rgb(0, 0, 0);
-        text-decoration: underline;
-    }
-
-    .invalid-feedback {
-        font-size: 0.875rem;
-    }
-
-    .small-text {
-        font-size: 0.9rem;
-    }
-
-    .input-group {
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
-        border-radius: 0.5rem;
-        overflow: hidden;
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+        .login-card {
+            background-color: rgba(20,20,20,0.85);
+            color: #fff;
+        }
+        .form-control {
+            background: #222;
+            color: #fff;
+            border-color: #555;
+        }
+        .form-control:focus {
+            border-color: #2ed473;
+            box-shadow: 0 0 0 .2rem rgba(46,212,115,0.25);
+        }
+        .input-group-text {
+            background: #2ed473;
+        }
     }
 </style>
 @stop
 
 
-
-
 @section('auth_header')
 <div class="login-logo text-center">
     <img src="{{ asset('images/cropped-cropped-logo-funder-1.webp') }}" alt="Logo FUNDER">
-    <h4 class="mt-3 text-success">Iniciar Sesión</h4>
+    <h4 class="mt-3 text-success fw-bold">Iniciar Sesión</h4>
 </div>
 @stop
 
+
 @section('auth_body')
-<div class="login-card">
-    <form action="{{ route('login') }}" method="post">
+<div class="login-card" id="loginCard">
+    <form action="{{ route('login') }}" method="post" id="loginForm" autocomplete="off">
         @csrf
 
-        {{-- Campo Usuario --}}
+        <!-- Usuario -->
         <div class="input-group mb-3">
-            <input type="text" name="Usuario" id="Usuario" maxlength="30" class="form-control @error('Usuario') is-invalid @enderror"
-                value="{{ old('Usuario') }}" placeholder="Usuario" autofocus>
-
+            <input type="text" name="Usuario" id="Usuario" maxlength="30"
+                   class="form-control" placeholder="Usuario">
             <div class="input-group-append">
-                <div class="input-group-text">
-                    <span class="fas fa-user"></span>
-                </div>
+                <div class="input-group-text"><span class="fas fa-user"></span></div>
             </div>
-
-            @error('Usuario')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
         </div>
-       {{-- Campo Contraseña --}}
-<div class="input-group mb-4">
-    <input type="password" name="Contraseña" id="Contraseña" maxlength="8"
-        class="form-control @error('Contraseña') is-invalid @enderror" placeholder="Contraseña">
 
-    {{-- Ojito para mostrar/ocultar contraseña --}}
-    <div class="input-group-append">
-        <div class="input-group-text" style="cursor: pointer;" id="togglePassword">
-            <span class="fas fa-eye" id="eyeIcon"></span>
-        </div>
-    </div>
-
-    @error('Contraseña')
-        <span class="invalid-feedback d-block" role="alert">
-            <strong>{{ $message }}</strong>
-        </span>
-    @enderror
-</div>
-
-{{-- Script directo para cambiar el tipo de input --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('Contraseña');
-        const eyeIcon = document.getElementById('eyeIcon');
-
-        togglePassword.addEventListener('click', function () {
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-
-            // Cambiar el ícono
-            eyeIcon.classList.toggle('fa-eye');
-            eyeIcon.classList.toggle('fa-eye-slash');
-        });
-    });
-</script>
-
-
-        {{-- Botón de ingreso --}}
-        <div class="row">
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary btn-block">
-                    {{ __('Iniciar sesión') }}
+        <!-- Contraseña -->
+        <div class="input-group mb-2">
+            <input type="password" name="Contraseña" id="Contraseña" maxlength="8"
+                   class="form-control" placeholder="Contraseña">
+            <div class="input-group-append">
+                <button type="button" class="input-group-text" id="togglePassword">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
                 </button>
             </div>
+        </div>
+
+        <div id="capsWarning"><i class="fas fa-exclamation-triangle"></i> Mayúsculas activadas</div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
         </div>
     </form>
 </div>
 @stop
 
+
 @section('auth_footer')
 <div class="mt-3 text-center">
-    <a href="{{ route('password.request') }}" class="text-primary">
-        <i class="fas fa-key"></i> {{ __('¿Olvidaste tu contraseña?') }}
+    <a href="{{ route('password.request') }}" class="text-primary fw-bold">
+        <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
     </a>
 </div>
 
 <div class="mt-2 text-center">
-    <span class="text-muted">{{ __('¿No tienes cuenta?') }}</span>
-    <a href="{{ route('register') }}" class="text-primary">
-        <i class="fas fa-user-plus"></i> {{ __('Regístrate aquí') }}
+    <span class="text-muted">¿No tienes cuenta?</span>
+    <a href="{{ route('register') }}" class="text-primary fw-bold">
+        <i class="fas fa-user-plus"></i> Regístrate aquí
     </a>
 </div>
+@stop
 
+
+@section('adminlte_js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const campos = ['Usuario', 'Contraseña'];
 
-    campos.forEach(id => {
-        const campo = document.getElementById(id);
+    /* Mostrar/Ocultar contraseña */
+    const toggle = document.getElementById('togglePassword');
+    const pass   = document.getElementById('Contraseña');
+    const icon   = document.getElementById('eyeIcon');
 
-        if (campo) {
-            // Bloquear clic derecho
-            campo.addEventListener('contextmenu', e => e.preventDefault());
-
-            // Bloquear combinaciones de teclado (Ctrl+C, Ctrl+V, Ctrl+X)
-            campo.addEventListener('keydown', e => {
-                if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
-                    e.preventDefault();
-                }
-            });
-
-            // Bloquear pegar (mouse, teclado o drag)
-            campo.addEventListener('paste', e => e.preventDefault());
-            campo.addEventListener('copy', e => e.preventDefault());
-            campo.addEventListener('cut', e => e.preventDefault());
-            campo.addEventListener('drop', e => e.preventDefault());
-        }
+    toggle.addEventListener('click', () => {
+        const show = pass.type === 'password';
+        pass.type = show ? 'text' : 'password';
+        icon.classList.toggle('fa-eye-slash', show);
+        icon.classList.toggle('fa-eye', !show);
     });
+
+    /* Validación visual */
+    function validarCampo(el) {
+        if (el.value.trim().length > 0) {
+            el.classList.add('valid-input');
+            el.classList.remove('invalid-input');
+        } else {
+            el.classList.add('invalid-input');
+            el.classList.remove('valid-input');
+        }
+    }
+
+    ['Usuario','Contraseña'].forEach(id => {
+        const input = document.getElementById(id);
+        input.addEventListener('input', () => validarCampo(input));
+    });
+
+    /* Caps Lock */
+    pass.addEventListener('keyup', e => {
+        document.getElementById('capsWarning').style.display =
+            e.getModifierState("CapsLock") ? "block" : "none";
+    });
+
+    /* Bloquear copiar/pegar */
+    ['Usuario','Contraseña'].forEach(id => {
+        const el = document.getElementById(id);
+        ['paste','copy','cut','drop','dragstart'].forEach(evt =>
+            el.addEventListener(evt, e => e.preventDefault())
+        );
+    });
+
 });
 </script>
-
-
-
 @stop

@@ -2,20 +2,36 @@
 
 @section('adminlte_css_pre')
 <style>
+    /* ============  FONDO + BLUR  ============ */
     body {
         background: url('{{ asset('images/funder2.png') }}') no-repeat center center fixed;
         background-size: cover;
         font-family: 'Segoe UI', sans-serif;
+        position: relative;
+        overflow-x: hidden;
     }
 
+    /* Capa difuminada accesible */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.30); 
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: -1;
+    }
+
+    /* ============  TARJETA  ============ */
     .login-card {
-        background-color: rgba(248, 243, 243, 0.97);
+        background-color: rgba(255, 255, 255, 0.90);
         border-radius: 1.5rem;
-        box-shadow: 0 12px 40px rgba(91, 142, 62, 0.3);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
         animation: fadeInUp 0.8s ease forwards;
         opacity: 0;
         transform: translateY(30px);
         padding: 2rem;
+        border: 1px solid rgba(0, 0, 0, 0.15);
     }
 
     @keyframes fadeInUp {
@@ -25,76 +41,94 @@
         }
     }
 
+    /* ============  LOGO  ============ */
     .login-logo img {
         width: 120px;
         margin-bottom: 10px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    /* ============  INPUTS  ============ */
+    .input-group {
+        border-radius: 0.6rem;
+        overflow: hidden;
+        border: 1px solid #1a1a1a;
+        background: white;
     }
 
     .input-group-text {
-        background-color: rgb(0, 0, 0);
+        background-color: #000;
         color: white;
-        border: none;
-        border-radius: 0.5rem 0 0 0.5rem;
+        padding: 0.75rem;
+        border: none !important;
     }
 
     .form-control {
-        border: 1px solid rgb(48, 75, 102);
-        border-radius: 0 0.5rem 0.5rem 0;
-        padding: 0.75rem 1rem;
+        border: none !important;
+        padding: 0.9rem 1rem;
         font-size: 1rem;
-        transition: all 0.2s ease-in-out;
+        background: white;
     }
 
     .form-control:focus {
-        border-color: rgb(0, 0, 0);
-        box-shadow: 0 0 0 0.2rem rgba(162, 201, 78, 0.25);
+        outline: none;
+        box-shadow: inset 0 0 0 2px #000;
     }
 
+    /* ============  BOTÓN PRINCIPAL  ============ */
     .btn-primary {
         background-color: #5B8E3E !important;
         border-color: #5B8E3E !important;
         color: white !important;
         border-radius: 0.75rem;
         font-weight: bold;
-        font-size: 1.05rem;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        padding: 0.85rem;
+        font-size: 1.08rem;
+        transition: 0.3s ease;
     }
 
     .btn-primary:hover {
-        background-color: rgb(46, 212, 115);
+        background-color: #3b6c2a !important;
         transform: translateY(-2px);
     }
 
     .btn-primary:active {
-        background-color: #2D6A4F !important;
-        border-color: #2D6A4F !important;
-        transform: translateY(-2px);
-        color: white !important;
+        background-color: #24481a !important;
+        transform: translateY(1px);
     }
 
+    /* ============  ERRORES  ============ */
     .invalid-feedback {
-        font-size: 0.875rem;
+        font-size: 0.85rem;
+        color: #b30000;
+        font-weight: 600;
     }
 
-    .input-group {
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
-        border-radius: 0.5rem;
-        overflow: hidden;
+    /* Link volver al login */
+    a {
+        font-weight: 600;
+        color: #003366 !important;
     }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
 </style>
 @stop
 
 @section('auth_header')
 <div class="login-logo text-center">
     <img src="{{ asset('images/cropped-cropped-logo-funder-1.webp') }}" alt="Logo FUNDER">
-    <h4 class="mt-3 text-success">Recuperar Contraseña</h4>
+    <h4 class="mt-3 text-success fw-bold">Recuperar Contraseña</h4>
 </div>
 @stop
 
 @section('auth_body')
 <div class="login-card">
+
     @if(session('status'))
-        <div class="alert alert-success">
+        <div class="alert alert-success shadow-sm">
             {{ session('status') }}
         </div>
     @endif
@@ -103,13 +137,21 @@
         @csrf
 
         <div class="input-group mb-3">
-            <input type="text" name="Usuario" id="Usuario" class="form-control @error('Usuario') is-invalid @enderror"
-                   value="{{ old('Usuario') }}" placeholder="Usuario" autofocus style="text-transform: uppercase;">
+            <input type="text"
+                   name="Usuario"
+                   id="Usuario"
+                   class="form-control @error('Usuario') is-invalid @enderror"
+                   value="{{ old('Usuario') }}"
+                   placeholder="Usuario"
+                   style="text-transform: uppercase;"
+                   autofocus>
+
             <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-user"></span>
                 </div>
             </div>
+
             @error('Usuario')
                 <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
@@ -117,21 +159,19 @@
             @enderror
         </div>
 
-        <div class="row">
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary btn-block w-100">
-                    {{ __('Enviar enlace de recuperación') }}
-                </button>
-            </div>
-        </div>
+        <button type="submit" class="btn btn-primary w-100 shadow-sm">
+            Enviar enlace de recuperación
+        </button>
+
     </form>
+
 </div>
 @stop
 
 @section('auth_footer')
 <div class="mt-3 text-center">
-    <a href="{{ route('login') }}" class="text-center">
-        {{ __('Volver al login') }}
+    <a href="{{ route('login') }}">
+        Volver al login
     </a>
 </div>
 @stop
@@ -140,6 +180,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const usuarioInput = document.getElementById('Usuario');
+
         if (usuarioInput) {
             usuarioInput.addEventListener('input', function () {
                 this.value = this.value.toUpperCase();

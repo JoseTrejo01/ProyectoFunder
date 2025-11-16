@@ -1,6 +1,6 @@
-<div class="form-group">
-    <label for="Id_Organizacion">Caja Rural</label>
-    <select name="Id_Organizacion" id="Id_Organizacion" class="form-control" required>
+<div class="form-group mb-3">
+    <label for="Id_Organizacion" class="form-label">Caja Rural</label>
+    <select name="Id_Organizacion" id="Id_Organizacion" class="form-select" required>
         <option value="">-- Seleccione --</option>
         @foreach($cajas as $caja)
             <option value="{{ $caja->Id_Organizacion }}">{{ $caja->Nombre_Organizacion }}</option>
@@ -8,52 +8,82 @@
     </select>
 </div>
 
-<div class="form-group">
-    <label for="Id_Beneficiario">Beneficiario</label>
-    <select name="Id_Beneficiario" id="Id_Beneficiario" class="form-control" required>
-        <option value="">-- Seleccione una Caja primero --</option>
+<div class="form-group mb-3">
+    <label for="Id_Beneficiario" class="form-label">Beneficiario</label>
+    <select name="Id_Beneficiario" id="Id_Beneficiario" class="form-select" required>
+        <option value="">Seleccione una Caja primero</option>
     </select>
 </div>
 
-<div class="form-group">
-    <label for="Monto">Monto</label>
+<div class="form-group mb-3">
+    <label for="Monto" class="form-label">Monto</label>
     <input type="number" step="0.01" name="Monto" id="Monto" class="form-control" required>
 </div>
 
-<div class="form-group">
-    <label for="Fecha">Fecha</label>
+<div class="form-group mb-3">
+    <label for="Fecha" class="form-label">Fecha</label>
     <input type="date" name="Fecha" id="Fecha" class="form-control" required>
 </div>
 
 @section('js')
 <script>
-    document.getElementById('Id_Organizacion').addEventListener('change', function () {
-        let id = this.value;
-        if (!id) {
-            document.getElementById('Id_Beneficiario').innerHTML = '<option value="">-- Seleccione una Caja primero --</option>';
-            return;
+
+document.getElementById('Id_Organizacion').addEventListener('change', async function () {
+
+    const id = this.value;
+    const beneficiariosSelect = document.getElementById('Id_Beneficiario');
+
+    if (!id) {
+        beneficiariosSelect.innerHTML = `<option value="">Seleccione una Caja primero</option>`;
+        return;
+    }
+
+    // Mostrar estado de carga
+    beneficiariosSelect.innerHTML = `<option value="">Cargando beneficiarios...</option>`;
+
+    try {
+        const response = await fetch(`/api/ahorros/caja/${id}/socios`);
+        const data = await response.json();
+
+        beneficiariosSelect.innerHTML = `<option value="">-- Seleccione un Beneficiario --</option>`;
+
+        // SOCIOS
+        if (data.socios?.length) {
+            data.socios.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s.Id_Beneficiario;
+                option.textContent = `${s.Nombre_Beneficiario} (Socio)`;
+                beneficiariosSelect.appendChild(option);
+            });
         }
 
-        fetch(`/api/ahorros/caja/${id}/socios`)
-            .then(res => res.json())
-            .then(data => {
-                let select = document.getElementById('Id_Beneficiario');
-                select.innerHTML = '<option value="">-- Seleccione un Beneficiario --</option>';
-
-                // Agregar socios primero
-                data.socios.forEach(socio => {
-                    select.innerHTML += `<option value="${socio.Id_Beneficiario}">${socio.Nombre_Beneficiario} (Socio)</option>`;
-                });
-
-                // Agregar no socios
-                data.no_socios.forEach(noSocio => {
-                    select.innerHTML += `<option value="${noSocio.Id_Beneficiario}">${noSocio.Nombre_Beneficiario} (No Socio)</option>`;
-                });
-            })
-            .catch(err => {
-                console.error(err);
-                alert('No se pudo cargar la lista de beneficiarios.');
+        // NO SOCIOS
+        if (data.no_socios?.length) {
+            data.no_socios.forEach(n => {
+                const option = document.createElement('option');
+                option.value = n.Id_Beneficiario;
+                option.textContent = `${n.Nombre_Beneficiario} (No Socio)`;
+                beneficiariosSelect.appendChild(option);
             });
-    });
+        }
+
+        // Si no hay beneficiarios
+        if (data.socios.length === 0 && data.no_socios.length === 0) {
+            beneficiariosSelect.innerHTML = `<option value="">No hay beneficiarios disponibles</option>`;
+        }
+
+    } catch (error) {
+        console.error(error);
+
+        beneficiariosSelect.innerHTML = `<option value="">Error al cargar</option>`;
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo cargar la lista de beneficiarios.',
+            confirmButtonColor: '#d33'
+        });
+    }
+});
 </script>
 @stop

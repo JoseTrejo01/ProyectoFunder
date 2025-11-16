@@ -3,78 +3,136 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    <div class="d-flex flex-column">
-        <h1>Dashboard</h1>
-        @auth
-            <h5 class="text-muted">Bienvenido, {{ auth()->user()->Nombre_Usuario }}</h5>
-        @else
-            <h5 class="text-muted">Bienvenido</h5>
-        @endauth
-    </div>
+<div class="d-flex flex-column" role="banner">
+    <h1 id="titulo-dashboard" class="fw-bold">Dashboard</h1>
+
+    @auth
+        <h5 class="text-muted" aria-label="Usuario autenticado">
+            Bienvenido, {{ auth()->user()->Nombre_Usuario }}
+        </h5>
+    @else
+        <h5 class="text-muted">Bienvenido</h5>
+    @endauth
+</div>
 @stop
 
 @section('content')
-<div class="card">
-  <div class="card-header"><h3 class="card-title">Comparativa Mensual</h3></div>
-  <div class="card-body">
-    <canvas id="multiChart" style="height: 200px;"></canvas>
-  </div>
+
+{{-- CARD DE COMPARATIVA --}}
+<div class="card shadow-sm" role="region" aria-labelledby="comparativa-titulo">
+    <div class="card-header text-white fw-semibold"
+         style="background-color:#0D47A1;">
+        <h3 id="comparativa-titulo" class="card-title mb-0">
+            Comparativa Mensual
+        </h3>
+    </div>
+
+    <div class="card-body">
+        <canvas id="multiChart"
+                style="height: 220px;"
+                role="img"
+                aria-label="Gráfico de líneas comparativo mensual"></canvas>
+    </div>
 </div>
 
+{{-- FILA DE TARJETAS --}}
 <div class="row mt-4 justify-content-center">
+
+    {{-- DONUT SOCIOS --}}
     <div class="col-lg-4 col-md-6 mb-3">
-        <div class="card h-100">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Distribución de Socios</h5>
+        <div class="card h-100 shadow-sm"
+             role="region"
+             aria-labelledby="chart-socios-titulo">
+
+            <div class="card-header text-white fw-semibold"
+                 style="background-color:#1B5E20;">
+                <h5 id="chart-socios-titulo" class="mb-0">
+                    Distribución de Socios
+                </h5>
             </div>
+
             <div class="card-body d-flex justify-content-center align-items-center">
-                <canvas id="sociosDoughnutChart" width="220" height="220" style="max-width:220px;max-height:220px;"></canvas>
+                <canvas id="sociosDoughnutChart"
+                        width="220" height="220"
+                        role="img"
+                        aria-label="Gráfico de distribución de socios"></canvas>
             </div>
         </div>
     </div>
+
+    {{-- BARRAS DE CARGOS --}}
     <div class="col-lg-8 col-md-12 mb-3">
-        <div class="card h-100">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Participación de Hombres y Mujeres en Cargos Directivos</h5>
+        <div class="card h-100 shadow-sm"
+             role="region"
+             aria-labelledby="chart-cargos-titulo">
+
+            <div class="card-header text-white fw-semibold"
+                 style="background-color:#F9A825; color:black;">
+                <h5 id="chart-cargos-titulo" class="mb-0">
+                    Participación de Hombres y Mujeres en Cargos Directivos
+                </h5>
             </div>
+
             <div class="card-body d-flex justify-content-center align-items-center">
-                <canvas id="cargosBarChart" width="440" height="220" style="max-width:440px;max-height:220px;"></canvas>
+                <canvas id="cargosBarChart"
+                        width="440" height="220"
+                        role="img"
+                        aria-label="Gráfico de barras de participación en cargos directivos"></canvas>
             </div>
         </div>
     </div>
+
 </div>
 @stop
 
 @section('css')
-    <!-- Agrega aquí los estilos adicionales si es necesario -->
+{{-- Área para estilos adicionales --}}
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
+    /* ============================
+       CARGAR GRÁFICO MULTISERIES
+       ============================ */
     const params = new URLSearchParams();
-    ['evaluacion', 'socios', 'emprendimientos', 'organizacion'].forEach(m => params.append('modules[]', m));
+    ['evaluacion', 'socios', 'emprendimientos', 'organizacion']
+        .forEach(m => params.append('modules[]', m));
+
     const url = "{{ route('dashboard.chart-data') }}?" + params.toString();
 
     fetch(url)
         .then(res => res.json())
         .then(json => {
             const ctx = document.getElementById('multiChart').getContext('2d');
+
             new Chart(ctx, {
                 type: 'line',
-                data: { labels: json.labels, datasets: json.datasets },
+                data: {
+                    labels: json.labels,
+                    datasets: json.datasets
+                },
                 options: {
                     responsive: true,
                     scales: { y: { beginAtZero: true } },
                     interaction: { mode: 'nearest', intersect: true },
-                    plugins: { tooltip: { enabled: true } }
+                    plugins: {
+                        tooltip: { enabled: true }
+                    }
                 }
             });
         })
         .catch(console.error);
 
+
+    /* ============================
+         GRÁFICO DONUT SOCIOS
+       ============================ */
     const ctxSocios = document.getElementById('sociosDoughnutChart')?.getContext('2d');
+
     if (ctxSocios) {
         new Chart(ctxSocios, {
             type: 'doughnut',
@@ -88,23 +146,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         {{ $noSocios ?? 0 }}
                     ],
                     backgroundColor: [
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(201, 203, 207, 0.7)'
+                        '#0D47A1CC',  // azul
+                        '#B71C1CCC',  // rojo
+                        '#F9A825CC',  // amarillo
+                        '#424242CC'   // gris
                     ],
                     borderColor: [
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(201, 203, 207, 1)'
+                        '#0D47A1',
+                        '#B71C1C',
+                        '#F9A825',
+                        '#424242'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: false,
-                cutout: '65%',
+                cutout: '60%',
                 plugins: {
                     legend: { position: 'bottom' },
                     title: { display: false }
@@ -113,7 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
+    /* ============================
+         GRÁFICO BARRAS CARGOS
+       ============================ */
     const ctxBar = document.getElementById('cargosBarChart')?.getContext('2d');
+
     if (ctxBar) {
         new Chart(ctxBar, {
             type: 'bar',
@@ -128,11 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [
                     {
                         label: 'Hombres',
-                        backgroundColor: '#36a2eb',
-                        borderColor: '#1e90ff',
+                        backgroundColor: '#0D47A1',
+                        borderColor: '#08306b',
                         borderWidth: 2,
-                        borderRadius: 12,
-                        hoverBackgroundColor: '#1e90ff',
+                        borderRadius: 10,
+                        hoverBackgroundColor: '#08306b',
                         data: [
                             {{ $participacionCargos['presidente']['H'] ?? 0 }},
                             {{ $participacionCargos['secretario']['H'] ?? 0 }},
@@ -143,11 +206,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     {
                         label: 'Mujeres',
-                        backgroundColor: '#ff6384',
-                        borderColor: '#e75480',
+                        backgroundColor: '#B71C1C',
+                        borderColor: '#7f0000',
                         borderWidth: 2,
-                        borderRadius: 12,
-                        hoverBackgroundColor: '#e75480',
+                        borderRadius: 10,
+                        hoverBackgroundColor: '#7f0000',
                         data: [
                             {{ $participacionCargos['presidente']['M'] ?? 0 }},
                             {{ $participacionCargos['secretario']['M'] ?? 0 }},
@@ -164,39 +227,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 plugins: {
                     legend: {
                         position: 'top',
-                        labels: {
-                            font: { size: 15, weight: 'bold' }
-                        }
+                        labels: { font: { size: 14, weight: 'bold' } }
                     },
                     tooltip: {
                         enabled: true,
                         backgroundColor: '#fff',
+                        borderColor: '#0D47A1',
+                        borderWidth: 1,
                         titleColor: '#333',
                         bodyColor: '#333',
-                        borderColor: '#36a2eb',
-                        borderWidth: 1,
                         padding: 10,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.x;
-                            }
-                        }
                     }
                 },
                 scales: {
                     x: {
                         beginAtZero: true,
                         grid: { color: '#e0e0e0', borderDash: [4, 4] },
-                        ticks: { font: { size: 13 } }
+                        ticks: { font: { size: 12 } }
                     },
                     y: {
                         grid: { color: '#e0e0e0', borderDash: [4, 4] },
-                        ticks: { font: { size: 13 } }
+                        ticks: { font: { size: 12 } }
                     }
                 }
             }
         });
     }
+
 });
 </script>
 @stop
