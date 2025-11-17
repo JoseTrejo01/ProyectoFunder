@@ -188,15 +188,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cargos/export', [SocioController::class, 'exportCargos'])->name('cargos.export');
     Route::get('/cargos/export-pdf', [SocioController::class, 'exportCargosPdf'])->name('cargos.export-pdf');
 
-    Route::resource('ahorros', AhorroController::class);
-    Route::get('/ahorros/resumen', [AhorroController::class, 'resumenGeneral'])->name('ahorros.resumen');
-    Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])->name('ahorros.ficha');
-    Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])->name('ahorros.export-pdf');
-    Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])->name('ahorros.socios');
-    Route::get('ahorros/reporte/pdf', [AhorroController::class, 'reportePDF'])->name('ahorros.reportePDF');
-    Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
-        'total_socios' => DB::table('tbl_beneficiario')->where('Id_Organizacion', $id)->where('Tipo_De_Socio', 'Socio')->count()
-    ]))->name('organizacion.socios.count');
+    Route::get('/ahorros/resumen', [AhorroController::class, 'resumenGeneral'])
+    ->name('ahorros.resumen');
+
+Route::get('/ahorros/{id}/ficha', [AhorroController::class, 'ficha'])
+    ->name('ahorros.ficha');
+
+Route::get('/ahorros/export-pdf', [AhorroController::class, 'exportPdf'])
+    ->name('ahorros.export-pdf');
+
+Route::get('/api/ahorros/caja/{id}/socios', [AhorroController::class, 'obtenerSocios'])
+    ->name('ahorros.socios');
+
+Route::get('ahorros/reporte/pdf', [AhorroController::class, 'reportePDF'])
+    ->name('ahorros.reportePDF');
+Route::delete('/ahorros/{ahorro}', [AhorroController::class, 'destroy'])->name('ahorros.destroy');
+
+
+
+
+Route::get('/organizacion/{id}/socios', fn ($id) => response()->json([
+    'total_socios' => DB::table('tbl_beneficiario')
+        ->where('Id_Organizacion', $id)
+        ->where('Tipo_De_Socio', 'Socio')
+        ->count()
+]))->name('organizacion.socios.count');
+
+
+Route::resource('ahorros', AhorroController::class);
     
     Route::resource('emprendimientos', EmprendimientoController::class)->except(['show']);
     Route::get('emprendimientos/export/pdf', [EmprendimientoController::class, 'exportPdf'])->name('emprendimientos.export.pdf');

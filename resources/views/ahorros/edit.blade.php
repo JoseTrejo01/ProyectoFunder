@@ -42,7 +42,7 @@
                 <div class="form-group">
                     <label for="Fecha">Fecha</label>
                     <input type="date" name="Fecha" id="Fecha" class="form-control" required
-                        value="{{ old('Fecha', $ahorro->Fecha->format('Y-m-d')) }}">
+       value="{{ old('Fecha', $ahorro->Fecha) }}">
                 </div>
 
                 <button type="submit" class="btn btn-primary">Actualizar Ahorro</button>
