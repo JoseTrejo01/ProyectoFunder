@@ -3,17 +3,17 @@
 @section('title', 'Socio/Clientes')
 
 @section('content_header')
-<h1 id="titulo-listado-socios" class="fw-bold">Listado de Socios</h1>
+<h1 id="titulo-listado-socios" class="fw-bold text-dark">Listado de Socios</h1>
 @stop
 
 @section('content')
 
 {{-- BOTONES SUPERIORES --}}
-<div class="mb-3 d-flex justify-content-between" role="navigation" aria-label="Acciones principales">
+<div class="mb-3 d-flex justify-content-between flex-wrap" role="navigation" aria-label="Acciones principales">
 
     <a href="{{ route('socios.create') }}"
        class="btn text-white fw-semibold"
-       style="background-color:#0D47A1;"
+       style="background-color:#1b263b;"
        aria-label="Crear nuevo socio">
         <i class="fas fa-plus"></i> Nuevo Socio
     </a>
@@ -66,54 +66,54 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 @endif
 
-{{-- BUSCADOR --}}
+{{-- FORMULARIO DE BÚSQUEDA --}}
 <form method="GET"
       action="{{ route('socios.index') }}"
-      class="mb-3"
-      role="search"
-      aria-label="Formulario de búsqueda de socios">
+      class="mb-3 p-3 rounded shadow-sm border"
+      style="background:#f8f9fa;"
+      aria-label="Formulario de filtros de búsqueda de socios">
 
     <div class="row g-2">
 
         <div class="col-md-2">
+            <label class="form-label text-dark fw-semibold">Buscar</label>
             <input type="text"
                    name="search"
-                   class="form-control"
-                   placeholder="Buscar nombre, DNI, teléfono"
-                   aria-label="Buscar por nombre, DNI o teléfono"
+                   class="form-control border-dark"
+                   placeholder="Nombre, DNI, teléfono"
                    value="{{ request('search') }}">
         </div>
 
         <div class="col-md-2">
-            <select name="genero"
-                    class="form-control"
-                    aria-label="Filtrar por género">
-                <option value="">Género</option>
+            <label class="form-label text-dark fw-semibold">Género</label>
+            <select name="genero" class="form-control border-dark">
+                <option value="">Todos</option>
                 <option value="M" {{ request('genero')=='M' ? 'selected' : '' }}>Masculino</option>
                 <option value="F" {{ request('genero')=='F' ? 'selected' : '' }}>Femenino</option>
             </select>
         </div>
 
         <div class="col-md-2">
+            <label class="form-label text-dark fw-semibold">Localidad</label>
             <input type="text"
                    name="localidad"
-                   class="form-control"
+                   class="form-control border-dark"
                    placeholder="Localidad"
-                   aria-label="Filtrar por localidad"
                    value="{{ request('localidad') }}">
         </div>
 
         <div class="col-md-2">
+            <label class="form-label text-dark fw-semibold">Tipo</label>
             <input type="text"
                    name="tipo"
-                   class="form-control"
+                   class="form-control border-dark"
                    placeholder="Tipo de socio"
-                   aria-label="Filtrar por tipo de socio"
                    value="{{ request('tipo') }}">
         </div>
 
         <div class="col-md-2">
-            <select name="estado" class="form-control" aria-label="Filtrar por estado">
+            <label class="form-label text-dark fw-semibold">Estado</label>
+            <select name="estado" class="form-control border-dark">
                 <option value="">Todos</option>
                 <option value="1" {{ request('estado')=='1' ? 'selected' : '' }}>Activo</option>
                 <option value="0" {{ request('estado')=='0' ? 'selected' : '' }}>Inactivo</option>
@@ -121,46 +121,56 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
 
         {{-- FILTROS EXTENDIDOS --}}
-        <div class="col-md-2 mt-2">
-            <select name="departamento" class="form-control" aria-label="Filtrar por departamento">
-                <option value="">Departamento</option>
-                @foreach(["Atlántida","Choluteca","Colón","Comayagua","Copán","Cortés","El Paraíso","Francisco Morazán","Gracias a Dios","Intibucá","Islas de la Bahía","La Paz","Lempira","Ocotepeque","Olancho","Santa Bárbara","Valle","Yoro"] as $dep)
-                    <option value="{{ $dep }}" {{ request('departamento') == $dep ? 'selected' : '' }}>{{ $dep }}</option>
+        <div class="col-md-2">
+            <label class="form-label text-dark fw-semibold">Departamento</label>
+            <select name="departamento" class="form-control border-dark">
+                <option value="">Todos</option>
+                @foreach(["Atlántida","Choluteca","Colón","Comayagua","Copán","Cortés","El Paraíso",
+                          "Francisco Morazán","Gracias a Dios","Intibucá","Islas de la Bahía",
+                          "La Paz","Lempira","Ocotepeque","Olancho","Santa Bárbara","Valle","Yoro"] as $dep)
+                    <option value="{{ $dep }}" {{ request('departamento') == $dep ? 'selected' : '' }}>
+                        {{ $dep }}
+                    </option>
                 @endforeach
             </select>
         </div>
 
-        <div class="col-md-2 mt-2">
-            <select name="estado_civil" class="form-control" aria-label="Filtrar por estado civil">
-                <option value="">Estado Civil</option>
+        <div class="col-md-2">
+            <label class="form-label text-dark fw-semibold">Estado Civil</label>
+            <select name="estado_civil" class="form-control border-dark">
+                <option value="">Todos</option>
                 @foreach(["Soltero(a)","Casado(a)","Unión Libre","Viudo(a)"] as $ec)
-                    <option value="{{ $ec }}" {{ request('estado_civil') == $ec ? 'selected' : '' }}>{{ $ec }}</option>
+                    <option value="{{ $ec }}" {{ request('estado_civil') == $ec ? 'selected' : '' }}>
+                        {{ $ec }}
+                    </option>
                 @endforeach
             </select>
         </div>
 
-        <div class="col-md-2 mt-2">
-            <select name="nivel_educativo" class="form-control" aria-label="Filtrar por nivel educativo">
-                <option value="">Nivel Educativo</option>
+        <div class="col-md-2">
+            <label class="form-label text-dark fw-semibold">Educación</label>
+            <select name="nivel_educativo" class="form-control border-dark">
+                <option value="">Todos</option>
                 @foreach(["Sin estudios","Educación básica","Educación media","Educación superior"] as $nivel)
-                    <option value="{{ $nivel }}" {{ request('nivel_educativo') == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
+                    <option value="{{ $nivel }}" {{ request('nivel_educativo') == $nivel ? 'selected' : '' }}>
+                        {{ $nivel }}
+                    </option>
                 @endforeach
             </select>
         </div>
 
-        <div class="col-md-2 mt-2">
+        <div class="col-md-2">
+            <label class="form-label text-dark fw-semibold">Edad</label>
             <input type="number"
                    name="edad"
-                   class="form-control"
+                   class="form-control border-dark"
                    placeholder="Edad"
-                   aria-label="Filtrar por edad"
                    value="{{ request('edad') }}">
         </div>
 
-        <div class="col-md-2 mt-2">
+        <div class="col-md-2 d-flex align-items-end">
             <button class="btn text-white w-100 fw-semibold"
-                    style="background-color:#0D47A1;"
-                    aria-label="Realizar búsqueda">
+                    style="background-color:#1b263b;">
                 <i class="fas fa-search"></i> Buscar
             </button>
         </div>
@@ -169,14 +179,12 @@ document.addEventListener('DOMContentLoaded', function () {
 </form>
 
 {{-- TABLA --}}
-<div class="table-responsive" role="region" aria-labelledby="titulo-listado-socios">
+<div class="table-responsive">
     <table id="tabla-socios"
-           class="table table-bordered table-striped table-hover shadow-sm"
-           role="table">
+           class="table table-bordered table-striped table-hover shadow-sm">
 
-        <thead class="text-white"
-               style="background-color:#0D47A1;">
-            <tr role="row">
+        <thead class="text-white" style="background-color:#1b263b;">
+            <tr>
                 <th>Nombre</th>
                 <th>Caja Rural</th>
                 <th>DNI</th>
@@ -193,52 +201,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>{{ $socio->DNI }}</td>
                 <td>{{ $socio->Telefono }}</td>
 
-                {{-- ACCIONES --}}
                 <td class="text-center">
+                    <div class="d-flex justify-content-center gap-1 flex-wrap">
 
-                    <div class="d-flex justify-content-center flex-wrap">
-
-                        {{-- EDITAR --}}
                         <button class="btn btn-sm text-white"
-                                style="background-color:#0D47A1;"
+                                style="background-color:#1b263b;"
                                 data-bs-toggle="modal"
-                                data-bs-target="#modalEditarSocio{{ $socio->Id_Beneficiario }}"
-                                aria-label="Editar socio {{ $socio->Nombre_Beneficiario }}">
+                                data-bs-target="#modalEditarSocio{{ $socio->Id_Beneficiario }}">
                             <i class="fas fa-edit"></i>
                         </button>
 
-                        {{-- FICHA --}}
                         <a href="{{ route('socios.ficha', $socio->Id_Beneficiario) }}"
                            class="btn btn-sm text-white"
-                           style="background-color:#424242;"
-                           aria-label="Ver ficha del socio {{ $socio->Nombre_Beneficiario }}">
+                           style="background-color:#424242;">
                             <i class="fas fa-eye"></i>
                         </a>
 
-                        {{-- ESTADO --}}
                         @if($socio->estado == 1)
                         <form method="POST"
-                              action="{{ route('socios.destroy', $socio->Id_Beneficiario) }}"
-                              class="mx-1">
+                              action="{{ route('socios.destroy', $socio->Id_Beneficiario) }}">
                             @csrf
                             @method('DELETE')
-
                             <button class="btn btn-sm text-white"
                                     style="background-color:#B71C1C;"
-                                    onclick="return confirmarEliminacion(event)"
-                                    aria-label="Inactivar socio {{ $socio->Nombre_Beneficiario }}">
+                                    onclick="return confirmarEliminacion(event)">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
                         @else
                         <form method="POST"
-                              action="{{ route('socios.reactivar', $socio->Id_Beneficiario) }}"
-                              class="mx-1">
+                              action="{{ route('socios.reactivar', $socio->Id_Beneficiario) }}">
                             @csrf
                             <button class="btn btn-sm text-white"
                                     style="background-color:#1B5E20;"
-                                    onclick="return confirm('¿Seguro de reactivar este socio?')"
-                                    aria-label="Reactivar socio {{ $socio->Nombre_Beneficiario }}">
+                                    onclick="return confirm('¿Seguro de reactivar este socio?')">
                                 <i class="fas fa-check"></i>
                             </button>
                         </form>
@@ -247,9 +243,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </td>
             </tr>
-
-            {{-- MODALES (los dejé sin tocar para no romper funcionalidad) --}}
-
         @empty
             <tr>
                 <td colspan="5" class="text-center text-muted py-3">
@@ -264,10 +257,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 @stop
 
-{{-- JS (No se modifica ninguna funcionalidad) --}}
 @section('js')
 @parent
 <script>
-// Todo tu JS queda igual
+// JS sin cambios
 </script>
 @endsection
