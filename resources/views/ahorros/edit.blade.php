@@ -60,6 +60,7 @@
                 </select>
             </div>
 
+<<<<<<< HEAD
             {{-- MONTO --}}
             <div class="form-group mb-3">
                 <label for="Monto" class="fw-semibold text-dark">Monto (Lps)</label>
@@ -67,6 +68,13 @@
                        name="Monto" id="Monto" class="form-control border-dark"
                        value="{{ old('Monto', $ahorro->Monto) }}" required>
             </div>
+=======
+                <div class="form-group">
+                    <label for="Fecha">Fecha</label>
+                    <input type="date" name="Fecha" id="Fecha" class="form-control" required
+       value="{{ old('Fecha', $ahorro->Fecha) }}">
+                </div>
+>>>>>>> origin/cambios-seguridad
 
             {{-- FECHA --}}
             <div class="form-group mb-3">
