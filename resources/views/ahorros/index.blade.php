@@ -122,19 +122,22 @@
 
                             {{-- ACCIONES --}}
                             <td>
-                                <a href="{{ route('ahorros.edit', $ahorro->id) }}" 
+                                {{-- BOTÓN EDITAR - REPARADO --}}
+                                <a href="{{ route('ahorros.edit', $ahorro->id_Ahorro) }}" 
                                    class="btn btn-sm btn-primary shadow-sm" 
                                    title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
 
-                                <a href="{{ route('ahorros.ficha', $ahorro->id) }}" 
+                                {{-- BOTÓN FICHA - REPARADO --}}
+                                <a href="{{ route('ahorros.ficha', $ahorro->id_Ahorro) }}" 
                                    class="btn btn-sm btn-dark shadow-sm mx-1" 
                                    title="Ficha">
                                     <i class="fas fa-eye"></i>
                                 </a>
 
-                                <form action="{{ route('ahorros.destroy', $ahorro->id) }}" 
+                                {{-- BOTÓN ELIMINAR - REPARADO --}}
+                                <form action="{{ route('ahorros.destroy', $ahorro->id_Ahorro) }}" 
                                       method="POST" 
                                       class="d-inline"
                                       onsubmit="return confirmarEliminacion(event)">
