@@ -17,43 +17,74 @@
             color: #000;
         }
 
-        /* ENCABEZADO */
+        /* ---------- ENCABEZADO FUNDER ---------- */
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 1.8px solid #0D47A1;
-            padding-bottom: 10px;
+            align-items: flex-start;
+            border-bottom: 2px solid #0D47A1;
+            padding-bottom: 8px;
             margin-bottom: 10px;
         }
 
         .left-info {
-            font-size: 10px;
-            color: #333;
+            font-size: 9px;
+            line-height: 1.4;
+            max-width: 35%;
+        }
+
+        .left-info-title {
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 4px;
+            color: #0D47A1;
+            text-transform: uppercase;
         }
 
         .center-title {
             text-align: center;
             flex-grow: 1;
             font-weight: bold;
-            font-size: 14px;
             color: #0D47A1;
-            line-height: 1.2;
+            line-height: 1.3;
         }
 
-        .center-title div:first-child {
+        .center-title .main {
             font-size: 15px;
         }
 
-        .logo img {
+        .center-title .sub {
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .logo-qr {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .logo-qr img.logo {
             height: 55px;
         }
 
-        /* TABLA */
+        .qr-box img {
+            width: 65px;
+            height: 65px;
+        }
+
+        .qr-box {
+            text-align: center;
+            font-size: 8px;
+            color: #444;
+        }
+
+        /* ---------- TABLA ---------- */
         .table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
+            margin-top: 10px;
             font-size: 10px;
         }
 
@@ -65,7 +96,7 @@
         }
 
         .table th {
-            background-color: #E3ECF9; /* Azul muy claro FUNDER */
+            background-color: #E3ECF9;
             font-weight: bold;
             color: #0D47A1;
         }
@@ -82,23 +113,37 @@
 </head>
 <body>
 
-{{-- ENCABEZADO --}}
-<div class="header">
+{{-- ------------ ENCABEZADO ESTILO FUNDER ------------ --}}
+<header class="header">
     <div class="left-info">
-        FECHA: {{ now()->format('Y/m/d') }}
+        <div class="left-info-title">FUNDER</div>
+        <div>Fecha de emisión: {{ now()->format('Y/m/d') }}</div>
+        <div>Dirección: ___________________________</div>
+        <div>Tel.: _______________</div>
+        <div>Correo: info@funder.org.hn</div>
+        <div>Sitio web: https://funder.org.hn/</div>
     </div>
 
     <div class="center-title">
-        <div>FUNDER</div>
-        <div>Reporte de Socios</div>
+        <div class="main">FUNDER</div>
+        <div class="sub">Reporte de Socios</div>
+        <div style="font-size: 11px; margin-top:3px; font-weight: normal;">
+            Listado de socios y clientes registrados
+        </div>
     </div>
 
-    <div class="logo">
-        <img src="{{ public_path('images/cropped-cropped-logo-funder-1.webp') }}" alt="Logo Funder">
-    </div>
-</div>
+    <div class="logo-qr">
+        <img src="{{ public_path('images/cropped-cropped-logo-funder-1.webp') }}" class="logo" alt="Logo Funder">
 
-{{-- TABLA --}}
+        <div class="qr-box">
+            <div>Ir al Sitio Web</div>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://funder.org.hn/"
+                 alt="Código QR Funder">
+        </div>
+    </div>
+</header>
+
+{{-- ------------ TABLA REPORTES ------------ --}}
 <table class="table" role="table" aria-label="Tabla de reporte de socios">
     <thead>
         <tr role="row">
@@ -145,15 +190,16 @@
     </tbody>
 </table>
 
-{{-- PIE DE PÁGINA --}}
+
+{{-- ------------ PIE DE PÁGINA ------------ --}}
 @if (isset($pdf))
     <script type="text/php">
         if (isset($pdf)) {
             $font = $fontMetrics->getFont("DejaVu Sans", "normal");
             $size = 9;
-            $pageText = "Página {PAGE_NUM} de {PAGE_COUNT}";
+            $pageText = "Página {PAGE_NUM} de {PAGE_COUNT}  |  https://funder.org.hn/";
             $width = $pdf->get_width();
-            $x = $width - 120;
+            $x = $width - 220;
             $y = $pdf->get_height() - 28;
             $pdf->page_text($x, $y, $pageText, $font, $size, [0,0,0]);
         }
