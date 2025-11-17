@@ -1,10 +1,6 @@
 @extends('adminlte::page')
 
-<<<<<<< HEAD
-@section('title', 'Editar Ahorro')
-=======
 @section('title', 'Ficha del Ahorro')
->>>>>>> origin/cambios-seguridad
 
 @section('content_header')
     <h1 class="fw-bold text-dark">Editar Ahorro</h1>

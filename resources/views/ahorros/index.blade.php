@@ -15,16 +15,7 @@
         <a href="{{ route('ahorros.create') }}" class="btn btn-success shadow-sm">
             <i class="fas fa-plus-circle"></i> Nuevo Ahorro
         </a>
-<<<<<<< HEAD
-
-        <a href="{{ route('ahorros.reportePDF', request()->query()) }}" 
-           class="btn btn-danger shadow-sm" 
-           target="_blank">
-            <i class="fas fa-file-pdf"></i> Exportar PDF
-        </a>
-=======
       
->>>>>>> origin/cambios-seguridad
     </div>
 </div>
 @stop
